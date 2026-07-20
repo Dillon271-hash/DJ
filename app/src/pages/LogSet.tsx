@@ -2,6 +2,7 @@ import { useMemo, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEncoreStore } from "../lib/store";
 import { RateSheet } from "../components/RateSheet";
+import { ArtistAutocomplete } from "../components/ArtistAutocomplete";
 import type { DraftLog } from "../lib/types";
 
 interface RecentArtist {
@@ -74,12 +75,12 @@ export function LogSet() {
         <form onSubmit={handleDetailsContinue}>
           <div className="field">
             <label htmlFor="artist">Artist</label>
-            <input
+            <ArtistAutocomplete
               id="artist"
               value={pending.artist}
-              onChange={(e) => setPending({ ...pending, artist: e.target.value })}
+              onChange={(artist) => setPending({ ...pending, artist })}
+              recents={recents.map((r) => r.artist)}
               placeholder="e.g. Jamie xx (or Artist b2b Artist)"
-              required
             />
           </div>
           <div className="field">
