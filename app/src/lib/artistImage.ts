@@ -1,12 +1,12 @@
-// Looks up a real photo for an artist via Wikipedia's public, keyless,
-// CORS-enabled API. There's no image-search API we can call from a
+// Looks up a real photo for an artist from two public, keyless,
+// CORS-enabled APIs. There's no image-search API we can call from a
 // browser without a paid key and a backend to hide it behind, so this is
-// the closest honest equivalent: search Wikipedia for the artist, then
-// pull the lead image off the best-matching page. Callers should treat a
-// null result (no page, no image, network error) as "show a fallback
-// avatar," not as an error to surface.
-
-const NON_BIO_TITLE = /:|discography|\(album\)|\(ep\)|\(song\)|\(mixtape\)|\(film\)|\(tv series\)/i;
+// the closest honest equivalent: check Wikipedia first (usually better
+// for legacy/crossover artists), then Deezer's artist catalog (usually
+// better for newer club-circuit DJs who don't have a Wikipedia bio yet
+// but do have a promo photo on every streaming service). Callers should
+// treat a null result (no page, no image, network error) as "show a
+// fallback avatar," not as an error to surface.
 
 const cache = new Map<string, string | null>();
 
@@ -17,13 +17,15 @@ export async function fetchArtistImage(name: string, signal?: AbortSignal): Prom
   const key = query.toLowerCase();
   if (cache.has(key)) return cache.get(key)!;
 
-  const result = await lookup(query, signal);
+  const result = (await lookupWikipedia(query, signal)) ?? (await lookupDeezer(query, signal));
   // Only cache a settled result — never cache an in-flight abort as "no image."
   if (!signal?.aborted) cache.set(key, result);
   return result;
 }
 
-async function lookup(query: string, signal?: AbortSignal): Promise<string | null> {
+const NON_BIO_TITLE = /:|discography|\(album\)|\(ep\)|\(song\)|\(mixtape\)|\(film\)|\(tv series\)/i;
+
+async function lookupWikipedia(query: string, signal?: AbortSignal): Promise<string | null> {
   try {
     const searchUrl =
       "https://en.wikipedia.org/w/api.php?action=query&list=search&format=json&origin=*&srlimit=5&srsearch=" +
@@ -45,6 +47,37 @@ async function lookup(query: string, signal?: AbortSignal): Promise<string | nul
       if (img) return img;
     }
     return null;
+  } catch {
+    return null;
+  }
+}
+
+interface DeezerArtist {
+  name: string;
+  picture_big?: string;
+  picture_medium?: string;
+  nb_fan?: number;
+}
+
+// Deezer's catalog search is scoped to music artists already, so it
+// doesn't have Wikipedia's "same word, totally different topic" problem
+// — but two different artists can still share a stage name, so this
+// only trusts an exact (case-insensitive) name match, and picks the one
+// with the most fans if there's more than one.
+async function lookupDeezer(query: string, signal?: AbortSignal): Promise<string | null> {
+  try {
+    const url = "https://api.deezer.com/search/artist?limit=10&q=" + encodeURIComponent(query);
+    const res = await fetch(url, { signal });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const results: DeezerArtist[] = json?.data ?? [];
+
+    const q = query.trim().toLowerCase();
+    const exact = results
+      .filter((r) => r.name?.trim().toLowerCase() === q && (r.picture_big || r.picture_medium))
+      .sort((a, b) => (b.nb_fan ?? 0) - (a.nb_fan ?? 0));
+
+    return exact[0]?.picture_big ?? exact[0]?.picture_medium ?? null;
   } catch {
     return null;
   }
