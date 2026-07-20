@@ -1,20 +1,23 @@
-// Looks up a real photo for an artist via Wikipedia/Wikidata's public,
-// keyless, CORS-enabled APIs. There's no image-search API we can call
-// from a browser without a paid key and a backend to hide it behind, so
-// this is the closest honest equivalent: find the artist's Wikipedia
-// page, then check both Wikipedia's own infobox thumbnail and Wikidata's
-// separate P18 ("image") claim for that same page — they're edited
-// independently, so one sometimes has a photo the other doesn't.
-// Callers should treat a null result (no page, no image, network error)
-// as "show a fallback avatar," not as an error to surface.
+// Looks up a real photo for an artist, trying three tiers in order:
 //
-// Note: a promising-looking third option, Deezer's artist search, was
-// tried and reverted — it has real coverage for artists Wikipedia
-// misses, but its API doesn't send an Access-Control-Allow-Origin
-// header, so browsers silently block it (curl/Node don't enforce CORS,
-// which is why that gap wasn't caught before shipping). Closing that
-// gap for real would need a small server-side proxy, which this
-// client-only app doesn't have.
+// 1. Wikipedia's infobox thumbnail and 2. Wikidata's separate P18
+//    ("image") claim for the same page — both public, keyless, and
+//    genuinely CORS-enabled, so they're called directly from the browser.
+// 3. Deezer's artist search, which has much better coverage for working
+//    club DJs who don't have a Wikipedia bio yet — but Deezer's API
+//    doesn't send Access-Control-Allow-Origin, so a browser can't call
+//    it directly (curl/Node don't enforce CORS, which is how that gap
+//    shipped once already). Routed through this app's own
+//    /api/artist-image endpoint instead — a same-origin request has no
+//    CORS restriction, and that endpoint calls Deezer server-side, where
+//    CORS doesn't apply at all. Only live when this app is running
+//    somewhere that serves it (Vercel in production, `npm run dev`
+//    locally); a plain static host or the sandboxed Artifact demo just
+//    won't have that route, and this fails through to null the same as
+//    any other tier that comes up empty.
+//
+// Callers should treat a null result (no page, no image, no route,
+// network error) as "show a fallback avatar," not as an error to surface.
 
 const cache = new Map<string, string | null>();
 
@@ -25,10 +28,21 @@ export async function fetchArtistImage(name: string, signal?: AbortSignal): Prom
   const key = query.toLowerCase();
   if (cache.has(key)) return cache.get(key)!;
 
-  const result = await lookupWikipedia(query, signal);
+  const result = (await lookupWikipedia(query, signal)) ?? (await lookupProxy(query, signal));
   // Only cache a settled result — never cache an in-flight abort as "no image."
   if (!signal?.aborted) cache.set(key, result);
   return result;
+}
+
+async function lookupProxy(query: string, signal?: AbortSignal): Promise<string | null> {
+  try {
+    const res = await fetch(`/api/artist-image?name=${encodeURIComponent(query)}`, { signal });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return typeof json?.image === "string" ? json.image : null;
+  } catch {
+    return null;
+  }
 }
 
 const NON_BIO_TITLE = /:|discography|\(album\)|\(ep\)|\(song\)|\(mixtape\)|\(film\)|\(tv series\)/i;
