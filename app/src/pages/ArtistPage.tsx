@@ -27,9 +27,16 @@ export function ArtistPage() {
     const controller = new AbortController();
     setImage(null);
     setImageLoading(true);
-    fetchArtistImage(artist, controller.signal)
-      .then((url) => setImage(url))
-      .finally(() => setImageLoading(false));
+    fetchArtistImage(artist, controller.signal).then((url) => {
+      // A stale run (e.g. React StrictMode's double-invoke in dev, or a
+      // fast artist-to-artist navigation) can still resolve after being
+      // aborted — only the run whose signal is still live gets to touch
+      // state, so a slow stale request can't flip the loading gate back
+      // off early or paint the wrong artist's photo.
+      if (controller.signal.aborted) return;
+      setImage(url);
+      setImageLoading(false);
+    });
     return () => controller.abort();
   }, [artist]);
 
@@ -54,6 +61,15 @@ export function ArtistPage() {
     );
   }
 
+  if (imageLoading) {
+    return (
+      <div className="page-loading">
+        <span className="mark lg pulse" aria-hidden="true" />
+        <p className="eyebrow">Loading {artist}…</p>
+      </div>
+    );
+  }
+
   const count = artistLogs.length;
   const avg = count ? artistLogs.reduce((sum, l) => sum + l.score, 0) / count : null;
   const best = count ? artistLogs[0].score : null;
@@ -65,7 +81,7 @@ export function ArtistPage() {
       </button>
 
       <div className="artist-hero">
-        <div className={`artist-avatar ${imageLoading ? "loading" : ""}`}>
+        <div className="artist-avatar">
           {image ? (
             <img src={image} alt={artist} referrerPolicy="no-referrer" onError={() => setImage(null)} />
           ) : (
