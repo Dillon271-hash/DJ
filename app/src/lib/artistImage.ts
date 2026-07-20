@@ -3,18 +3,19 @@
 // 1. Wikipedia's infobox thumbnail and 2. Wikidata's separate P18
 //    ("image") claim for the same page — both public, keyless, and
 //    genuinely CORS-enabled, so they're called directly from the browser.
-// 3. Deezer's artist search, which has much better coverage for working
-//    club DJs who don't have a Wikipedia bio yet — but Deezer's API
-//    doesn't send Access-Control-Allow-Origin, so a browser can't call
-//    it directly (curl/Node don't enforce CORS, which is how that gap
-//    shipped once already). Routed through this app's own
-//    /api/artist-image endpoint instead — a same-origin request has no
-//    CORS restriction, and that endpoint calls Deezer server-side, where
-//    CORS doesn't apply at all. Only live when this app is running
-//    somewhere that serves it (Vercel in production, `npm run dev`
-//    locally); a plain static host or the sandboxed Artifact demo just
-//    won't have that route, and this fails through to null the same as
-//    any other tier that comes up empty.
+// 3. Spotify's artist search, which has much better coverage for working
+//    club DJs who don't have a Wikipedia bio yet. Spotify requires
+//    authentication even for basic search, so this can't be called
+//    directly from the browser either way (the app's client secret
+//    can't safely live in client-side code) — routed through this app's
+//    own /api/artist-image endpoint, which holds the credentials
+//    server-side and does the Spotify auth + search there. Only live
+//    when this app is running somewhere that serves it (Vercel in
+//    production, `npm run dev` locally, both configured with
+//    SPOTIFY_CLIENT_ID/SECRET — see .env.example); a plain static host
+//    or the sandboxed Artifact demo just won't have that route, and this
+//    fails through to null the same as any other tier that comes up
+//    empty.
 //
 // Callers should treat a null result (no page, no image, no route,
 // network error) as "show a fallback avatar," not as an error to surface.
