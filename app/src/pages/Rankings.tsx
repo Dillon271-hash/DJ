@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { EmptyState } from "../components/EmptyState";
 import { ScorePill } from "../components/ScorePill";
+import { AvatarThumb } from "../components/AvatarThumb";
 import { useEncoreStore } from "../lib/store";
 import { sortLogs } from "../lib/ranking";
 import { BUCKET_LABEL, type Bucket } from "../lib/types";
@@ -59,6 +60,7 @@ export function Rankings() {
           {visible.map((log, i) => (
             <Link key={log.id} to={`/set/${log.id}`} className="rank-row">
               <span className="num">{i + 1}</span>
+              <AvatarThumb name={log.artist} />
               <div className="info">
                 <div className="who">{log.artist}</div>
                 <div className="meta">

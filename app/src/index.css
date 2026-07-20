@@ -364,6 +364,29 @@ main.content {
   flex-shrink: 0;
 }
 
+.avatar-thumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: "Arial Black", sans-serif;
+  font-size: 0.7rem;
+  color: var(--bone-dim);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.avatar-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .rank-row .info {
   flex: 1;
   min-width: 0;
