@@ -1,21 +1,22 @@
-// Looks up a real photo for an artist, trying three tiers in order:
+// Looks up a real photo for a new artist, trying three tiers in order:
 //
-// 1. Wikipedia's infobox thumbnail and 2. Wikidata's separate P18
-//    ("image") claim for the same page — both public, keyless, and
-//    genuinely CORS-enabled, so they're called directly from the browser.
-// 3. Spotify's artist search, which has much better coverage for working
-//    club DJs who don't have a Wikipedia bio yet. Spotify requires
-//    authentication even for basic search, so this can't be called
-//    directly from the browser either way (the app's client secret
-//    can't safely live in client-side code) — routed through this app's
-//    own /api/artist-image endpoint, which holds the credentials
+// 1. Spotify's artist search — checked first because it's specifically a
+//    profile picture (not just any editorial photo) and has far better
+//    coverage of working club DJs than Wikipedia ever will. Spotify
+//    requires authentication even for basic search, so this can't be
+//    called directly from the browser (the app's client secret can't
+//    safely live in client-side code) — routed through this app's own
+//    /api/artist-image endpoint, which holds the credentials
 //    server-side and does the Spotify auth + search there. Only live
 //    when this app is running somewhere that serves it (Vercel in
 //    production, `npm run dev` locally, both configured with
 //    SPOTIFY_CLIENT_ID/SECRET — see .env.example); a plain static host
-//    or the sandboxed Artifact demo just won't have that route, and this
-//    fails through to null the same as any other tier that comes up
-//    empty.
+//    or the sandboxed Artifact demo just won't have that route.
+// 2. Wikipedia's infobox thumbnail and 3. Wikidata's separate P18
+//    ("image") claim for the same page, as a fallback for legacy/
+//    crossover artists Spotify's search misses — both public, keyless,
+//    and genuinely CORS-enabled, so they're called directly from the
+//    browser regardless of whether the Spotify proxy is configured.
 //
 // Callers should treat a null result (no page, no image, no route,
 // network error) as "show a fallback avatar," not as an error to surface.
@@ -29,7 +30,7 @@ export async function fetchArtistImage(name: string, signal?: AbortSignal): Prom
   const key = query.toLowerCase();
   if (cache.has(key)) return cache.get(key)!;
 
-  const result = (await lookupWikipedia(query, signal)) ?? (await lookupProxy(query, signal));
+  const result = (await lookupProxy(query, signal)) ?? (await lookupWikipedia(query, signal));
   // Only cache a settled result — never cache an in-flight abort as "no image."
   if (!signal?.aborted) cache.set(key, result);
   return result;
