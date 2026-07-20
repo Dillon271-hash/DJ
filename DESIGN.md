@@ -1,9 +1,9 @@
-# Selecta — a Beli for DJ sets
+# Encore — a Beli for DJ sets
 
 ## Concept
 
 Beli turned "where should we eat" into a daily habit: log the meal, compare it
-against your last ten, watch your personal list reorder itself. **Selecta**
+against your last ten, watch your personal list reorder itself. **Encore**
 applies the same loop to nightlife — every DJ set you experience (a festival
 main stage, a 3am basement b2b, a livestream) becomes an entry in your
 personal, ranked history. Scores aren't picked from a star scale; they're
@@ -16,19 +16,19 @@ exactly like Beli's restaurant ranking.
 2. **Bucket** — coarse first call: Loved it / It was good / Not for me.
 3. **Compare** — a short run of "which was better" match-ups against sets
    you've already logged in that bucket.
-4. **Rank** — Selecta binary-searches the new set into your all-time list and
+4. **Rank** — Encore binary-searches the new set into your all-time list and
    derives a precise 0.0–10.0 score from its position.
 5. **Compare-out** — see it against friends' rankings, the artist's global
    average, and your city's leaderboard.
 
-### Beli → Selecta glossary
+### Beli → Encore glossary
 
-| Beli | Selecta |
+| Beli | Encore |
 |---|---|
 | Restaurant | **Set** — an artist's performance at a specific event |
 | Visit | **Log** — a set you personally heard, live or streamed |
 | Want to Try | **Want to Hear** — artists/festivals on your radar |
-| Foodie Score | **Selecta Score** — your taste-graph reliability rating |
+| Foodie Score | **Encore Score** — your taste-graph reliability rating |
 | Cuisine tags | Genre / BPM / label tags |
 | City rankings | City & festival rankings |
 | Reservation booking | Ticket links (via partner APIs) |
@@ -57,7 +57,7 @@ exactly like Beli's restaurant ranking.
 
 | Entity | Key fields |
 |---|---|
-| **User** | id, handle, avatar, home_city, selecta_score, genre_affinity[] |
+| **User** | id, handle, avatar, home_city, encore_score, genre_affinity[] |
 | **Artist** | id, name, aliases[], genres[], claimed_by |
 | **Venue** | id, name, city, geo, type (club / festival / stream) |
 | **Event** | id, venue_id, date, name |
