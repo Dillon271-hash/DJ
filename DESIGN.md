@@ -88,18 +88,26 @@ position, not the other way around.
 
 ## Brand direction
 
-Nightlife reference points, not food-app pastel: a near-black canvas, one hot
-accent for action, one warm accent reserved for the score itself — like two
-colors of stage lighting gel. Numerals get the loudest voice on the page.
+Two references anchor it: a ticket app's black canvas and glowing event
+artwork, and a maximalist app-store ad's clashing color and sticker-shadow
+cards. Encore sits between them — a black, glow-lit stage for the app
+itself, with paper-stock sticker cards and a hand-stamped yellow CTA doing
+the loud, irreverent work of pulling you in.
 
-- **Palette** — Void `#0A0A10` (bg), Ink `#17161F` (surface), Pulse `#FF2E63`
-  (primary accent), Amber `#FFB13B` (score/secondary accent), Smoke
-  `#79778C` (muted text), Bone `#ECE9F3` (foreground text).
-- **Type** — heavy uppercase grotesk for wordmark/section titles/score
-  numerals; a humanist sans for body copy; monospace for timestamps, scores,
-  and stat labels (reads like a ticket stub or setlist log).
-- **Motif** — a waveform bar as the recurring section divider, tying every
-  screen back to audio.
+- **Palette** — Void `#08070A` (bg), Paper `#F0DEB8` (sticker-card stock),
+  Glow `#FF3D22 → #FFB13B` (radial gradient, one hero moment per screen —
+  a stage light behind the wordmark, never scattered as decoration), Pink
+  `#FF1F7A` and Violet `#6A2CE0` (rotate as sticker-shadow/numeral accents
+  so the product doesn't read monochrome), Yellow `#FFD400` (reserved for
+  a single action per screen).
+- **Type** — heavy uppercase grotesk for the wordmark and section titles,
+  with one word per page getting a tilted, highlighter-block treatment; a
+  humanist sans for body copy; monospace for timestamps, scores, and stat
+  labels (reads like a ticket stub or setlist log); genre tags and badges
+  get a paper-and-drop-shadow sticker label instead of a flat pill.
+- **Motifs** — the **glow**, a warm radial gradient standing in for stage
+  lighting, anchoring the hero of every major screen; and the
+  **perforation**, a dashed ticket-tear rule dividing lists and stats.
 
 Full visual mockups (phone screens for feed, rate flow, set detail, profile,
 leaderboard) and the interactive spec: see the published design artifact
