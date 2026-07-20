@@ -60,7 +60,21 @@ export function SetDetail() {
         </span>
       </div>
 
-      {log.genre && <span className="chip">{log.genre}</span>}
+      {log.withWho && (
+        <p style={{ color: "var(--smoke)", fontSize: "0.85rem", margin: "0 0 0.8rem" }}>
+          With {log.withWho}
+        </p>
+      )}
+
+      {log.labels && log.labels.length > 0 && (
+        <div className="chip-row" style={{ marginBottom: "0.4rem" }}>
+          {log.labels.map((l) => (
+            <span className="chip" key={l}>
+              {l}
+            </span>
+          ))}
+        </div>
+      )}
 
       {log.note && (
         <>

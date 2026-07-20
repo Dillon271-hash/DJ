@@ -5,7 +5,8 @@ export interface SetLog {
   artist: string;
   event: string;
   date: string;
-  genre?: string;
+  labels?: string[];
+  withWho?: string;
   note?: string;
   bucket: Bucket;
   score: number;
@@ -16,7 +17,8 @@ export interface DraftLog {
   artist: string;
   event: string;
   date: string;
-  genre?: string;
+  labels?: string[];
+  withWho?: string;
   note?: string;
 }
 
@@ -31,3 +33,20 @@ export const BUCKET_RANGE: Record<Bucket, [number, number]> = {
   good: [4, 6.9],
   not: [0, 3.9],
 };
+
+export const LABEL_PRESETS = [
+  "Opening set",
+  "Closing set",
+  "B2B",
+  "Sunrise set",
+  "Warehouse",
+  "Festival main stage",
+  "House",
+  "Techno",
+  "Deep house",
+  "Amapiano",
+  "Drum & bass",
+  "Disco",
+  "Afrobeats",
+  "Open format",
+];
