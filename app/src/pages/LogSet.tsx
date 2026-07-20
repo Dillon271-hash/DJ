@@ -1,9 +1,7 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEncoreStore } from "../lib/store";
-import { RateSheet } from "../components/RateSheet";
-import { ArtistAutocomplete } from "../components/ArtistAutocomplete";
-import type { DraftLog } from "../lib/types";
+import { SEED_ARTISTS } from "../lib/artists";
 
 interface RecentArtist {
   artist: string;
@@ -16,8 +14,6 @@ export function LogSet() {
   const navigate = useNavigate();
 
   const [query, setQuery] = useState("");
-  const [pending, setPending] = useState<DraftLog | null>(null);
-  const [sheetDraft, setSheetDraft] = useState<DraftLog | null>(null);
 
   const recents = useMemo<RecentArtist[]>(() => {
     const byArtist = new Map<string, RecentArtist>();
@@ -41,80 +37,18 @@ export function LogSet() {
     return list.slice(0, 8);
   }, [recents, query]);
 
-  function startFromRecent(artist: string) {
-    setPending({ artist, event: "", date: todayISO() });
-  }
-
-  function startNew() {
-    setPending({ artist: query.trim(), event: "", date: todayISO() });
-  }
-
-  function handleDetailsContinue(e: FormEvent) {
-    e.preventDefault();
-    if (!pending || !pending.artist.trim() || !pending.event.trim() || !pending.date) return;
-    setSheetDraft(pending);
-  }
-
-  if (sheetDraft) {
-    return (
-      <RateSheet
-        draft={sheetDraft}
-        onClose={() => setSheetDraft(null)}
-        onDone={(id) => navigate(`/set/${id}`)}
-      />
+  const suggestions = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    const known = new Set(recents.map((r) => r.artist.toLowerCase()));
+    return SEED_ARTISTS.filter((name) => !known.has(name.toLowerCase()) && name.toLowerCase().includes(q)).slice(
+      0,
+      6,
     );
-  }
+  }, [recents, query]);
 
-  if (pending) {
-    return (
-      <div>
-        <div className="eyebrow">Log a set</div>
-        <h1 className="display" style={{ fontSize: "1.8rem", margin: "0.3rem 0 1.6rem" }}>
-          Where and when?
-        </h1>
-        <form onSubmit={handleDetailsContinue}>
-          <div className="field">
-            <label htmlFor="artist">Artist</label>
-            <ArtistAutocomplete
-              id="artist"
-              value={pending.artist}
-              onChange={(artist) => setPending({ ...pending, artist })}
-              recents={recents.map((r) => r.artist)}
-              placeholder="e.g. Jamie xx (or Artist b2b Artist)"
-            />
-          </div>
-          <div className="field">
-            <label htmlFor="event">Venue / festival</label>
-            <input
-              id="event"
-              value={pending.event}
-              onChange={(e) => setPending({ ...pending, event: e.target.value })}
-              placeholder="e.g. Terminal 5, NYC"
-              required
-              autoFocus
-            />
-          </div>
-          <div className="field">
-            <label htmlFor="date">Date</label>
-            <input
-              id="date"
-              type="date"
-              value={pending.date}
-              onChange={(e) => setPending({ ...pending, date: e.target.value })}
-              required
-            />
-          </div>
-          <div style={{ display: "flex", gap: "0.7rem" }}>
-            <button type="submit" className="sticker-btn" style={{ flex: 1 }}>
-              Continue
-            </button>
-            <button type="button" className="ghost-btn" onClick={() => setPending(null)}>
-              Back
-            </button>
-          </div>
-        </form>
-      </div>
-    );
+  function goToArtist(artist: string) {
+    navigate(`/artist/${encodeURIComponent(artist.trim())}`);
   }
 
   return (
@@ -135,8 +69,8 @@ export function LogSet() {
       </div>
 
       {query.trim() && (
-        <button className="add-new-row" onClick={startNew}>
-          + Log “{query.trim()}” as a new set
+        <button className="add-new-row" onClick={() => goToArtist(query)}>
+          + Log “{query.trim()}” as a new artist
         </button>
       )}
 
@@ -147,7 +81,7 @@ export function LogSet() {
           </div>
           <div>
             {filteredRecents.map((r) => (
-              <button key={r.artist} className="recent-row" onClick={() => startFromRecent(r.artist)}>
+              <button key={r.artist} className="recent-row" onClick={() => goToArtist(r.artist)}>
                 <span className="icon">{r.artist.charAt(0).toUpperCase()}</span>
                 <span className="info">
                   <span className="who">{r.artist}</span>
@@ -162,17 +96,32 @@ export function LogSet() {
         </>
       )}
 
+      {suggestions.length > 0 && (
+        <>
+          <div className="eyebrow" style={{ margin: "1.4rem 0 0.4rem" }}>
+            Suggested artists
+          </div>
+          <div>
+            {suggestions.map((name) => (
+              <button key={name} className="recent-row" onClick={() => goToArtist(name)}>
+                <span className="icon">{name.charAt(0).toUpperCase()}</span>
+                <span className="info">
+                  <span className="who">{name}</span>
+                </span>
+                <span className="plus">+</span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
       {!query.trim() && filteredRecents.length === 0 && (
-        <button className="add-new-row" onClick={startNew}>
-          + Log a new set
-        </button>
+        <p style={{ color: "var(--smoke)", fontSize: "0.85rem" }}>
+          Search for an artist you've heard, or start typing a name to add someone new.
+        </p>
       )}
     </div>
   );
-}
-
-function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
 }
 
 function SearchIcon() {

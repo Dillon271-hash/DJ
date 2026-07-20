@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEncoreStore } from "../lib/store";
 import { overallRank, rankInBucket } from "../lib/ranking";
 import { BUCKET_LABEL } from "../lib/types";
@@ -35,9 +35,14 @@ export function SetDetail() {
   return (
     <div>
       <div className="eyebrow">{BUCKET_LABEL[log.bucket]}</div>
-      <h1 className="display" style={{ fontSize: "2rem", margin: "0.3rem 0 0.1rem" }}>
-        {log.artist}
-      </h1>
+      <Link
+        to={`/artist/${encodeURIComponent(log.artist)}`}
+        style={{ textDecoration: "none" }}
+      >
+        <h1 className="display" style={{ fontSize: "2rem", margin: "0.3rem 0 0.1rem" }}>
+          {log.artist}
+        </h1>
+      </Link>
       <p style={{ color: "var(--bone-dim)", margin: 0 }}>
         {log.event} — {formatDate(log.date)}
       </p>
