@@ -1,12 +1,20 @@
-// Looks up a real photo for an artist from two public, keyless,
-// CORS-enabled APIs. There's no image-search API we can call from a
-// browser without a paid key and a backend to hide it behind, so this is
-// the closest honest equivalent: check Wikipedia first (usually better
-// for legacy/crossover artists), then Deezer's artist catalog (usually
-// better for newer club-circuit DJs who don't have a Wikipedia bio yet
-// but do have a promo photo on every streaming service). Callers should
-// treat a null result (no page, no image, network error) as "show a
-// fallback avatar," not as an error to surface.
+// Looks up a real photo for an artist via Wikipedia/Wikidata's public,
+// keyless, CORS-enabled APIs. There's no image-search API we can call
+// from a browser without a paid key and a backend to hide it behind, so
+// this is the closest honest equivalent: find the artist's Wikipedia
+// page, then check both Wikipedia's own infobox thumbnail and Wikidata's
+// separate P18 ("image") claim for that same page — they're edited
+// independently, so one sometimes has a photo the other doesn't.
+// Callers should treat a null result (no page, no image, network error)
+// as "show a fallback avatar," not as an error to surface.
+//
+// Note: a promising-looking third option, Deezer's artist search, was
+// tried and reverted — it has real coverage for artists Wikipedia
+// misses, but its API doesn't send an Access-Control-Allow-Origin
+// header, so browsers silently block it (curl/Node don't enforce CORS,
+// which is why that gap wasn't caught before shipping). Closing that
+// gap for real would need a small server-side proxy, which this
+// client-only app doesn't have.
 
 const cache = new Map<string, string | null>();
 
@@ -17,7 +25,7 @@ export async function fetchArtistImage(name: string, signal?: AbortSignal): Prom
   const key = query.toLowerCase();
   if (cache.has(key)) return cache.get(key)!;
 
-  const result = (await lookupWikipedia(query, signal)) ?? (await lookupDeezer(query, signal));
+  const result = await lookupWikipedia(query, signal);
   // Only cache a settled result — never cache an in-flight abort as "no image."
   if (!signal?.aborted) cache.set(key, result);
   return result;
@@ -43,8 +51,15 @@ async function lookupWikipedia(query: string, signal?: AbortSignal): Promise<str
       const summaryJson = await summaryRes.json();
       if (summaryJson?.type === "disambiguation") continue;
       if (!looksLikeMusicBio(summaryJson?.description)) continue;
+
       const img = summaryJson?.originalimage?.source ?? summaryJson?.thumbnail?.source ?? null;
       if (img) return img;
+
+      // Wikipedia's own infobox thumbnail is empty, but this is confirmed
+      // to be the right page — Wikidata's P18 claim for the same item is
+      // set independently and sometimes has a photo Wikipedia doesn't.
+      const wikidataImg = await lookupWikidataImage(summaryJson?.wikibase_item, signal);
+      if (wikidataImg) return wikidataImg;
     }
     return null;
   } catch {
@@ -52,32 +67,18 @@ async function lookupWikipedia(query: string, signal?: AbortSignal): Promise<str
   }
 }
 
-interface DeezerArtist {
-  name: string;
-  picture_big?: string;
-  picture_medium?: string;
-  nb_fan?: number;
-}
-
-// Deezer's catalog search is scoped to music artists already, so it
-// doesn't have Wikipedia's "same word, totally different topic" problem
-// — but two different artists can still share a stage name, so this
-// only trusts an exact (case-insensitive) name match, and picks the one
-// with the most fans if there's more than one.
-async function lookupDeezer(query: string, signal?: AbortSignal): Promise<string | null> {
+async function lookupWikidataImage(qid: string | undefined, signal?: AbortSignal): Promise<string | null> {
+  if (!qid) return null;
   try {
-    const url = "https://api.deezer.com/search/artist?limit=10&q=" + encodeURIComponent(query);
+    const url = `https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=${encodeURIComponent(qid)}&property=P18&format=json&origin=*`;
     const res = await fetch(url, { signal });
     if (!res.ok) return null;
     const json = await res.json();
-    const results: DeezerArtist[] = json?.data ?? [];
-
-    const q = query.trim().toLowerCase();
-    const exact = results
-      .filter((r) => r.name?.trim().toLowerCase() === q && (r.picture_big || r.picture_medium))
-      .sort((a, b) => (b.nb_fan ?? 0) - (a.nb_fan ?? 0));
-
-    return exact[0]?.picture_big ?? exact[0]?.picture_medium ?? null;
+    const filename = json?.claims?.P18?.[0]?.mainsnak?.datavalue?.value;
+    if (!filename || typeof filename !== "string") return null;
+    // Special:FilePath redirects to the actual Commons file — safe to
+    // drop straight into an <img src>, no extra lookup needed.
+    return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(filename)}`;
   } catch {
     return null;
   }
