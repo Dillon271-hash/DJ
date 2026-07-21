@@ -7,7 +7,10 @@ export async function searchVenues(query) {
   if (!q) return [];
 
   const apiKey = process.env.FOURSQUARE_API_KEY;
-  if (!apiKey) return [];
+  if (!apiKey) {
+    console.error("[venue-search] FOURSQUARE_API_KEY is not set");
+    return [];
+  }
 
   try {
     const url = "https://places-api.foursquare.com/places/search?limit=8&query=" + encodeURIComponent(q);
@@ -18,7 +21,11 @@ export async function searchVenues(query) {
         Accept: "application/json",
       },
     });
-    if (!res.ok) return [];
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      console.error(`[venue-search] Foursquare returned ${res.status}: ${body}`);
+      return [];
+    }
     const json = await res.json();
     const results = Array.isArray(json?.results) ? json.results : [];
 
@@ -33,7 +40,8 @@ export async function searchVenues(query) {
         };
       })
       .filter((v) => v.name);
-  } catch {
+  } catch (err) {
+    console.error("[venue-search] request failed:", err);
     return [];
   }
 }
