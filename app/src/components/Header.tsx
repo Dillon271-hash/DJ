@@ -1,6 +1,9 @@
 import { NavLink } from "react-router-dom";
+import { useEncoreStore } from "../lib/store";
 
 export function Header() {
+  const signOut = useEncoreStore((s) => s.signOut);
+
   return (
     <header className="topbar">
       <NavLink to="/" className="topbar-brand display">
@@ -14,6 +17,9 @@ export function Header() {
         <NavLink to="/log" className={({ isActive }) => (isActive ? "active" : "")}>
           <span className="label">Log a set</span>
         </NavLink>
+        <button type="button" className="topbar-signout" onClick={() => signOut()}>
+          Log out
+        </button>
       </nav>
     </header>
   );

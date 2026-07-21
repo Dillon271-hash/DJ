@@ -51,6 +51,8 @@ export function RateSheet({
   const [venueComparisons, setVenueComparisons] = useState(0);
 
   const [savedLog, setSavedLog] = useState<SetLog | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   function toggleLabel(l: string) {
     setLabels((prev) => (prev.includes(l) ? prev.filter((x) => x !== l) : [...prev, l]));
@@ -139,6 +141,8 @@ export function RateSheet({
   }
 
   function chooseVenueBucket(chosen: Bucket) {
+    if (saving) return;
+    setSaveError(null);
     setVenueBucket(chosen);
     const [lo, hi] = bucketRange(chosen);
     const candidates = venueCandidatesFor(chosen);
@@ -160,7 +164,8 @@ export function RateSheet({
   }
 
   function answerVenueCompare(newVenueWasBetter: boolean) {
-    if (!venueBucket || !venueTarget) return;
+    if (!venueBucket || !venueTarget || saving) return;
+    setSaveError(null);
     const [lo, hi] = narrowRange(venueRange[0], venueRange[1], venueTarget, newVenueWasBetter);
     const nextExclude = new Set(venueExcludeIds).add(venueTarget.id);
     const nextComparisons = venueComparisons + 1;
@@ -181,9 +186,15 @@ export function RateSheet({
     setVenueComparisons(nextComparisons);
   }
 
-  function finishVenue(chosenVenueBucket: Bucket, venueScore: number) {
+  async function finishVenue(chosenVenueBucket: Bucket, venueScore: number) {
     if (!bucket || artistScore === null) return;
-    const entry = addLog(finalDraft(), bucket, artistScore, chosenVenueBucket, venueScore);
+    setSaving(true);
+    const entry = await addLog(finalDraft(), bucket, artistScore, chosenVenueBucket, venueScore);
+    setSaving(false);
+    if (!entry) {
+      setSaveError("Couldn't save that set — check your connection and try again.");
+      return;
+    }
     setSavedLog(entry);
     setPhase("done");
   }
@@ -191,6 +202,9 @@ export function RateSheet({
   return (
     <div className="sheet-backdrop" onClick={(e) => e.target === e.currentTarget && phase !== "done" && onClose()}>
       <div className="sheet">
+        {saveError && (
+          <p style={{ color: "var(--glow-core)", fontSize: "0.85rem", margin: "0 0 0.8rem" }}>{saveError}</p>
+        )}
         {phase === "rate" && (
           <>
             <div className="sheet-header">

@@ -1,9 +1,5 @@
 export type Bucket = "loved" | "good" | "not";
 
-export interface Profile {
-  name: string;
-}
-
 export interface SetLog {
   id: string;
   artist: string;

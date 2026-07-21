@@ -212,6 +212,22 @@ textarea {
   font-weight: 600;
 }
 
+.topbar-signout {
+  font-family: inherit;
+  font-size: 0.76rem;
+  color: var(--bone);
+  background: color-mix(in srgb, var(--void) 40%, transparent);
+  border: none;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.topbar-signout:hover {
+  background: color-mix(in srgb, var(--void) 60%, transparent);
+}
+
 main.content {
   flex: 1;
   width: 100%;

@@ -20,8 +20,9 @@ build a personal ranking of every artist and venue over time. See
 - **Artist and venue pages.** Each artist gets a page with their photo
   (fetched from Spotify), your stats (sets logged / avg score / best), and
   every set you've logged by them. Venues get the same, minus the photo.
-- **Persists to `localStorage`.** No backend, no login — everything lives
-  in your browser. Clearing site data wipes it.
+- **Real accounts.** Sign up with an email/password, log in from any
+  device, and your logged sets live in a real database (Supabase) instead
+  of just your browser's localStorage.
 
 ## Develop
 
@@ -30,9 +31,9 @@ npm install
 npm run dev
 ```
 
-Artist photos need a free Spotify developer app — see **Environment
-variables** below. Without it, artist pages just show initials instead of a
-photo; nothing else breaks.
+The app **won't run at all** without Supabase set up — see **Environment
+variables** below, it's required, not optional (unlike the Spotify photo
+lookup, which just degrades to showing initials if it's missing).
 
 ## Build
 
@@ -47,20 +48,41 @@ Copy `.env.example` to `.env` and fill in:
 ```
 SPOTIFY_CLIENT_ID=
 SPOTIFY_CLIENT_SECRET=
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
 ```
 
-Get these from an app you create at
+**Spotify** (artist photos, optional): get these from an app you create at
 [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard)
 — open the app's Settings to reveal them. Used server-side only (Client
-Credentials flow), never exposed to the browser. If deploying to Vercel,
-add the same two as Environment Variables in the project settings there.
+Credentials flow), never exposed to the browser.
+
+**Supabase** (accounts + database, required): create a free project at
+[supabase.com/dashboard](https://supabase.com/dashboard), then:
+1. Open the project's **Settings → Data API** page and copy the **Project
+   URL** into `VITE_SUPABASE_URL`, and the **anon public** key into
+   `VITE_SUPABASE_ANON_KEY`. (This key is meant to be public — see the
+   comment in `src/lib/supabase.ts` for why that's safe.)
+2. Open the **SQL Editor**, paste in the entire contents of
+   `supabase/schema.sql`, and run it once. This creates the `logs` table
+   and the security rules that keep each user's data private to them.
+3. Restart `npm run dev` after saving `.env` — Vite only reads it on
+   startup.
+
+If deploying to Vercel, add all four as Environment Variables in the
+project settings there too.
 
 ## Structure
 
 - `src/lib/types.ts` — core data shapes (`SetLog`, `Bucket`, …)
 - `src/lib/ranking.ts` — the bucket + binary-insertion comparison scoring
   algorithm, generic over both artist sets and venues
-- `src/lib/store.ts` — Zustand store, persisted to `localStorage`
+- `src/lib/supabase.ts` — the Supabase client (`null` if env vars are
+  missing, checked via `isSupabaseConfigured`)
+- `src/lib/store.ts` — Zustand store: auth state (`session`, `signUp`,
+  `signIn`, `signOut`) and `logs`, both backed by Supabase — no
+  `localStorage` persistence anymore, everything round-trips through the
+  database
 - `src/lib/artists.ts` — seed list of 300+ DJs for search autocomplete
 - `src/lib/venues.ts` — seed list of well-known nightclubs/festivals for
   venue autocomplete (global, not location-biased — DJ sets happen
@@ -68,6 +90,8 @@ add the same two as Environment Variables in the project settings there.
 - `src/lib/artistImage.ts` — client-side helper that calls the
   `/api/artist-image` proxy below
 - `src/pages/`
+  - `Welcome.tsx` — sign-up / log-in screen, shown whenever there's no
+    session
   - `Rankings.tsx` — home page, Sets/Venues toggle + bucket filters
   - `LogSet.tsx` — search-first artist entry screen
   - `ArtistPage.tsx` — artist profile: photo, stats, log-a-set form, past
@@ -82,6 +106,8 @@ add the same two as Environment Variables in the project settings there.
   - `RowMenu.tsx` — the "⋯" delete menu on ranking rows
   - `AvatarThumb.tsx` — auto-loading artist thumbnail
 - `src/index.css` — design tokens and component styles
+- `supabase/schema.sql` — the `logs` table + Row Level Security policies;
+  run once in your Supabase project's SQL Editor
 - `api/artist-image.js` + `api/_lib/spotify.js` — Vercel serverless
   function that looks up an artist's Spotify photo server-side (keeps the
   client secret off the client). `vite.config.ts` mirrors this as dev
@@ -104,3 +130,10 @@ add the same two as Environment Variables in the project settings there.
   wrong-person matches, e.g. resolving "Fisher" to an unrelated 1950s
   singer). Spotify's Client Credentials flow is app-only auth — no user
   login required, just the two env vars above.
+- **Email confirmation on sign-up** is controlled by your Supabase
+  project's Auth settings, not by this app's code. With it on (the
+  default for new projects), `signUp()` doesn't return a session — the
+  Welcome screen shows a "check your email" message instead, and the
+  account isn't usable until they click the link. Turn it off in
+  Authentication → Sign In / Providers → Email if you'd rather sign-up be
+  instant, at the cost of not verifying the address is real.
