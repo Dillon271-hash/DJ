@@ -1,12 +1,20 @@
 import { Route, Routes } from "react-router-dom";
 import { Header } from "./components/Header";
+import { Welcome } from "./pages/Welcome";
 import { Rankings } from "./pages/Rankings";
 import { LogSet } from "./pages/LogSet";
 import { SetDetail } from "./pages/SetDetail";
 import { ArtistPage } from "./pages/ArtistPage";
 import { VenuePage } from "./pages/VenuePage";
+import { useEncoreStore } from "./lib/store";
 
 function App() {
+  const profile = useEncoreStore((s) => s.profile);
+
+  if (!profile) {
+    return <Welcome />;
+  }
+
   return (
     <div className="app-shell">
       <Header />

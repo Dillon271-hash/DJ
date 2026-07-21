@@ -1,8 +1,10 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Bucket, DraftLog, SetLog } from "./types";
+import type { Bucket, DraftLog, Profile, SetLog } from "./types";
 
 interface EncoreStore {
+  profile: Profile | null;
+  setProfile: (profile: Profile) => void;
   logs: SetLog[];
   addLog: (
     draft: DraftLog,
@@ -21,6 +23,8 @@ function makeId(): string {
 export const useEncoreStore = create<EncoreStore>()(
   persist(
     (set, get) => ({
+      profile: null,
+      setProfile: (profile) => set({ profile }),
       logs: [],
       addLog: (draft, bucket, score, venueBucket, venueScore) => {
         const entry: SetLog = {
