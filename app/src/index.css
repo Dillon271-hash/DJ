@@ -336,12 +336,11 @@ main.content {
   color: #1a1a1a;
 }
 
-/* ---------- Score ring (large, outlined) ---------- */
+/* ---------- Score ring (large, filled) ---------- */
 .score-ring {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  border: 1.5px solid var(--c);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -352,18 +351,18 @@ main.content {
 }
 
 .score-ring.loved {
-  --c: var(--glow-edge);
-  color: var(--glow-edge);
+  background: linear-gradient(135deg, var(--glow-core), var(--glow-edge));
+  color: #1a0800;
 }
 
 .score-ring.good {
-  --c: var(--pink);
-  color: var(--pink);
+  background: var(--pink);
+  color: #fff;
 }
 
 .score-ring.not {
-  --c: var(--smoke);
-  color: var(--smoke);
+  background: var(--smoke);
+  color: #1a1a1a;
 }
 
 /* ---------- Rows / cards ---------- */
