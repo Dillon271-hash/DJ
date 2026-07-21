@@ -39,7 +39,7 @@ export async function searchVenues(query) {
     // categories after the fact can otherwise leave very few results in a
     // small town.
     const url =
-      "https://places-api.foursquare.com/places/search?limit=20&radius=100000&query=" +
+      "https://places-api.foursquare.com/places/search?limit=20&radius=100000&fields=name,location,categories&query=" +
       encodeURIComponent(q);
     const res = await fetch(url, {
       headers: {
@@ -61,6 +61,13 @@ export async function searchVenues(query) {
     // back to the unfiltered results rather than showing an empty list.
     const filtered = results.filter(isNightlifeOrFestival);
     const pool = filtered.length > 0 ? filtered : results;
+    if (filtered.length === 0 && results.length > 0) {
+      const sample = results.slice(0, 5).map((p) => ({
+        name: p?.name,
+        categories: (p?.categories ?? []).map((c) => c?.name),
+      }));
+      console.error("[venue-search] no nightlife/festival matches, sample categories:", JSON.stringify(sample));
+    }
 
     return pool
       .slice(0, 8)
