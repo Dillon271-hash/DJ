@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { EmptyState } from "../components/EmptyState";
 import { ScorePill } from "../components/ScorePill";
 import { AvatarThumb } from "../components/AvatarThumb";
+import { RowMenu } from "../components/RowMenu";
 import { useEncoreStore } from "../lib/store";
 import { sortLogs } from "../lib/ranking";
 import { BUCKET_LABEL, type Bucket } from "../lib/types";
@@ -18,6 +19,7 @@ const FILTERS: { key: Filter; label: string }[] = [
 
 export function Rankings() {
   const logs = useEncoreStore((s) => s.logs);
+  const removeLog = useEncoreStore((s) => s.removeLog);
   const [filter, setFilter] = useState<Filter>("all");
 
   const visible = useMemo(() => {
@@ -58,17 +60,20 @@ export function Rankings() {
       ) : (
         <div>
           {visible.map((log, i) => (
-            <Link key={log.id} to={`/set/${log.id}`} className="rank-row">
-              <span className="num">{i + 1}</span>
-              <AvatarThumb name={log.artist} />
-              <div className="info">
-                <div className="who">{log.artist}</div>
-                <div className="meta">
-                  {log.event} · {formatDate(log.date)}
+            <div key={log.id} className="rank-row-wrap">
+              <Link to={`/set/${log.id}`} className="rank-row">
+                <span className="num">{i + 1}</span>
+                <AvatarThumb name={log.artist} />
+                <div className="info">
+                  <div className="who">{log.artist}</div>
+                  <div className="meta">
+                    {log.event} · {formatDate(log.date)}
+                  </div>
                 </div>
-              </div>
-              <ScorePill score={log.score} bucket={log.bucket} />
-            </Link>
+                <ScorePill score={log.score} bucket={log.bucket} />
+              </Link>
+              <RowMenu onDelete={() => removeLog(log.id)} />
+            </div>
           ))}
         </div>
       )}

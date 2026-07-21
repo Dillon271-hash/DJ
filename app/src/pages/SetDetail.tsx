@@ -7,7 +7,6 @@ export function SetDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const logs = useEncoreStore((s) => s.logs);
-  const removeLog = useEncoreStore((s) => s.removeLog);
 
   const log = logs.find((l) => l.id === id);
 
@@ -25,12 +24,6 @@ export function SetDetail() {
   const inBucketRank = rankInBucket(logs, log.bucket, log.id);
   const bucketCount = logs.filter((l) => l.bucket === log.bucket).length;
   const overall = overallRank(logs, log.id);
-
-  function handleDelete() {
-    if (!log) return;
-    removeLog(log.id);
-    navigate("/");
-  }
 
   return (
     <div>
@@ -103,14 +96,6 @@ export function SetDetail() {
           <span>Total logs</span>
         </div>
       </div>
-
-      <button
-        className="text-btn"
-        style={{ marginTop: "2rem" }}
-        onClick={handleDelete}
-      >
-        Delete this log
-      </button>
     </div>
   );
 }
