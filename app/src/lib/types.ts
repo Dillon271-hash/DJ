@@ -10,6 +10,10 @@ export interface SetLog {
   note?: string;
   bucket: Bucket;
   score: number;
+  // Optional because logs created before venue rating shipped won't have
+  // these — every new log gets both from here on.
+  venueBucket?: Bucket;
+  venueScore?: number;
   createdAt: number;
 }
 

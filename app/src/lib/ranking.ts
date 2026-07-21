@@ -6,15 +6,26 @@ export function bucketRange(bucket: Bucket): [number, number] {
   return BUCKET_RANGE[bucket];
 }
 
-/** Pick the existing log (within the same bucket) whose score is closest to
- * the midpoint of the current search range — the next best comparison to
- * halve the range, same idea as a binary-search probe. */
-export function pickComparisonTarget(
-  candidates: SetLog[],
+/** Which bucket a raw score falls into, e.g. for deriving a display
+ * color from an averaged score that was never itself run through the
+ * comparison flow. */
+export function bucketForScore(score: number): Bucket {
+  if (score >= BUCKET_RANGE.loved[0]) return "loved";
+  if (score >= BUCKET_RANGE.good[0]) return "good";
+  return "not";
+}
+
+/** Pick the existing entry (within the same bucket) whose score is closest
+ * to the midpoint of the current search range — the next best comparison
+ * to halve the range, same idea as a binary-search probe. Generic over
+ * anything with an id/score, so the same engine drives both artist-set
+ * scoring and venue scoring. */
+export function pickComparisonTarget<T extends { id: string; score: number }>(
+  candidates: T[],
   lo: number,
   hi: number,
   excludeIds: ReadonlySet<string>,
-): SetLog | null {
+): T | null {
   const pool = candidates.filter((c) => !excludeIds.has(c.id));
   if (pool.length === 0) return null;
   const mid = (lo + hi) / 2;
@@ -27,7 +38,7 @@ export function pickComparisonTarget(
 export function narrowRange(
   lo: number,
   hi: number,
-  target: SetLog,
+  target: { score: number },
   newSetWasBetter: boolean,
 ): [number, number] {
   return newSetWasBetter ? [target.score, hi] : [lo, target.score];
@@ -71,4 +82,30 @@ export function rankInBucket(logs: SetLog[], bucket: Bucket, logId: string): num
 
 export function overallRank(logs: SetLog[], logId: string): number {
   return sortLogs(logs).findIndex((l) => l.id === logId) + 1;
+}
+
+/** Logs that have gone through venue rating — the pool venue comparisons
+ * and venue rankings draw from. Older logs from before venue rating
+ * shipped are excluded since they never got a venueBucket/venueScore. */
+export function venueRatedLogs(logs: SetLog[]): (SetLog & { venueBucket: Bucket; venueScore: number })[] {
+  return logs.filter(
+    (l): l is SetLog & { venueBucket: Bucket; venueScore: number } =>
+      l.venueBucket !== undefined && l.venueScore !== undefined,
+  );
+}
+
+export function sortByVenue(logs: SetLog[]): SetLog[] {
+  const rated = venueRatedLogs(logs);
+  return [...rated].sort((a, b) => {
+    const bucketDiff = BUCKET_ORDER[a.venueBucket] - BUCKET_ORDER[b.venueBucket];
+    if (bucketDiff !== 0) return bucketDiff;
+    return b.venueScore - a.venueScore;
+  });
+}
+
+export function venueRankInBucket(logs: SetLog[], bucket: Bucket, logId: string): number {
+  const inBucket = venueRatedLogs(logs)
+    .filter((l) => l.venueBucket === bucket)
+    .sort((a, b) => b.venueScore - a.venueScore);
+  return inBucket.findIndex((l) => l.id === logId) + 1;
 }

@@ -4,6 +4,7 @@ import { useEncoreStore } from "../lib/store";
 import { fetchArtistImage } from "../lib/artistImage";
 import { RateSheet } from "../components/RateSheet";
 import { ScorePill } from "../components/ScorePill";
+import { VenueAutocomplete } from "../components/VenueAutocomplete";
 import type { DraftLog } from "../lib/types";
 
 export function ArtistPage() {
@@ -120,13 +121,12 @@ export function ArtistPage() {
         <form onSubmit={handleContinue}>
           <div className="field">
             <label htmlFor="venue">Venue / festival</label>
-            <input
+            <VenueAutocomplete
               id="venue"
               value={venue}
-              onChange={(e) => setVenue(e.target.value)}
+              onChange={setVenue}
               placeholder="e.g. Terminal 5, NYC"
               autoFocus
-              required
             />
           </div>
           <div className="field">

@@ -4,7 +4,13 @@ import type { Bucket, DraftLog, SetLog } from "./types";
 
 interface EncoreStore {
   logs: SetLog[];
-  addLog: (draft: DraftLog, bucket: Bucket, score: number) => SetLog;
+  addLog: (
+    draft: DraftLog,
+    bucket: Bucket,
+    score: number,
+    venueBucket?: Bucket,
+    venueScore?: number,
+  ) => SetLog;
   removeLog: (id: string) => void;
 }
 
@@ -16,12 +22,14 @@ export const useEncoreStore = create<EncoreStore>()(
   persist(
     (set, get) => ({
       logs: [],
-      addLog: (draft, bucket, score) => {
+      addLog: (draft, bucket, score, venueBucket, venueScore) => {
         const entry: SetLog = {
           id: makeId(),
           ...draft,
           bucket,
           score,
+          venueBucket,
+          venueScore,
           createdAt: Date.now(),
         };
         set({ logs: [...get().logs, entry] });

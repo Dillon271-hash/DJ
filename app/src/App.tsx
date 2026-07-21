@@ -4,6 +4,7 @@ import { Rankings } from "./pages/Rankings";
 import { LogSet } from "./pages/LogSet";
 import { SetDetail } from "./pages/SetDetail";
 import { ArtistPage } from "./pages/ArtistPage";
+import { VenuePage } from "./pages/VenuePage";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="/log" element={<LogSet />} />
           <Route path="/set/:id" element={<SetDetail />} />
           <Route path="/artist/:name" element={<ArtistPage />} />
+          <Route path="/venue/:name" element={<VenuePage />} />
         </Routes>
       </main>
     </div>

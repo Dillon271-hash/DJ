@@ -9,7 +9,13 @@ import {
 } from "../lib/ranking";
 import { BUCKET_LABEL, LABEL_PRESETS, type Bucket, type DraftLog, type SetLog } from "../lib/types";
 
-type Phase = "rate" | "compare" | "done";
+type Phase = "rate" | "compare" | "venue-rate" | "venue-compare" | "done";
+
+interface VenueCandidate {
+  id: string;
+  score: number;
+  event: string;
+}
 
 export function RateSheet({
   draft,
@@ -36,6 +42,14 @@ export function RateSheet({
   const [excludeIds, setExcludeIds] = useState<Set<string>>(new Set());
   const [target, setTarget] = useState<SetLog | null>(null);
   const [comparisons, setComparisons] = useState(0);
+  const [artistScore, setArtistScore] = useState<number | null>(null);
+
+  const [venueBucket, setVenueBucket] = useState<Bucket | null>(null);
+  const [venueRange, setVenueRange] = useState<[number, number]>([0, 10]);
+  const [venueExcludeIds, setVenueExcludeIds] = useState<Set<string>>(new Set());
+  const [venueTarget, setVenueTarget] = useState<VenueCandidate | null>(null);
+  const [venueComparisons, setVenueComparisons] = useState(0);
+
   const [savedLog, setSavedLog] = useState<SetLog | null>(null);
 
   function toggleLabel(l: string) {
@@ -74,12 +88,12 @@ export function RateSheet({
     const candidates = logs.filter((l) => l.bucket === bucket);
 
     if (candidates.length === 0) {
-      finish(finalizeScore(lo, hi, []));
+      finishArtist(finalizeScore(lo, hi, []));
       return;
     }
     const first = pickComparisonTarget(candidates, lo, hi, new Set());
     if (!first) {
-      finish(finalizeScore(lo, hi, candidates.map((c) => c.score)));
+      finishArtist(finalizeScore(lo, hi, candidates.map((c) => c.score)));
       return;
     }
     setRange([lo, hi]);
@@ -97,12 +111,12 @@ export function RateSheet({
     const candidates = logs.filter((l) => l.bucket === bucket);
 
     if (nextComparisons >= MAX_COMPARISONS) {
-      finish(finalizeScore(lo, hi, candidates.map((c) => c.score)));
+      finishArtist(finalizeScore(lo, hi, candidates.map((c) => c.score)));
       return;
     }
     const next = pickComparisonTarget(candidates, lo, hi, nextExclude);
     if (!next) {
-      finish(finalizeScore(lo, hi, candidates.map((c) => c.score)));
+      finishArtist(finalizeScore(lo, hi, candidates.map((c) => c.score)));
       return;
     }
     setRange([lo, hi]);
@@ -111,9 +125,65 @@ export function RateSheet({
     setComparisons(nextComparisons);
   }
 
-  function finish(score: number) {
-    if (!bucket) return;
-    const entry = addLog(finalDraft(), bucket, score);
+  // Artist score is settled, but the log isn't saved yet — venue rating
+  // still needs to happen before addLog fires once, with both scores.
+  function finishArtist(score: number) {
+    setArtistScore(score);
+    setPhase("venue-rate");
+  }
+
+  function venueCandidatesFor(bucket: Bucket): VenueCandidate[] {
+    return logs
+      .filter((l) => l.venueBucket === bucket && l.venueScore !== undefined)
+      .map((l) => ({ id: l.id, score: l.venueScore as number, event: l.event }));
+  }
+
+  function chooseVenueBucket(chosen: Bucket) {
+    setVenueBucket(chosen);
+    const [lo, hi] = bucketRange(chosen);
+    const candidates = venueCandidatesFor(chosen);
+
+    if (candidates.length === 0) {
+      finishVenue(chosen, finalizeScore(lo, hi, []));
+      return;
+    }
+    const first = pickComparisonTarget(candidates, lo, hi, new Set());
+    if (!first) {
+      finishVenue(chosen, finalizeScore(lo, hi, candidates.map((c) => c.score)));
+      return;
+    }
+    setVenueRange([lo, hi]);
+    setVenueTarget(first);
+    setVenueExcludeIds(new Set());
+    setVenueComparisons(0);
+    setPhase("venue-compare");
+  }
+
+  function answerVenueCompare(newVenueWasBetter: boolean) {
+    if (!venueBucket || !venueTarget) return;
+    const [lo, hi] = narrowRange(venueRange[0], venueRange[1], venueTarget, newVenueWasBetter);
+    const nextExclude = new Set(venueExcludeIds).add(venueTarget.id);
+    const nextComparisons = venueComparisons + 1;
+    const candidates = venueCandidatesFor(venueBucket);
+
+    if (nextComparisons >= MAX_COMPARISONS) {
+      finishVenue(venueBucket, finalizeScore(lo, hi, candidates.map((c) => c.score)));
+      return;
+    }
+    const next = pickComparisonTarget(candidates, lo, hi, nextExclude);
+    if (!next) {
+      finishVenue(venueBucket, finalizeScore(lo, hi, candidates.map((c) => c.score)));
+      return;
+    }
+    setVenueRange([lo, hi]);
+    setVenueTarget(next);
+    setVenueExcludeIds(nextExclude);
+    setVenueComparisons(nextComparisons);
+  }
+
+  function finishVenue(chosenVenueBucket: Bucket, venueScore: number) {
+    if (!bucket || artistScore === null) return;
+    const entry = addLog(finalDraft(), bucket, artistScore, chosenVenueBucket, venueScore);
     setSavedLog(entry);
     setPhase("done");
   }
@@ -295,6 +365,67 @@ export function RateSheet({
           </>
         )}
 
+        {phase === "venue-rate" && (
+          <>
+            <div className="sheet-header">
+              <div>
+                <div className="who">How was the venue?</div>
+                <div className="meta">{draft.event}</div>
+              </div>
+              <button className="sheet-close" onClick={onClose} aria-label="Close">
+                ✕
+              </button>
+            </div>
+            <div className="sheet-section">
+              <div className="circle-row">
+                <CircleButton
+                  kind="loved"
+                  label={BUCKET_LABEL.loved}
+                  selected={false}
+                  onClick={() => chooseVenueBucket("loved")}
+                />
+                <CircleButton
+                  kind="good"
+                  label={BUCKET_LABEL.good}
+                  selected={false}
+                  onClick={() => chooseVenueBucket("good")}
+                />
+                <CircleButton
+                  kind="not"
+                  label={BUCKET_LABEL.not}
+                  selected={false}
+                  onClick={() => chooseVenueBucket("not")}
+                />
+              </div>
+            </div>
+          </>
+        )}
+
+        {phase === "venue-compare" && venueTarget && (
+          <>
+            <div className="sheet-header">
+              <div>
+                <div className="who">Which venue was better?</div>
+                <div className="meta">
+                  Comparison {venueComparisons + 1} of up to {MAX_COMPARISONS}
+                </div>
+              </div>
+              <button className="sheet-close" onClick={onClose} aria-label="Close">
+                ✕
+              </button>
+            </div>
+            <div className="vs-grid">
+              <div className="vs-card" onClick={() => answerVenueCompare(true)}>
+                <div className="name">{draft.event}</div>
+              </div>
+              <div className="vs-or">VS</div>
+              <div className="vs-card" onClick={() => answerVenueCompare(false)}>
+                <div className="name">{venueTarget.event}</div>
+              </div>
+            </div>
+          </>
+        )}
+
         {phase === "done" && savedLog && (
           <div className="score-reveal">
             <div className="eyebrow">Logged</div>
@@ -302,6 +433,11 @@ export function RateSheet({
             <p style={{ color: "var(--bone-dim)", marginTop: "0.4rem" }}>
               {savedLog.artist} — {savedLog.event}
             </p>
+            {savedLog.venueScore !== undefined && (
+              <div className="score-demo" style={{ justifyContent: "center", marginTop: "1rem" }}>
+                <span className={`pill ${savedLog.venueBucket}`}>Venue {savedLog.venueScore.toFixed(1)}</span>
+              </div>
+            )}
             <button className="sticker-btn" style={{ marginTop: "1.6rem" }} onClick={() => onDone(savedLog.id)}>
               View set
             </button>
