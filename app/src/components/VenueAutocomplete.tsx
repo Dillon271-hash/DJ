@@ -1,9 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-
-interface VenueResult {
-  name: string;
-  city: string;
-}
+import { useMemo, useRef, useState } from "react";
+import { SEED_VENUES } from "../lib/venues";
 
 export function VenueAutocomplete({
   id,
@@ -19,38 +15,18 @@ export function VenueAutocomplete({
   autoFocus?: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const [results, setResults] = useState<VenueResult[]>([]);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const blurTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const requestId = useRef(0);
 
-  useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    const query = value.trim();
-    if (!query) {
-      setResults([]);
-      return;
-    }
-    debounceRef.current = setTimeout(async () => {
-      const thisRequest = ++requestId.current;
-      try {
-        const res = await fetch(`/api/venue-search?q=${encodeURIComponent(query)}`);
-        if (!res.ok) return;
-        const json = await res.json();
-        if (thisRequest !== requestId.current) return; // a newer keystroke superseded this
-        setResults(Array.isArray(json?.results) ? json.results : []);
-      } catch {
-        if (thisRequest === requestId.current) setResults([]);
-      }
-    }, 300);
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
+  const results = useMemo(() => {
+    const q = value.trim().toLowerCase();
+    if (!q) return [];
+    return SEED_VENUES.filter(
+      (v) => v.name.toLowerCase().includes(q) || v.city.toLowerCase().includes(q),
+    ).slice(0, 8);
   }, [value]);
 
-  function select(result: VenueResult) {
+  function select(result: { name: string; city: string }) {
     onChange(result.city ? `${result.name}, ${result.city}` : result.name);
-    setResults([]);
     setOpen(false);
   }
 
