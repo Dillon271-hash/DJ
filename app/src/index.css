@@ -166,17 +166,20 @@ textarea {
 .topbar-nav a {
   text-decoration: none;
   font-size: 0.82rem;
-  color: var(--bone-dim);
+  color: var(--bone);
   padding: 0.45rem 0.7rem;
   border-radius: 999px;
+  /* A translucent void-tinted backing keeps the inactive label readable
+     against the header's bright glow gradient, not just the plain void
+     background it sits on most of the time. */
+  background: color-mix(in srgb, var(--void) 40%, transparent);
   transition:
     color 0.15s,
     background 0.15s;
 }
 
 .topbar-nav a:hover {
-  color: var(--bone);
-  background: var(--line);
+  background: color-mix(in srgb, var(--void) 60%, transparent);
 }
 
 .topbar-nav a.active {
