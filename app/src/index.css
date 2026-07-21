@@ -336,6 +336,36 @@ main.content {
   color: #1a1a1a;
 }
 
+/* ---------- Score ring (large, outlined) ---------- */
+.score-ring {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1.5px solid var(--c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: "SF Mono", monospace;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.score-ring.loved {
+  --c: var(--glow-edge);
+  color: var(--glow-edge);
+}
+
+.score-ring.good {
+  --c: var(--pink);
+  color: var(--pink);
+}
+
+.score-ring.not {
+  --c: var(--smoke);
+  color: var(--smoke);
+}
+
 /* ---------- Rows / cards ---------- */
 .perf {
   border: none;
@@ -358,10 +388,40 @@ main.content {
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  padding: 0.8rem 0.2rem;
+  gap: 0.9rem;
+  padding: 1rem 0.2rem;
   text-decoration: none;
   color: var(--bone);
+}
+
+.rank-row .title-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.rank-row .title-line .num {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--bone);
+  flex-shrink: 0;
+}
+
+.rank-row .who {
+  font-weight: 700;
+  font-size: 1.05rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rank-row .meta {
+  font-size: 0.82rem;
+  color: var(--smoke);
+  margin-top: 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .row-menu {
@@ -418,16 +478,9 @@ main.content {
   color: var(--pink);
 }
 
-.rank-row .num {
-  font-family: "SF Mono", monospace;
-  color: var(--smoke);
-  width: 1.4rem;
-  flex-shrink: 0;
-}
-
 .avatar-thumb {
-  width: 32px;
-  height: 32px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   overflow: hidden;
   background: var(--ink);
@@ -436,7 +489,7 @@ main.content {
   justify-content: center;
   flex-shrink: 0;
   font-family: "Arial Black", sans-serif;
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   color: var(--bone-dim);
   box-shadow: inset 0 0 0 1px var(--line);
 }
@@ -451,23 +504,6 @@ main.content {
 .rank-row .info {
   flex: 1;
   min-width: 0;
-}
-
-.rank-row .who {
-  font-weight: 600;
-  font-size: 0.95rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.rank-row .meta {
-  font-size: 0.75rem;
-  color: var(--smoke);
-  margin-top: 1px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* ---------- Sticker card ---------- */

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { EmptyState } from "../components/EmptyState";
-import { ScorePill } from "../components/ScorePill";
+import { ScoreRing } from "../components/ScoreRing";
 import { AvatarThumb } from "../components/AvatarThumb";
 import { RowMenu } from "../components/RowMenu";
 import { useEncoreStore } from "../lib/store";
@@ -62,15 +62,17 @@ export function Rankings() {
           {visible.map((log, i) => (
             <div key={log.id} className="rank-row-wrap">
               <Link to={`/set/${log.id}`} className="rank-row">
-                <span className="num">{i + 1}</span>
                 <AvatarThumb name={log.artist} />
                 <div className="info">
-                  <div className="who">{log.artist}</div>
+                  <div className="title-line">
+                    <span className="num">{i + 1}.</span>
+                    <span className="who">{log.artist}</span>
+                  </div>
                   <div className="meta">
                     {log.event} · {formatDate(log.date)}
                   </div>
                 </div>
-                <ScorePill score={log.score} bucket={log.bucket} />
+                <ScoreRing score={log.score} bucket={log.bucket} />
               </Link>
               <RowMenu onDelete={() => removeLog(log.id)} />
             </div>
