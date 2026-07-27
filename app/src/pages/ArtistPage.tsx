@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEncoreStore } from "../lib/store";
 import { fetchArtistImage } from "../lib/artistImage";
+import { fetchArtistBio } from "../lib/artistBio";
 import { RateSheet } from "../components/RateSheet";
 import { ScorePill } from "../components/ScorePill";
 import { VenueAutocomplete } from "../components/VenueAutocomplete";
@@ -37,6 +38,21 @@ export function ArtistPage() {
       if (controller.signal.aborted) return;
       setImage(url);
       setImageLoading(false);
+    });
+    return () => controller.abort();
+  }, [artist]);
+
+  // Bio coverage is much spottier than photo coverage (plenty of working
+  // DJs have no Wikipedia article at all), so unlike the photo this
+  // doesn't gate the page — it just fills in whenever/if it resolves.
+  const [bio, setBio] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setBio(null);
+    fetchArtistBio(artist, controller.signal).then((text) => {
+      if (controller.signal.aborted) return;
+      setBio(text);
     });
     return () => controller.abort();
   }, [artist]);
@@ -91,6 +107,8 @@ export function ArtistPage() {
         </div>
         <h1 className="display artist-name">{artist}</h1>
       </div>
+
+      {bio && <p className="artist-bio">{bio}</p>}
 
       {count > 0 ? (
         <div className="artist-stats">
