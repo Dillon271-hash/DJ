@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { SupabaseClient, Session } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
+import { deleteSetMedia } from "./media";
 import type { Bucket, DraftLog, SetLog } from "./types";
 
 // Every store action below only runs once App.tsx has confirmed
@@ -25,6 +26,7 @@ interface LogRow {
   score: number;
   venue_bucket: Bucket | null;
   venue_score: number | null;
+  media_paths: string[] | null;
   created_at: string;
 }
 
@@ -41,6 +43,7 @@ function rowToLog(row: LogRow): SetLog {
     score: row.score,
     venueBucket: row.venue_bucket ?? undefined,
     venueScore: row.venue_score ?? undefined,
+    mediaPaths: row.media_paths ?? undefined,
     createdAt: new Date(row.created_at).getTime(),
   };
 }
@@ -67,6 +70,7 @@ interface EncoreStore {
     score: number,
     venueBucket?: Bucket,
     venueScore?: number,
+    mediaPaths?: string[],
   ) => Promise<SetLog | null>;
   removeLog: (id: string) => Promise<void>;
   // Not persisted anywhere (not localStorage, not Supabase) — purely
@@ -117,7 +121,7 @@ export const useEncoreStore = create<EncoreStore>()((set, get) => ({
     await client().auth.signOut();
   },
 
-  addLog: async (draft, bucket, score, venueBucket, venueScore) => {
+  addLog: async (draft, bucket, score, venueBucket, venueScore, mediaPaths) => {
     const { data, error } = await client()
       .from("logs")
       .insert({
@@ -131,6 +135,7 @@ export const useEncoreStore = create<EncoreStore>()((set, get) => ({
         score,
         venue_bucket: venueBucket ?? null,
         venue_score: venueScore ?? null,
+        media_paths: mediaPaths && mediaPaths.length > 0 ? mediaPaths : null,
       })
       .select()
       .single();
@@ -144,6 +149,11 @@ export const useEncoreStore = create<EncoreStore>()((set, get) => ({
   },
 
   removeLog: async (id) => {
+    const existing = get().logs.find((l) => l.id === id);
+    // Best-effort — a failed storage cleanup shouldn't block deleting the
+    // log itself, it just leaves orphaned files behind.
+    if (existing?.mediaPaths?.length) await deleteSetMedia(existing.mediaPaths);
+
     const { error } = await client().from("logs").delete().eq("id", id);
     if (error) {
       console.error("[logs] delete failed:", error);

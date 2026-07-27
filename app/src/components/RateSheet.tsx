@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useEncoreStore } from "../lib/store";
+import { uploadSetMedia } from "../lib/media";
 import {
   MAX_COMPARISONS,
   bucketRange,
@@ -36,6 +37,7 @@ export function RateSheet({
   const logs = useEncoreStore((s) => s.logs);
   const addLog = useEncoreStore((s) => s.addLog);
   const setFestivalSession = useEncoreStore((s) => s.setFestivalSession);
+  const userId = useEncoreStore((s) => s.session?.user.id);
 
   const [phase, setPhase] = useState<Phase>("rate");
   const [bucket, setBucket] = useState<Bucket | null>(null);
@@ -45,6 +47,7 @@ export function RateSheet({
   const [whoInput, setWhoInput] = useState("");
   const [note, setNote] = useState(draft.note ?? "");
   const [date, setDate] = useState(draft.date);
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
 
   const [range, setRange] = useState<[number, number]>([0, 10]);
   const [excludeIds, setExcludeIds] = useState<Set<string>>(new Set());
@@ -80,6 +83,10 @@ export function RateSheet({
 
   function removeWhoTag(v: string) {
     setWithWhoTags(withWhoTags.filter((t) => t !== v));
+  }
+
+  function removeMediaFile(index: number) {
+    setMediaFiles((prev) => prev.filter((_, i) => i !== index));
   }
 
   function finalDraft(): DraftLog {
@@ -207,7 +214,8 @@ export function RateSheet({
     const finalArtistScore = artistScoreOverride ?? artistScore;
     if (!bucket || finalArtistScore === null) return;
     setSaving(true);
-    const entry = await addLog(finalDraft(), bucket, finalArtistScore, chosenVenueBucket, venueScore);
+    const mediaPaths = userId && mediaFiles.length > 0 ? await uploadSetMedia(mediaFiles, userId) : [];
+    const entry = await addLog(finalDraft(), bucket, finalArtistScore, chosenVenueBucket, venueScore, mediaPaths);
     setSaving(false);
     if (!entry) {
       setSaveError("Couldn't save that set — check your connection and try again.");
@@ -341,6 +349,31 @@ export function RateSheet({
                   resize: "vertical",
                 }}
               />
+            </div>
+
+            <div className="sheet-section">
+              <div className="label">Add photos / videos</div>
+              {mediaFiles.length > 0 && (
+                <div className="media-preview-row">
+                  {mediaFiles.map((file, i) => (
+                    <MediaPreview key={`${file.name}-${i}`} file={file} onRemove={() => removeMediaFile(i)} />
+                  ))}
+                </div>
+              )}
+              <label className="media-picker">
+                + Add photo or video
+                <input
+                  type="file"
+                  accept="image/*,video/*"
+                  multiple
+                  onChange={(e) => {
+                    const picked = Array.from(e.target.files ?? []);
+                    if (picked.length) setMediaFiles((prev) => [...prev, ...picked]);
+                    e.target.value = "";
+                  }}
+                  style={{ display: "none" }}
+                />
+              </label>
             </div>
 
             <div className="sheet-section">
@@ -524,6 +557,33 @@ function DateChip({
     <button className={`chip ${current === value ? "active" : ""}`} onClick={() => onPick(value)} type="button">
       {label}
     </button>
+  );
+}
+
+function MediaPreview({ file, onRemove }: { file: File; onRemove: () => void }) {
+  const isImage = file.type.startsWith("image/");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isImage) return;
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file, isImage]);
+
+  return (
+    <div className="media-preview">
+      {isImage && previewUrl ? (
+        <img src={previewUrl} alt="" />
+      ) : (
+        <span className="media-preview-icon" aria-hidden="true">
+          🎥
+        </span>
+      )}
+      <button type="button" className="media-preview-remove" onClick={onRemove} aria-label={`Remove ${file.name}`}>
+        ✕
+      </button>
+    </div>
   );
 }
 

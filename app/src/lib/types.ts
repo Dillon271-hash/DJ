@@ -14,6 +14,11 @@ export interface SetLog {
   // these — every new log gets both from here on.
   venueBucket?: Bucket;
   venueScore?: number;
+  // Storage paths (not full URLs) in the "set-media" bucket — pass
+  // through mediaUrl() to get something usable in an <img>/<video> src.
+  // Optional for the same reason as venueBucket/venueScore: logs from
+  // before this shipped won't have any.
+  mediaPaths?: string[];
   createdAt: number;
 }
 

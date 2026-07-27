@@ -1,6 +1,7 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEncoreStore } from "../lib/store";
 import { overallRank, rankInBucket } from "../lib/ranking";
+import { isVideoPath, mediaUrl } from "../lib/media";
 import { BUCKET_LABEL } from "../lib/types";
 
 export function SetDetail() {
@@ -78,6 +79,21 @@ export function SetDetail() {
         <>
           <hr className="perf" />
           <p style={{ color: "var(--bone-dim)" }}>{log.note}</p>
+        </>
+      )}
+
+      {log.mediaPaths && log.mediaPaths.length > 0 && (
+        <>
+          <hr className="perf" />
+          <div className="set-media-gallery">
+            {log.mediaPaths.map((path) =>
+              isVideoPath(path) ? (
+                <video key={path} src={mediaUrl(path)} controls playsInline />
+              ) : (
+                <img key={path} src={mediaUrl(path)} alt="" />
+              ),
+            )}
+          </div>
         </>
       )}
 
