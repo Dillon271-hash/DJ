@@ -14,6 +14,8 @@ export function ArtistPage() {
   const navigate = useNavigate();
 
   const logs = useEncoreStore((s) => s.logs);
+  const festivalSession = useEncoreStore((s) => s.festivalSession);
+  const clearFestivalSession = useEncoreStore((s) => s.clearFestivalSession);
   const artistLogs = useMemo(
     () =>
       [...logs]
@@ -68,12 +70,20 @@ export function ArtistPage() {
     setSheetDraft({ artist, event: venue.trim(), date });
   }
 
+  function logFromFestivalSession() {
+    if (!festivalSession) return;
+    setSheetDraft({ artist, event: festivalSession.event, date: festivalSession.date });
+  }
+
   if (sheetDraft) {
+    const usingSession = festivalSession && sheetDraft.event === festivalSession.event && sheetDraft.date === festivalSession.date;
     return (
       <RateSheet
         draft={sheetDraft}
+        presetVenue={usingSession ? { bucket: festivalSession.venueBucket, score: festivalSession.venueScore } : undefined}
         onClose={() => setSheetDraft(null)}
         onDone={(id) => navigate(`/set/${id}`)}
+        onLogAnother={() => navigate("/log")}
       />
     );
   }
@@ -131,11 +141,30 @@ export function ArtistPage() {
         </p>
       )}
 
-      {!showForm ? (
+      {!showForm && festivalSession && (
+        <div className="festival-session-card">
+          <p>
+            Logging from <b>{festivalSession.event}</b> · {formatDate(festivalSession.date)}
+          </p>
+          <div style={{ display: "flex", gap: "0.7rem" }}>
+            <button className="sticker-btn" style={{ flex: 1 }} onClick={logFromFestivalSession}>
+              Log {artist} here
+            </button>
+            <button className="ghost-btn" onClick={() => setShowForm(true)}>
+              Different venue
+            </button>
+          </div>
+          <button className="text-btn" style={{ display: "block", margin: "0.6rem auto 0" }} onClick={clearFestivalSession}>
+            Done with {festivalSession.event}
+          </button>
+        </div>
+      )}
+
+      {!showForm && !festivalSession ? (
         <button className="sticker-btn" style={{ width: "100%" }} onClick={() => setShowForm(true)}>
           Log a set by {artist}
         </button>
-      ) : (
+      ) : showForm ? (
         <form onSubmit={handleContinue}>
           <div className="field">
             <label htmlFor="venue">Venue / festival</label>
@@ -166,7 +195,7 @@ export function ArtistPage() {
             </button>
           </div>
         </form>
-      )}
+      ) : null}
 
       {count > 0 && (
         <>

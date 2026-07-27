@@ -19,15 +19,23 @@ interface VenueCandidate {
 
 export function RateSheet({
   draft,
+  presetVenue,
   onClose,
   onDone,
+  onLogAnother,
 }: {
   draft: DraftLog;
+  // When set (logging another DJ from a festival visit already rated
+  // this session), the venue-rate/venue-compare phases are skipped
+  // entirely and every set saved during the session reuses this score.
+  presetVenue?: { bucket: Bucket; score: number };
   onClose: () => void;
   onDone: (id: string) => void;
+  onLogAnother?: () => void;
 }) {
   const logs = useEncoreStore((s) => s.logs);
   const addLog = useEncoreStore((s) => s.addLog);
+  const setFestivalSession = useEncoreStore((s) => s.setFestivalSession);
 
   const [phase, setPhase] = useState<Phase>("rate");
   const [bucket, setBucket] = useState<Bucket | null>(null);
@@ -127,10 +135,19 @@ export function RateSheet({
     setComparisons(nextComparisons);
   }
 
-  // Artist score is settled, but the log isn't saved yet — venue rating
-  // still needs to happen before addLog fires once, with both scores.
+  // Artist score is settled. With a preset venue score already in hand
+  // (logging another DJ from the same festival visit) the log can save
+  // immediately; otherwise the venue still needs its own rating pass
+  // before addLog fires, with both scores. The score is passed straight
+  // through to finishVenue rather than relying on the artistScore state
+  // update having landed yet — setArtistScore above wouldn't be visible
+  // to a finishVenue call made synchronously in the same tick.
   function finishArtist(score: number) {
     setArtistScore(score);
+    if (presetVenue) {
+      finishVenue(presetVenue.bucket, presetVenue.score, score);
+      return;
+    }
     setPhase("venue-rate");
   }
 
@@ -186,15 +203,19 @@ export function RateSheet({
     setVenueComparisons(nextComparisons);
   }
 
-  async function finishVenue(chosenVenueBucket: Bucket, venueScore: number) {
-    if (!bucket || artistScore === null) return;
+  async function finishVenue(chosenVenueBucket: Bucket, venueScore: number, artistScoreOverride?: number) {
+    const finalArtistScore = artistScoreOverride ?? artistScore;
+    if (!bucket || finalArtistScore === null) return;
     setSaving(true);
-    const entry = await addLog(finalDraft(), bucket, artistScore, chosenVenueBucket, venueScore);
+    const entry = await addLog(finalDraft(), bucket, finalArtistScore, chosenVenueBucket, venueScore);
     setSaving(false);
     if (!entry) {
       setSaveError("Couldn't save that set — check your connection and try again.");
       return;
     }
+    // Keeps (or starts) the festival session so the next "log another DJ"
+    // pass skips straight to artist-only rating with this same score.
+    setFestivalSession({ event: draft.event, date, venueBucket: chosenVenueBucket, venueScore });
     setSavedLog(entry);
     setPhase("done");
   }
@@ -452,9 +473,16 @@ export function RateSheet({
                 <span className={`pill ${savedLog.venueBucket}`}>Venue {savedLog.venueScore.toFixed(1)}</span>
               </div>
             )}
-            <button className="sticker-btn" style={{ marginTop: "1.6rem" }} onClick={() => onDone(savedLog.id)}>
-              View set
-            </button>
+            <div style={{ display: "flex", gap: "0.7rem", marginTop: "1.6rem", justifyContent: "center" }}>
+              <button className="sticker-btn" onClick={() => onDone(savedLog.id)}>
+                View set
+              </button>
+              {onLogAnother && (
+                <button className="ghost-btn" onClick={onLogAnother}>
+                  + Log another from {draft.event}
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>

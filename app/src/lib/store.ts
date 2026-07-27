@@ -45,6 +45,13 @@ function rowToLog(row: LogRow): SetLog {
   };
 }
 
+export interface FestivalSession {
+  event: string;
+  date: string;
+  venueBucket: Bucket;
+  venueScore: number;
+}
+
 interface EncoreStore {
   session: Session | null;
   authReady: boolean;
@@ -62,6 +69,13 @@ interface EncoreStore {
     venueScore?: number,
   ) => Promise<SetLog | null>;
   removeLog: (id: string) => Promise<void>;
+  // Not persisted anywhere (not localStorage, not Supabase) — purely
+  // in-memory so logging several DJs from the same festival visit in a
+  // row doesn't re-ask for the venue/date or re-run the venue rating
+  // comparison every single time. Clears itself on page reload.
+  festivalSession: FestivalSession | null;
+  setFestivalSession: (session: FestivalSession) => void;
+  clearFestivalSession: () => void;
 }
 
 let authListenerStarted = false;
@@ -137,6 +151,10 @@ export const useEncoreStore = create<EncoreStore>()((set, get) => ({
     }
     set({ logs: get().logs.filter((l) => l.id !== id) });
   },
+
+  festivalSession: null,
+  setFestivalSession: (session) => set({ festivalSession: session }),
+  clearFestivalSession: () => set({ festivalSession: null }),
 }));
 
 async function fetchLogs() {

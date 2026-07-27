@@ -291,6 +291,24 @@ main.content {
   text-decoration: underline;
 }
 
+.festival-session-card {
+  background: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.festival-session-card p {
+  margin: 0 0 0.8rem;
+  font-size: 0.9rem;
+  color: var(--bone-dim);
+}
+
+.festival-session-card p b {
+  color: var(--bone);
+}
+
 /* ---------- Forms ---------- */
 .field {
   display: flex;

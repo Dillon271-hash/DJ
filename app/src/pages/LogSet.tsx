@@ -12,6 +12,8 @@ interface RecentArtist {
 
 export function LogSet() {
   const logs = useEncoreStore((s) => s.logs);
+  const festivalSession = useEncoreStore((s) => s.festivalSession);
+  const clearFestivalSession = useEncoreStore((s) => s.clearFestivalSession);
   const navigate = useNavigate();
 
   const [query, setQuery] = useState("");
@@ -58,6 +60,17 @@ export function LogSet() {
       <h1 className="display" style={{ fontSize: "1.8rem", margin: "0.3rem 0 1.4rem" }}>
         Who'd you hear?
       </h1>
+
+      {festivalSession && (
+        <div className="festival-session-card">
+          <p>
+            Adding sets from <b>{festivalSession.event}</b> — search for the next artist you saw there.
+          </p>
+          <button className="text-btn" onClick={clearFestivalSession}>
+            Done with {festivalSession.event}
+          </button>
+        </div>
+      )}
 
       <div className="search-field">
         <SearchIcon />
