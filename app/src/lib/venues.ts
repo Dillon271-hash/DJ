@@ -164,4 +164,101 @@ export const SEED_VENUES: SeedVenue[] = [
   { name: "Djakarta Warehouse Project", city: "Jakarta, Indonesia" },
   { name: "Road to Ultra Australia", city: "Melbourne, Australia" },
   { name: "Listen Out", city: "Sydney, Australia" },
+
+  // More nightclubs / party spaces — North America
+  { name: "Toejam Backlot", city: "Miami, FL" },
+  { name: "Rebel Nightclub", city: "Toronto, Canada" },
+
+  // More nightclubs — UK / Ireland
+  { name: "Motion", city: "Bristol, UK" },
+
+  // More nightclubs — Ibiza / Spain
+  { name: "Eden Ibiza", city: "Ibiza, Spain" },
+  { name: "Es Paradis", city: "Ibiza, Spain" },
+  { name: "Octan Ibiza", city: "Ibiza, Spain" },
+  { name: "Heart Ibiza", city: "Ibiza, Spain" },
+  { name: "Café Mambo", city: "Ibiza, Spain" },
+  { name: "Café del Mar", city: "Ibiza, Spain" },
+  { name: "Booom!", city: "Ibiza, Spain" },
+  { name: "Woomoon", city: "Ibiza, Spain" },
+  { name: "Input", city: "Barcelona, Spain" },
+  { name: "Razzmatazz", city: "Barcelona, Spain" },
+  { name: "Moog", city: "Barcelona, Spain" },
+  { name: "Fabrik", city: "Madrid, Spain" },
+  { name: "Florida135", city: "Fraga, Spain" },
+
+  // More nightclubs — Continental Europe
+  { name: "Griessmuehle", city: "Berlin, Germany" },
+  { name: "Renate", city: "Berlin, Germany" },
+  { name: "Suicide Circus", city: "Berlin, Germany" },
+  { name: "OST Club", city: "Warsaw, Poland" },
+  { name: "Smolna", city: "Warsaw, Poland" },
+  { name: "Fabrika", city: "Prague, Czech Republic" },
+  { name: "Flex", city: "Vienna, Austria" },
+  { name: "Grelle Forelle", city: "Vienna, Austria" },
+  { name: "Yoyo", city: "Paris, France" },
+  { name: "Machine du Moulin Rouge", city: "Paris, France" },
+  { name: "Nouveau Casino", city: "Paris, France" },
+  { name: "La Bellevilloise", city: "Paris, France" },
+  { name: "Trädgår'n", city: "Gothenburg, Sweden" },
+  { name: "Under Bron", city: "Stockholm, Sweden" },
+  { name: "Culture Box", city: "Copenhagen, Denmark" },
+  { name: "Jaeger", city: "Oslo, Norway" },
+  { name: "Cocorico", city: "Riccione, Italy" },
+  { name: "Amnesia Milano", city: "Milan, Italy" },
+  { name: "Closer", city: "Kyiv, Ukraine" },
+  { name: "K41", city: "Kyiv, Ukraine" },
+
+  // More nightclubs — Asia / Oceania
+  { name: "ALL", city: "Shanghai, China" },
+  { name: "TAXX", city: "Bangkok, Thailand" },
+  { name: "Beam", city: "Bangkok, Thailand" },
+  { name: "Ce La Vi", city: "Singapore" },
+
+  // More festivals — North America
+  { name: "Sustain-Release", city: "Parksville, NY" },
+  { name: "Freaky Deaky", city: "Dallas, TX" },
+  { name: "Something Wicked", city: "Houston, TX" },
+  { name: "Decadence", city: "Denver, CO" },
+  { name: "Nocturnal Wonderland", city: "San Bernardino, CA" },
+  { name: "Countdown NYE", city: "San Bernardino, CA" },
+  { name: "Escape Halloween", city: "San Bernardino, CA" },
+  { name: "Okeechobee Music Festival", city: "Okeechobee, FL" },
+  { name: "III Points", city: "Miami, FL" },
+  { name: "Sunset Music Festival", city: "Tampa, FL" },
+  { name: "Framework Detroit", city: "Detroit, MI" },
+  { name: "Holy Ship!", city: "at sea (cruise)" },
+  { name: "Portola Music Festival", city: "San Francisco, CA" },
+  { name: "Sonic Bloom", city: "Rye, CO" },
+  { name: "Splash House", city: "Palm Springs, CA" },
+
+  // More festivals — UK / Ireland
+  { name: "Field Day", city: "London, UK" },
+  { name: "Wide Awake Festival", city: "London, UK" },
+  { name: "Gottwood Festival", city: "Anglesey, Wales" },
+  { name: "Lost Village", city: "Lincolnshire, UK" },
+  { name: "Houghton Festival", city: "Norfolk, UK" },
+  { name: "Love Saves The Day", city: "Bristol, UK" },
+  { name: "Beat-Herder Festival", city: "Ribble Valley, UK" },
+
+  // More festivals — Continental Europe
+  { name: "Amsterdam Open Air", city: "Amsterdam, Netherlands" },
+  { name: "Primavera Sound", city: "Barcelona, Spain" },
+  { name: "Sónar by Night", city: "Barcelona, Spain" },
+  { name: "Off Week Barcelona", city: "Barcelona, Spain" },
+  { name: "Sonus Festival", city: "Pag, Croatia" },
+  { name: "Dimensions Festival", city: "Pula, Croatia" },
+  { name: "Outlook Festival", city: "Pula, Croatia" },
+  { name: "Circoloco at DC10", city: "Ibiza, Spain" },
+
+  // More festivals — Africa / Asia / Oceania
+  { name: "AfrikaBurn", city: "Tankwa Karoo, South Africa" },
+  { name: "KreamFields", city: "Johannesburg, South Africa" },
+  { name: "Good Vibes Festival", city: "Kuala Lumpur, Malaysia" },
+  { name: "Ultra Korea", city: "Seoul, South Korea" },
+  { name: "World DJ Festival", city: "Seoul, South Korea" },
+  { name: "Golden Plains", city: "Meredith, Australia" },
+  { name: "Meredith Music Festival", city: "Meredith, Australia" },
+  { name: "Rainbow Serpent Festival", city: "Lexton, Australia" },
+  { name: "Strawberry Fields Festival", city: "Tocumwal, Australia" },
 ];
