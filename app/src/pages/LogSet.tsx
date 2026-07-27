@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEncoreStore } from "../lib/store";
 import { SEED_ARTISTS } from "../lib/artists";
+import { AvatarThumb } from "../components/AvatarThumb";
 
 interface RecentArtist {
   artist: string;
@@ -82,7 +83,7 @@ export function LogSet() {
           <div>
             {filteredRecents.map((r) => (
               <button key={r.artist} className="recent-row" onClick={() => goToArtist(r.artist)}>
-                <span className="icon">{r.artist.charAt(0).toUpperCase()}</span>
+                <AvatarThumb name={r.artist} />
                 <span className="info">
                   <span className="who">{r.artist}</span>
                   <span className="meta">
@@ -104,7 +105,7 @@ export function LogSet() {
           <div>
             {suggestions.map((name) => (
               <button key={name} className="recent-row" onClick={() => goToArtist(name)}>
-                <span className="icon">{name.charAt(0).toUpperCase()}</span>
+                <AvatarThumb name={name} />
                 <span className="info">
                   <span className="who">{name}</span>
                 </span>
