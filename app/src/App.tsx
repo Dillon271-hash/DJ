@@ -11,6 +11,7 @@ import { isSupabaseConfigured } from "./lib/supabase";
 // and Rankings don't pay for the rating flow, the 300-artist and
 // 400-venue seed lists, or the Wikipedia lookup code up front.
 const LogSet = lazy(() => import("./pages/LogSet").then((m) => ({ default: m.LogSet })));
+const LogFlow = lazy(() => import("./pages/LogFlow").then((m) => ({ default: m.LogFlow })));
 const SetDetail = lazy(() => import("./pages/SetDetail").then((m) => ({ default: m.SetDetail })));
 const ArtistPage = lazy(() => import("./pages/ArtistPage").then((m) => ({ default: m.ArtistPage })));
 const VenuePage = lazy(() => import("./pages/VenuePage").then((m) => ({ default: m.VenuePage })));
@@ -76,6 +77,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Rankings />} />
             <Route path="/log" element={<LogSet />} />
+            <Route path="/log/:artist" element={<LogFlow />} />
             <Route path="/set/:id" element={<SetDetail />} />
             <Route path="/artist/:name" element={<ArtistPage />} />
             <Route path="/venue/:name" element={<VenuePage />} />

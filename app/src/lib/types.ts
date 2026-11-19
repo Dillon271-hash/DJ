@@ -7,6 +7,9 @@ export interface SetLog {
   date: string;
   labels?: string[];
   withWho?: string;
+  // Encore accounts tagged in "who were you with" (their names are also
+  // in withWho, alongside any plain names typed in).
+  withUserIds?: string[];
   note?: string;
   bucket: Bucket;
   score: number;
@@ -26,8 +29,8 @@ export interface DraftLog {
   artist: string;
   event: string;
   date: string;
-  labels?: string[];
   withWho?: string;
+  withUserIds?: string[];
   note?: string;
 }
 
@@ -43,19 +46,3 @@ export const BUCKET_RANGE: Record<Bucket, [number, number]> = {
   not: [0, 3.9],
 };
 
-export const LABEL_PRESETS = [
-  "Opening set",
-  "Closing set",
-  "B2B",
-  "Sunrise set",
-  "Warehouse",
-  "Festival main stage",
-  "House",
-  "Techno",
-  "Deep house",
-  "Amapiano",
-  "Drum & bass",
-  "Disco",
-  "Afrobeats",
-  "Open format",
-];

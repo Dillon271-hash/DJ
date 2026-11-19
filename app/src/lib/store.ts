@@ -21,6 +21,7 @@ interface LogRow {
   date: string;
   labels: string[] | null;
   with_who: string | null;
+  with_user_ids?: string[] | null;
   note: string | null;
   bucket: Bucket;
   score: number;
@@ -38,6 +39,7 @@ function rowToLog(row: LogRow): SetLog {
     date: row.date,
     labels: row.labels ?? undefined,
     withWho: row.with_who ?? undefined,
+    withUserIds: row.with_user_ids ?? undefined,
     note: row.note ?? undefined,
     bucket: row.bucket,
     score: row.score,
@@ -46,6 +48,11 @@ function rowToLog(row: LogRow): SetLog {
     mediaPaths: row.media_paths ?? undefined,
     createdAt: new Date(row.created_at).getTime(),
   };
+}
+
+export interface ProfileMatch {
+  id: string;
+  name: string;
 }
 
 export interface FestivalSession {
@@ -87,6 +94,7 @@ interface EncoreStore {
     mediaPaths?: string[],
   ) => Promise<SetLog | null>;
   removeLog: (id: string) => Promise<void>;
+  searchProfiles: (query: string) => Promise<ProfileMatch[]>;
   // Not persisted anywhere (not localStorage, not Supabase) — purely
   // in-memory so logging several DJs from the same festival visit in a
   // row doesn't re-ask for the venue/date or re-run the venue rating
@@ -186,8 +194,10 @@ export const useEncoreStore = create<EncoreStore>()((set, get) => ({
         artist: draft.artist,
         event: draft.event,
         date: draft.date,
-        labels: draft.labels ?? null,
         with_who: draft.withWho ?? null,
+        // Only sent when someone was tagged, so saving still works on a
+        // project that hasn't re-run schema.sql to add this column yet.
+        ...(draft.withUserIds?.length ? { with_user_ids: draft.withUserIds } : {}),
         note: draft.note ?? null,
         bucket,
         score,
@@ -218,6 +228,20 @@ export const useEncoreStore = create<EncoreStore>()((set, get) => ({
       return;
     }
     set({ logs: get().logs.filter((l) => l.id !== id) });
+  },
+
+  searchProfiles: async (query) => {
+    // Escape LIKE wildcards so typing "%" or "_" searches for them literally.
+    const term = query.trim().replace(/[\\%_]/g, (c) => `\\${c}`);
+    if (!term) return [];
+    let request = client().from("profiles").select("id, display_name").ilike("display_name", `%${term}%`).limit(6);
+    const me = get().session?.user.id;
+    if (me) request = request.neq("id", me);
+    const { data, error } = await request;
+    // Most likely the profiles table doesn't exist yet (schema.sql not
+    // re-run) — tagging just falls back to typed-in names until it does.
+    if (error || !data) return [];
+    return (data as { id: string; display_name: string }[]).map((p) => ({ id: p.id, name: p.display_name }));
   },
 
   festivalSession: null,

@@ -29,6 +29,7 @@ create table if not exists public.logs (
 );
 
 alter table public.logs add column if not exists media_paths text[];
+alter table public.logs add column if not exists with_user_ids uuid[];
 
 alter table public.logs enable row level security;
 
@@ -72,3 +73,50 @@ create policy "Users can delete their own media"
     bucket_id = 'set-media'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
+
+-- Public display names, so "who were you with?" can suggest other Encore
+-- users. Deliberately just the name — never the email — and only visible
+-- to signed-in users. Filled in automatically for every new sign-up by
+-- the trigger below, and backfilled once for existing accounts.
+create table if not exists public.profiles (
+  id uuid primary key references auth.users (id) on delete cascade,
+  display_name text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.profiles enable row level security;
+
+drop policy if exists "Signed-in users can see profiles" on public.profiles;
+create policy "Signed-in users can see profiles"
+  on public.profiles for select
+  to authenticated
+  using (true);
+
+drop policy if exists "Users can update their own profile" on public.profiles;
+create policy "Users can update their own profile"
+  on public.profiles for update
+  using (auth.uid() = id);
+
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  insert into public.profiles (id, display_name)
+  values (new.id, coalesce(nullif(trim(new.raw_user_meta_data ->> 'name'), ''), 'Encore user'))
+  on conflict (id) do nothing;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
+
+insert into public.profiles (id, display_name)
+select id, coalesce(nullif(trim(raw_user_meta_data ->> 'name'), ''), 'Encore user')
+from auth.users
+on conflict (id) do nothing;

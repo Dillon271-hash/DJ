@@ -51,7 +51,7 @@ export function LogSet() {
   }, [recents, query]);
 
   function goToArtist(artist: string) {
-    navigate(`/artist/${encodeURIComponent(artist.trim())}`);
+    navigate(`/log/${encodeURIComponent(artist.trim())}`);
   }
 
   return (

@@ -1,7 +1,9 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEncoreStore } from "../lib/store";
 import { venueRatedLogs } from "../lib/ranking";
+import { fetchVenueImage } from "../lib/venueImage";
+import { splitVenue } from "../lib/venueNames";
 import { ScorePill } from "../components/ScorePill";
 import { BUCKET_LABEL } from "../lib/types";
 
@@ -19,6 +21,20 @@ export function VenuePage() {
     [logs, venue],
   );
 
+  const { name: venueName, place } = splitVenue(venue);
+  const [image, setImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    let stale = false;
+    setImage(null);
+    fetchVenueImage(venueName).then((url) => {
+      if (!stale) setImage(url);
+    });
+    return () => {
+      stale = true;
+    };
+  }, [venueName]);
+
   const count = visits.length;
   const avg = count ? visits.reduce((sum, l) => sum + l.venueScore, 0) / count : null;
   const best = count ? visits[0].venueScore : null;
@@ -31,9 +47,14 @@ export function VenuePage() {
 
       <div className="artist-hero">
         <div className="artist-avatar">
-          <span className="initials">{initials(venue)}</span>
+          {image ? (
+            <img src={image} alt={venueName} decoding="async" referrerPolicy="no-referrer" onError={() => setImage(null)} />
+          ) : (
+            <span className="initials">{initials(venueName)}</span>
+          )}
         </div>
-        <h1 className="display artist-name">{venue}</h1>
+        <h1 className="display artist-name">{venueName}</h1>
+        {place && <p className="venue-hero-place">{place}</p>}
       </div>
 
       {count > 0 ? (

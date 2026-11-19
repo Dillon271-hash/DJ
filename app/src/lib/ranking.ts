@@ -1,6 +1,13 @@
 import { BUCKET_RANGE, type Bucket, type SetLog } from "./types";
 
-export const MAX_COMPARISONS = 3;
+/** How many "which was better" questions to ask before settling a score.
+ * Each answer halves the range, so placing a set exactly among n others
+ * takes about log2(n + 1) answers — scale with how many there are to
+ * compare against, but cap it so a big diary never turns into a quiz. */
+export function maxComparisons(candidateCount: number): number {
+  if (candidateCount <= 0) return 0;
+  return Math.min(5, Math.max(2, Math.ceil(Math.log2(candidateCount + 1))));
+}
 
 export function bucketRange(bucket: Bucket): [number, number] {
   return BUCKET_RANGE[bucket];
@@ -19,19 +26,30 @@ export function bucketForScore(score: number): Bucket {
  * to the midpoint of the current search range — the next best comparison
  * to halve the range, same idea as a binary-search probe. Generic over
  * anything with an id/score, so the same engine drives both artist-set
- * scoring and venue scoring. */
+ * scoring and venue scoring.
+ *
+ * Only entries still inside [lo, hi] are eligible: once earlier answers
+ * have ruled a region out, comparing against something in it tells us
+ * nothing — and feeding that answer to narrowRange would *widen* the
+ * range back out instead of narrowing it. */
 export function pickComparisonTarget<T extends { id: string; score: number }>(
   candidates: T[],
   lo: number,
   hi: number,
   excludeIds: ReadonlySet<string>,
 ): T | null {
-  const pool = candidates.filter((c) => !excludeIds.has(c.id));
+  const pool = candidates.filter((c) => !excludeIds.has(c.id) && c.score >= lo && c.score <= hi);
   if (pool.length === 0) return null;
   const mid = (lo + hi) / 2;
   return pool.reduce((best, c) =>
     Math.abs(c.score - mid) < Math.abs(best.score - mid) ? c : best,
   );
+}
+
+/** "Too close to call" — place the new entry right next to the one it was
+ * being compared against, on whichever side is still free. */
+export function tooCloseScore(lo: number, hi: number, target: { score: number }, existingScores: number[]): number {
+  return finalizeScore(Math.max(lo, target.score - 0.2), Math.min(hi, target.score + 0.2), existingScores);
 }
 
 /** Narrow the score range given the user's "which was better" answer. */

@@ -20,7 +20,7 @@ const NON_BIO_TITLE = /:|discography|\(album\)|\(ep\)|\(song\)|\(mixtape\)|\(fil
 const MUSIC_BIO_HINT =
   /\bdj\b|musician|producer|singer|rapper|composer|songwriter|\bband\b|\bduo\b|artist|entertainer|vocalist|remixer/i;
 
-function looksLikeMusicBio(description: string | undefined): boolean {
+export function looksLikeMusicBio(description: string | undefined): boolean {
   if (!description) return true;
   return MUSIC_BIO_HINT.test(description);
 }
@@ -44,12 +44,30 @@ function rankCandidates(query: string, titles: string[]): string[] {
   return titles.filter((t) => !NON_BIO_TITLE.test(t) && normalize(t) === q).slice(0, 3);
 }
 
-export async function findWikipediaSummary(query: string, signal?: AbortSignal): Promise<WikiSummary | null> {
+// Same idea as looksLikeMusicBio, for nightclubs/festivals/venues. Sports
+// clubs are excluded explicitly since "club" alone would let them through.
+const VENUE_HINT =
+  /night ?club|discoth|festival|music venue|concert|venue|arena|amphithea|theat(er|re)|ballroom|stadium|warehouse|club|bar\b|event|gathering|carnival|rave|entertainment/i;
+const NOT_A_VENUE = /football|soccer|basketball|baseball|hockey|rugby|cricket|sports? club|golf/i;
+
+export function looksLikeVenue(description: string | undefined): boolean {
+  if (!description) return true;
+  return VENUE_HINT.test(description) && !NOT_A_VENUE.test(description);
+}
+
+// searchHint is added to the search text only (e.g. "Amnesia nightclub",
+// so the club's page isn't crowded out of the results by the medical
+// condition) — the page title must still match the bare name exactly.
+export async function findWikipediaSummary(
+  query: string,
+  accept: (description: string | undefined) => boolean = looksLikeMusicBio,
+  searchHint = "",
+): Promise<WikiSummary | null> {
   try {
     const searchUrl =
-      "https://en.wikipedia.org/w/api.php?action=query&list=search&format=json&origin=*&srlimit=5&srsearch=" +
-      encodeURIComponent(query);
-    const searchRes = await fetch(searchUrl, { signal });
+      "https://en.wikipedia.org/w/api.php?action=query&list=search&format=json&origin=*&srlimit=8&srsearch=" +
+      encodeURIComponent(searchHint ? `${query} ${searchHint}` : query);
+    const searchRes = await fetch(searchUrl);
     if (!searchRes.ok) return null;
     const searchJson = await searchRes.json();
     const titles: string[] = (searchJson?.query?.search ?? []).map((r: { title: string }) => r.title);
@@ -57,11 +75,11 @@ export async function findWikipediaSummary(query: string, signal?: AbortSignal):
 
     for (const title of rankCandidates(query, titles)) {
       const summaryUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
-      const summaryRes = await fetch(summaryUrl, { signal });
+      const summaryRes = await fetch(summaryUrl);
       if (!summaryRes.ok) continue;
       const summaryJson = (await summaryRes.json()) as WikiSummary;
       if (summaryJson?.type === "disambiguation") continue;
-      if (!looksLikeMusicBio(summaryJson?.description)) continue;
+      if (!accept(summaryJson?.description)) continue;
       return summaryJson;
     }
     return null;

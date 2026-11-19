@@ -9,11 +9,14 @@ build a personal ranking of every artist and venue over time. See
 - **Search-first logging.** Type an artist's name (autocompletes against a
   seed list of 300+ touring DJs/producers, or search anything of your own),
   pick a venue/festival, and log a set.
-- **Beli-style rating flow.** First a quick bucket — *Loved it / It was good
-  / Not for me* — then a few "which was better" comparisons against sets
-  you've already logged in that bucket settle its exact score. Venues get
-  the same treatment: a separate bucket + comparison pass right after you
-  rate the artist.
+- **Beli-style rating flow, one full-screen step at a time.** Where & when
+  (every listed club and festival shows up front, plus your own venues) →
+  a bucket (*Loved it / It was good / Not for me*) → a few "which was
+  better" photo face-offs against sets you've already logged in that
+  bucket, to settle its exact score → the same bucket + face-off for the
+  venue → who you were with (tag other Encore users or type any name),
+  notes, photos/videos → an animated score reveal. Logging several DJs
+  from one festival visit skips the venue steps after the first.
 - **Rankings.** Browse everything you've logged, sorted within each bucket
   by score, with a "Sets" / "Venues" toggle — the venues view aggregates
   every set you've logged there into an average score and rank.
@@ -105,21 +108,27 @@ testing, but other people won't receive sign-up or reset emails.
   - `Welcome.tsx` — sign-up / log-in screen, shown whenever there's no
     session
   - `Rankings.tsx` — home page, Sets/Venues toggle + bucket filters
-  - `LogSet.tsx` — search-first artist entry screen
-  - `ArtistPage.tsx` — artist profile: photo, stats, log-a-set form, past
-    sets
-  - `VenuePage.tsx` — same idea for venues, no photo
+  - `LogSet.tsx` — search-first artist entry screen; picking an artist
+    starts the log flow
+  - `LogFlow.tsx` — the full-screen step-by-step log flow (`/log/:artist`)
+  - `ArtistPage.tsx` — artist profile: photo, bio, stats, past sets
+  - `VenuePage.tsx` — same idea for venues (photo from Wikipedia when
+    there's a confident match)
   - `SetDetail.tsx` — a single logged set
 - `src/components/`
-  - `RateSheet.tsx` — the bottom-sheet rating flow (bucket → compare →
-    venue bucket → venue compare → done)
-  - `VenueAutocomplete.tsx` — the venue/festival search field
+  - `BucketPicker.tsx` — the branded Loved it / It was good / Not for me
+    cards
+  - `ComparePicker.tsx` — the animated photo face-off that runs the
+    comparison scoring (with Too close to call / Undo / Skip)
+  - `VenuePicker.tsx` — the browsable, searchable club/festival list
+  - `WithWhoInput.tsx` — "who were you with", with an Encore-user popup
   - `ScoreRing.tsx` / `ScorePill.tsx` — score display
   - `RowMenu.tsx` — the "⋯" delete menu on ranking rows
   - `AvatarThumb.tsx` — auto-loading artist thumbnail
 - `src/index.css` — design tokens and component styles
-- `supabase/schema.sql` — the `logs` table + Row Level Security policies;
-  run once in your Supabase project's SQL Editor
+- `supabase/schema.sql` — the `logs` and `profiles` tables, Storage
+  bucket, and Row Level Security policies. Safe to re-run; re-run it in
+  your Supabase project's SQL Editor whenever it changes
 - `api/artist-image.js` + `api/_lib/spotify.js` — Vercel serverless
   function that looks up an artist's Spotify photo server-side (keeps the
   client secret off the client). `vite.config.ts` mirrors this as dev
