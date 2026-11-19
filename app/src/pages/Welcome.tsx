@@ -19,6 +19,19 @@ const TIMEOUT_MESSAGE: Record<Mode, string> = {
   login: "Supabase isn't responding. Check your connection and try again in a moment.",
 };
 
+// Supabase's raw auth errors, translated. The original is kept in
+// brackets for the email-sending ones, since that's what points at the
+// cause in Supabase's settings.
+function friendlyAuthError(message: string): string {
+  const m = message.toLowerCase();
+  if (m.includes("rate limit")) return "Too many emails were sent in the last hour. Wait a bit and try again.";
+  if (m.includes("error sending") || m.includes("smtp") || m.includes("unexpected_failure"))
+    return `Disko couldn't send the email right now — please try again later. (${message})`;
+  if (m.includes("email not confirmed")) return "Confirm your email first — tap the link we emailed you.";
+  if (m.includes("invalid login credentials")) return "That email and password don't match.";
+  return message;
+}
+
 function withTimeout(request: Promise<string | null>, mode: Mode): Promise<string | null> {
   return Promise.race([
     request,
@@ -43,6 +56,14 @@ export function Welcome() {
   const [submitting, setSubmitting] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [existingAccount, setExistingAccount] = useState(false);
+  const resendConfirmation = useEncoreStore((s) => s.resendConfirmation);
+  const [resendState, setResendState] = useState<"idle" | "sending" | "sent" | string>("idle");
+
+  async function resend() {
+    setResendState("sending");
+    const err = await resendConfirmation(email.trim());
+    setResendState(err ? friendlyAuthError(err) : "sent");
+  }
 
   function switchMode(next: Mode) {
     setMode(next);
@@ -72,7 +93,8 @@ export function Welcome() {
     );
     setSubmitting(false);
     if (result) {
-      setError(result);
+      console.error("[auth]", result);
+      setError(friendlyAuthError(result));
       return;
     }
     if (alreadyRegistered) {
@@ -101,11 +123,27 @@ export function Welcome() {
               // signed up — this wording stays honest about that.
               `If there's an account for ${email}, we've sent it a link to choose a new password. It may take a minute — check spam too.`}
         </p>
+        {notice === "confirm-signup" && (
+          <div style={{ marginTop: "1rem", fontSize: "0.85rem", color: "var(--smoke)", maxWidth: "320px" }}>
+            {resendState === "sent" ? (
+              <span>Sent again — give it a minute and check spam/junk too.</span>
+            ) : (
+              <>
+                Nothing yet? Check spam/junk, then{" "}
+                <button type="button" className="text-btn" style={{ color: "var(--bone)" }} onClick={resend} disabled={resendState === "sending"}>
+                  {resendState === "sending" ? "sending…" : "resend the email"}
+                </button>
+                {resendState !== "idle" && resendState !== "sending" && <p style={{ color: "var(--glow-core)" }}>{resendState}</p>}
+              </>
+            )}
+          </div>
+        )}
         <button
           type="button"
           className="ghost-btn"
           style={{ marginTop: "1.4rem" }}
           onClick={() => {
+            setResendState("idle");
             setNotice(null);
             switchMode("login");
             setPassword("");
@@ -217,7 +255,21 @@ export function Welcome() {
         )}
 
         {error && (
-          <p style={{ color: "var(--glow-core)", fontSize: "0.85rem", margin: "0 0 1rem" }}>{error}</p>
+          <p style={{ color: "var(--glow-core)", fontSize: "0.85rem", margin: "0 0 1rem" }}>
+            {error}
+            {error.startsWith("Confirm your email") && (
+              <>
+                {" "}
+                {resendState === "sent" ? (
+                  <span style={{ color: "var(--bone)" }}>Sent — check your inbox and spam.</span>
+                ) : (
+                  <button type="button" className="text-btn" style={{ color: "var(--bone)" }} onClick={resend} disabled={resendState === "sending"}>
+                    {resendState === "sending" ? "Sending…" : "Resend it"}
+                  </button>
+                )}
+              </>
+            )}
+          </p>
         )}
 
         {existingAccount && (

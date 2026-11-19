@@ -126,7 +126,7 @@ export function fetchPeople(meId: string): Promise<Person[]> {
   return promise;
 }
 
-async function namesFor(ids: string[]): Promise<Map<string, string>> {
+export async function namesFor(ids: string[]): Promise<Map<string, string>> {
   if (ids.length === 0) return new Map();
   const { data, error } = await db().from("profiles").select("id, display_name").in("id", ids);
   const rows = check(error, data) as { id: string; display_name: string }[];

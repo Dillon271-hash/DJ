@@ -5,6 +5,9 @@ import { fetchArtistImage } from "../lib/artistImage";
 import { fetchArtistBio } from "../lib/artistBio";
 import { ScorePill } from "../components/ScorePill";
 import { Loader } from "../components/Vinyl";
+import { genresOf } from "../lib/genres";
+import { similarArtists } from "../lib/recommend";
+import { ArtistPhoto } from "../components/ArtistPhoto";
 
 export function ArtistPage() {
   const { name } = useParams();
@@ -59,6 +62,9 @@ export function ArtistPage() {
     };
   }, [artist]);
 
+  const genres = genresOf(artist);
+  const similar = similarArtists(artist, 10);
+
   if (imageLoading) {
     return <Loader label={`Loading ${artist}`} />;
   }
@@ -83,6 +89,16 @@ export function ArtistPage() {
         </div>
         <h1 className="display artist-name">{artist}</h1>
       </div>
+
+      {genres.length > 0 && (
+        <div className="artist-genres">
+          {genres.map((g) => (
+            <span key={g} className="genre-pill">
+              {g}
+            </span>
+          ))}
+        </div>
+      )}
 
       {bio && <p className="artist-bio">{bio}</p>}
 
@@ -114,6 +130,20 @@ export function ArtistPage() {
       >
         Log a set by {artist}
       </button>
+
+      {similar.length > 0 && (
+        <section style={{ marginTop: "1.8rem" }}>
+          <div className="section-label">If you like {artist}</div>
+          <div className="similar-row">
+            {similar.map((s) => (
+              <Link key={s.artist} to={`/artist/${encodeURIComponent(s.artist)}`} className="similar-card">
+                <ArtistPhoto name={s.artist} size={72} />
+                <span>{s.artist}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {count > 0 && (
         <>

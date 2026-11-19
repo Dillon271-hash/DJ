@@ -39,6 +39,12 @@ build a personal ranking of every artist and venue over time. See
   Opener → Warm-up → Peak Time → Headliner → Legend. A crew's spins are
   its members' spins added up. The Charts page has a Solo board and a
   Crews board.
+- **Discover.** Recommended DJs based on what you've rated — from your
+  plus-ones'/crew's high scores, what fans of the artists you love also
+  love, and sound matching (genre tags in `src/lib/genres.ts`). Set your
+  city to see upcoming electronic shows near you (Ticketmaster — needs
+  `TICKETMASTER_API_KEY`) and what Disko people have logged there. Artist
+  pages show their sound and "If you like …" picks.
 - **Opening animation + record loaders.** A record rolls in and becomes
   the O in DISKO on every app load (tap to skip); every loading state
   is a spinning record.
@@ -72,7 +78,13 @@ SPOTIFY_CLIENT_ID=
 SPOTIFY_CLIENT_SECRET=
 VITE_SUPABASE_URL=
 VITE_SUPABASE_ANON_KEY=
+TICKETMASTER_API_KEY=
 ```
+
+**Ticketmaster** (shows near you on Discover, optional): sign up at
+[developer.ticketmaster.com](https://developer.ticketmaster.com), open
+My Apps, and copy the **Consumer Key**. Server-side only (`api/events.js`).
+Without it, Discover just leaves the listings out.
 
 **Spotify** (artist photos, optional): get these from an app you create at
 [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard)
@@ -123,6 +135,8 @@ testing, but other people won't receive sign-up or reset emails.
   everywhere); anything not listed can still be typed in freely
 - `src/lib/social.ts` — other people's profiles/logs/feed, plus-ones,
   crews and the Charts (plus a small `useSocial` store)
+- `src/lib/genres.ts` / `src/lib/recommend.ts` — artist sounds and the
+  recommendation engine; `src/lib/discover.ts` — your city, nearby shows
 - `src/lib/spins.ts` — the spins formula and tiers (mirrors the
   `spins_board` view in schema.sql — change both together)
 - `src/lib/artistImage.ts` — client-side helper that calls the

@@ -86,6 +86,7 @@ interface EncoreStore {
   authLinkError: string | null;
   clearAuthLinkError: () => void;
   requestPasswordReset: (email: string) => Promise<string | null>;
+  resendConfirmation: (email: string) => Promise<string | null>;
   updatePassword: (password: string) => Promise<string | null>;
   addLog: (
     draft: DraftLog,
@@ -149,7 +150,7 @@ export const useEncoreStore = create<EncoreStore>()((set, get) => ({
     const { data, error } = await client().auth.signUp({
       email,
       password,
-      options: { data: { name } },
+      options: { data: { name }, emailRedirectTo: `${window.location.origin}/` },
     });
     // Supabase signals "this email already has an account" one of two
     // ways depending on project settings: a user_already_exists error, or
@@ -178,6 +179,15 @@ export const useEncoreStore = create<EncoreStore>()((set, get) => ({
     // Redirect URLs, or Supabase falls back to the Site URL.
     const { error } = await client().auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/`,
+    });
+    return error?.message ?? null;
+  },
+
+  resendConfirmation: async (email) => {
+    const { error } = await client().auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/` },
     });
     return error?.message ?? null;
   },

@@ -326,4 +326,12 @@ export const SEED_ARTISTS = [
   "Motor City Drum Ensemble",
   "Session Victim",
   "Nightmares On Wax",
+  // Added with recommendations
+  "Keinemusik",
+  "&ME",
+  "Rampa",
+  "Adam Port",
+  "Folamour",
+  "Horse Meat Disco",
+  "Pendulum",
 ];

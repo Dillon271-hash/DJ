@@ -305,3 +305,9 @@ left join public.spins_board s on s.user_id = m.user_id
 group by c.id, c.name, c.color;
 
 grant select on public.spins_board, public.crew_board to authenticated;
+
+-- ============================================================
+-- Your city, for "Playing near you" on Discover. Just a place name you
+-- type (e.g. "Miami, FL") — never a precise location.
+-- ============================================================
+alter table public.profiles add column if not exists city text check (city is null or char_length(city) <= 80);

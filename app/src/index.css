@@ -3826,3 +3826,363 @@ body:has(.flow) .tabbar {
     animation: none;
   }
 }
+
+/* ============================================================
+   Discover: recommendations, your city, shows near you
+   ============================================================ */
+.discover-section {
+  margin-top: 1.8rem;
+}
+
+.city-bar {
+  width: 100%;
+  margin-top: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(ellipse 200px 100px at 0% 50%, color-mix(in srgb, var(--pink) 16%, transparent), transparent),
+    var(--ink);
+  color: var(--bone);
+  text-align: left;
+  cursor: pointer;
+}
+
+.city-bar svg {
+  color: var(--pink);
+  flex-shrink: 0;
+}
+
+.city-bar > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.city-bar small {
+  font-size: 0.72rem;
+  color: var(--smoke);
+}
+
+.city-bar b {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.city-bar.empty {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--pink) 60%, transparent);
+}
+
+.city-change {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--glow-edge);
+}
+
+/* "For you" carousel */
+.rec-row {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  margin: 0.6rem -1.2rem 0;
+  padding: 0.2rem 1.2rem 0.6rem;
+  scrollbar-width: none;
+}
+
+.rec-row::-webkit-scrollbar {
+  display: none;
+}
+
+.rec-card {
+  flex: 0 0 148px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-decoration: none;
+  color: var(--bone);
+}
+
+.rec-photo {
+  position: relative;
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.rec-card .artist-photo {
+  border-radius: 16px;
+  box-shadow: 4px 4px 0 var(--pink);
+  border: 2px solid var(--void);
+}
+
+.rec-card.friend .artist-photo {
+  box-shadow: 4px 4px 0 var(--glow-edge);
+}
+
+.rec-card.sound .artist-photo {
+  box-shadow: 4px 4px 0 var(--violet);
+}
+
+.rec-near {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: var(--yellow);
+  color: #140d00;
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+
+.rec-name {
+  font-weight: 800;
+  font-size: 0.92rem;
+  line-height: 1.2;
+}
+
+.rec-reason {
+  font-size: 0.74rem;
+  color: var(--bone-dim);
+  line-height: 1.3;
+}
+
+.rec-genre {
+  font-family: "SF Mono", Menlo, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--smoke);
+}
+
+.artist-photo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--glow-edge) 35%, transparent), transparent 60%),
+    linear-gradient(160deg, var(--ink-2), var(--ink));
+  flex-shrink: 0;
+}
+
+.artist-photo.square {
+  aspect-ratio: 1;
+  border-radius: 14px;
+}
+
+.artist-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.artist-photo-initials {
+  font-family: "Arial Black", sans-serif;
+  font-weight: 900;
+  font-size: 1.4rem;
+  color: var(--bone-dim);
+}
+
+.artist-photo.square .artist-photo-initials {
+  font-size: 2.2rem;
+}
+
+/* Shows near you */
+.show-list {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.show-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--ink);
+  text-decoration: none;
+  color: var(--bone);
+}
+
+.show-row.loved {
+  border-color: color-mix(in srgb, var(--glow-core) 60%, transparent);
+  background:
+    radial-gradient(ellipse 200px 90px at 0% 50%, color-mix(in srgb, var(--glow-core) 18%, transparent), transparent),
+    var(--ink);
+}
+
+.show-row.rec {
+  border-color: color-mix(in srgb, var(--violet) 60%, transparent);
+}
+
+.show-date {
+  flex-shrink: 0;
+  width: 3.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.35rem 0;
+  border-radius: 10px;
+  background: var(--void);
+  border: 1px solid var(--line);
+  line-height: 1.1;
+}
+
+.show-date small {
+  font-family: "SF Mono", Menlo, monospace;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--smoke);
+}
+
+.show-date small:first-child {
+  color: var(--pink);
+}
+
+.show-date b {
+  font-family: "Arial Black", sans-serif;
+  font-size: 1.2rem;
+}
+
+.show-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.show-name {
+  font-weight: 700;
+  font-size: 0.92rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.show-meta {
+  font-size: 0.76rem;
+  color: var(--smoke);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.show-tag {
+  align-self: flex-start;
+  margin-top: 0.15rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 700;
+}
+
+.show-tag.loved {
+  background: var(--bucket-loved);
+  color: #140d00;
+}
+
+.show-tag.rec {
+  background: var(--violet);
+  color: #fff;
+}
+
+.show-tag.seen {
+  background: var(--ink-2);
+  color: var(--bone-dim);
+  border: 1px solid var(--line);
+}
+
+.show-go {
+  color: var(--smoke);
+  font-size: 1rem;
+}
+
+/* Explore by sound */
+.genre-chips {
+  margin-top: 0.6rem;
+}
+
+.genre-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 0.9rem 0.6rem;
+  margin-top: 0.8rem;
+}
+
+.genre-tile,
+.similar-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
+  color: var(--bone);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.artist-genres {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem;
+  margin: -0.8rem 0 0.4rem;
+}
+
+.genre-pill {
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-family: "SF Mono", Menlo, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+}
+
+.similar-row {
+  display: flex;
+  gap: 0.8rem;
+  overflow-x: auto;
+  margin: 0.5rem -1.2rem 0;
+  padding: 0.2rem 1.2rem 0.4rem;
+  scrollbar-width: none;
+}
+
+.similar-row::-webkit-scrollbar {
+  display: none;
+}
+
+.similar-card {
+  flex: 0 0 80px;
+}
+
+.spins-pill-chart {
+  display: inline-flex;
+  margin-left: 0.15rem;
+  color: var(--glow-edge);
+}
+
+.spins-pill-chart svg {
+  width: 15px;
+  height: 15px;
+}

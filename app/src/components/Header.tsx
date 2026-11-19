@@ -2,6 +2,7 @@ import { Link, NavLink } from "react-router-dom";
 import { useEncoreStore } from "../lib/store";
 import { spinsFor, tierFor } from "../lib/spins";
 import { Vinyl, Wordmark } from "./Vinyl";
+import { IconChart } from "./BottomNav";
 
 export function Header() {
   const signOut = useEncoreStore((s) => s.signOut);
@@ -14,10 +15,13 @@ export function Header() {
         <Wordmark spinOnHover />
       </NavLink>
       <div className="topbar-nav">
-        <Link to="/charts" className="spins-pill" title={`${tierFor(spins).tier.name} · ${spins} spins`}>
+        <Link to="/charts" className="spins-pill" title={`${tierFor(spins).tier.name} · ${spins} spins — see the Charts`}>
           <Vinyl size={16} />
           <b>{spins.toLocaleString()}</b>
           <span>spins</span>
+          <span className="spins-pill-chart" aria-hidden="true">
+            <IconChart />
+          </span>
         </Link>
         <button type="button" className="topbar-signout" onClick={() => signOut()} aria-label="Log out" title="Log out">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

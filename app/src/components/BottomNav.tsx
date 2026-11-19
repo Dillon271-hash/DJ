@@ -11,7 +11,7 @@ export function BottomNav() {
   return (
     <nav className="tabbar" aria-label="Main">
       <Tab to="/" end label="Rankings" icon={<IconList />} />
-      <Tab to="/people" label="People" icon={<IconPeople />} badge={requests} />
+      <Tab to="/discover" label="Discover" icon={<IconCompass />} />
       <NavLink to="/log" className={({ isActive }) => `tab tab-log${isActive ? " active" : ""}`} aria-label="Log a set">
         <span className="tab-log-disc">
           <Vinyl size={50} />
@@ -21,8 +21,8 @@ export function BottomNav() {
         </span>
         <span className="tab-label">Log</span>
       </NavLink>
+      <Tab to="/people" label="People" icon={<IconPeople />} badge={requests} />
       <Tab to="/crews" label="Crews" icon={<IconCrew />} badge={invites} />
-      <Tab to="/charts" label="Charts" icon={<IconChart />} />
     </nav>
   );
 }
@@ -73,7 +73,15 @@ function IconCrew() {
     </svg>
   );
 }
-function IconChart() {
+function IconCompass() {
+  return (
+    <svg {...svg}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m15.5 8.5-2 5-5 2 2-5 5-2Z" />
+    </svg>
+  );
+}
+export function IconChart() {
   return (
     <svg {...svg}>
       <path d="M8 21h8M12 17v4" />

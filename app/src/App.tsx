@@ -22,6 +22,7 @@ const People = lazy(() => import("./pages/People").then((m) => ({ default: m.Peo
 const UserPage = lazy(() => import("./pages/UserPage").then((m) => ({ default: m.UserPage })));
 const Crews = lazy(() => import("./pages/Crews").then((m) => ({ default: m.Crews })));
 const CrewPage = lazy(() => import("./pages/CrewPage").then((m) => ({ default: m.CrewPage })));
+const Discover = lazy(() => import("./pages/Discover").then((m) => ({ default: m.Discover })));
 const Charts = lazy(() => import("./pages/Charts").then((m) => ({ default: m.Charts })));
 
 function App() {
@@ -96,6 +97,7 @@ function Screens(): ReactNode {
             <Route path="/crews" element={<Crews />} />
             <Route path="/crews/:id" element={<CrewPage />} />
             <Route path="/charts" element={<Charts />} />
+            <Route path="/discover" element={<Discover />} />
           </Routes>
         </Suspense>
       </main>
