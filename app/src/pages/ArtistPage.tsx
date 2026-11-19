@@ -28,20 +28,23 @@ export function ArtistPage() {
   const [imageLoading, setImageLoading] = useState(true);
 
   useEffect(() => {
-    const controller = new AbortController();
+    let stale = false;
     setImage(null);
     setImageLoading(true);
-    fetchArtistImage(artist, controller.signal).then((url) => {
+    fetchArtistImage(artist).then((url) => {
       // A stale run (e.g. React StrictMode's double-invoke in dev, or a
-      // fast artist-to-artist navigation) can still resolve after being
-      // aborted — only the run whose signal is still live gets to touch
-      // state, so a slow stale request can't flip the loading gate back
-      // off early or paint the wrong artist's photo.
-      if (controller.signal.aborted) return;
+      // fast artist-to-artist navigation) can still resolve after its
+      // cleanup — only the current run gets to touch state, so it can't
+      // flip the loading gate off early or paint the wrong artist's
+      // photo. The lookup itself isn't cancelled: it's shared and cached,
+      // so letting it finish means the remount gets it for free.
+      if (stale) return;
       setImage(url);
       setImageLoading(false);
     });
-    return () => controller.abort();
+    return () => {
+      stale = true;
+    };
   }, [artist]);
 
   // Bio coverage is much spottier than photo coverage (plenty of working
@@ -50,13 +53,14 @@ export function ArtistPage() {
   const [bio, setBio] = useState<string | null>(null);
 
   useEffect(() => {
-    const controller = new AbortController();
+    let stale = false;
     setBio(null);
-    fetchArtistBio(artist, controller.signal).then((text) => {
-      if (controller.signal.aborted) return;
-      setBio(text);
+    fetchArtistBio(artist).then((text) => {
+      if (!stale) setBio(text);
     });
-    return () => controller.abort();
+    return () => {
+      stale = true;
+    };
   }, [artist]);
 
   const [showForm, setShowForm] = useState(false);
@@ -110,7 +114,7 @@ export function ArtistPage() {
       <div className="artist-hero">
         <div className="artist-avatar">
           {image ? (
-            <img src={image} alt={artist} referrerPolicy="no-referrer" onError={() => setImage(null)} />
+            <img src={image} alt={artist} decoding="async" referrerPolicy="no-referrer" onError={() => setImage(null)} />
           ) : (
             <span className="initials">{initials(artist)}</span>
           )}

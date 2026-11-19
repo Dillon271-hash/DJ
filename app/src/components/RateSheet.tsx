@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useEncoreStore } from "../lib/store";
-import { uploadSetMedia } from "../lib/media";
+import { uploadSetMedia } from "../lib/mediaUpload";
 import {
   MAX_COMPARISONS,
   bucketRange,

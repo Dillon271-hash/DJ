@@ -1,9 +1,9 @@
 import { lookupSpotifyImage } from "./_lib/spotify.js";
 
 // Vercel Node.js serverless function: GET /api/artist-image?name=...
-// Only used as a last-resort fallback, after the client has already
-// tried Wikipedia/Wikidata directly (those are properly CORS-enabled,
-// no proxy needed). Same-origin, so the browser has no CORS objection.
+// The client's first tier for artist photos (Wikipedia/Wikidata are the
+// fallback — see src/lib/artistImage.ts). Same-origin, so the browser
+// has no CORS objection, and the Spotify secret stays server-side.
 export default async function handler(req, res) {
   const name = typeof req.query?.name === "string" ? req.query.name : "";
   const image = await lookupSpotifyImage(name);

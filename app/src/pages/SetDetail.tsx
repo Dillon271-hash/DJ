@@ -88,9 +88,9 @@ export function SetDetail() {
           <div className="set-media-gallery">
             {log.mediaPaths.map((path) =>
               isVideoPath(path) ? (
-                <video key={path} src={mediaUrl(path)} controls playsInline />
+                <video key={path} src={mediaUrl(path)} controls playsInline preload="metadata" />
               ) : (
-                <img key={path} src={mediaUrl(path)} alt="" />
+                <img key={path} src={mediaUrl(path)} alt="" loading="lazy" decoding="async" />
               ),
             )}
           </div>

@@ -1,14 +1,26 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import { Header } from "./components/Header";
 import { Welcome } from "./pages/Welcome";
 import { Rankings } from "./pages/Rankings";
-import { LogSet } from "./pages/LogSet";
-import { SetDetail } from "./pages/SetDetail";
-import { ArtistPage } from "./pages/ArtistPage";
-import { VenuePage } from "./pages/VenuePage";
 import { useEncoreStore } from "./lib/store";
 import { isSupabaseConfigured } from "./lib/supabase";
+
+// Everything past the home page loads on demand, so the sign-in screen
+// and Rankings don't pay for the rating flow, the 300-artist and
+// 400-venue seed lists, or the Wikipedia lookup code up front.
+const LogSet = lazy(() => import("./pages/LogSet").then((m) => ({ default: m.LogSet })));
+const SetDetail = lazy(() => import("./pages/SetDetail").then((m) => ({ default: m.SetDetail })));
+const ArtistPage = lazy(() => import("./pages/ArtistPage").then((m) => ({ default: m.ArtistPage })));
+const VenuePage = lazy(() => import("./pages/VenuePage").then((m) => ({ default: m.VenuePage })));
+
+function PageLoading() {
+  return (
+    <div className="page-loading">
+      <span className="mark lg pulse" aria-hidden="true" />
+    </div>
+  );
+}
 
 function App() {
   const authReady = useEncoreStore((s) => s.authReady);
@@ -54,13 +66,15 @@ function App() {
     <div className="app-shell">
       <Header />
       <main className="content">
-        <Routes>
-          <Route path="/" element={<Rankings />} />
-          <Route path="/log" element={<LogSet />} />
-          <Route path="/set/:id" element={<SetDetail />} />
-          <Route path="/artist/:name" element={<ArtistPage />} />
-          <Route path="/venue/:name" element={<VenuePage />} />
-        </Routes>
+        <Suspense fallback={<PageLoading />}>
+          <Routes>
+            <Route path="/" element={<Rankings />} />
+            <Route path="/log" element={<LogSet />} />
+            <Route path="/set/:id" element={<SetDetail />} />
+            <Route path="/artist/:name" element={<ArtistPage />} />
+            <Route path="/venue/:name" element={<VenuePage />} />
+          </Routes>
+        </Suspense>
       </main>
     </div>
   );

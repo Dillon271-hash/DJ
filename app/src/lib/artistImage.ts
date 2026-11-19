@@ -10,8 +10,7 @@
 //    server-side and does the Spotify auth + search there. Only live
 //    when this app is running somewhere that serves it (Vercel in
 //    production, `npm run dev` locally, both configured with
-//    SPOTIFY_CLIENT_ID/SECRET — see .env.example); a plain static host
-//    or the sandboxed Artifact demo just won't have that route.
+//    SPOTIFY_CLIENT_ID/SECRET — see .env.example).
 // 2. Wikipedia's infobox thumbnail and 3. Wikidata's separate P18
 //    ("image") claim for the same page, as a fallback for legacy/
 //    crossover artists Spotify's search misses — both public, keyless,
@@ -23,24 +22,27 @@
 
 import { findWikipediaSummary } from "./wikipedia";
 
-const cache = new Map<string, string | null>();
+// Caches the in-flight promise, not just the settled result, so a list
+// that shows the same artist several times (or a StrictMode double
+// mount) shares one lookup instead of racing duplicate requests.
+const cache = new Map<string, Promise<string | null>>();
 
-export async function fetchArtistImage(name: string, signal?: AbortSignal): Promise<string | null> {
+export function fetchArtistImage(name: string): Promise<string | null> {
   const query = name.trim();
-  if (!query) return null;
+  if (!query) return Promise.resolve(null);
 
   const key = query.toLowerCase();
-  if (cache.has(key)) return cache.get(key)!;
-
-  const result = (await lookupProxy(query, signal)) ?? (await lookupWikipedia(query, signal));
-  // Only cache a settled result — never cache an in-flight abort as "no image."
-  if (!signal?.aborted) cache.set(key, result);
-  return result;
+  let pending = cache.get(key);
+  if (!pending) {
+    pending = lookupProxy(query).then((hit) => hit ?? lookupWikipedia(query));
+    cache.set(key, pending);
+  }
+  return pending;
 }
 
-async function lookupProxy(query: string, signal?: AbortSignal): Promise<string | null> {
+async function lookupProxy(query: string): Promise<string | null> {
   try {
-    const res = await fetch(`/api/artist-image?name=${encodeURIComponent(query)}`, { signal });
+    const res = await fetch(`/api/artist-image?name=${encodeURIComponent(query)}`);
     if (!res.ok) return null;
     const json = await res.json();
     return typeof json?.image === "string" ? json.image : null;
@@ -49,8 +51,8 @@ async function lookupProxy(query: string, signal?: AbortSignal): Promise<string 
   }
 }
 
-async function lookupWikipedia(query: string, signal?: AbortSignal): Promise<string | null> {
-  const summary = await findWikipediaSummary(query, signal);
+async function lookupWikipedia(query: string): Promise<string | null> {
+  const summary = await findWikipediaSummary(query);
   if (!summary) return null;
 
   const img = summary.originalimage?.source ?? summary.thumbnail?.source ?? null;
@@ -59,14 +61,14 @@ async function lookupWikipedia(query: string, signal?: AbortSignal): Promise<str
   // Wikipedia's own infobox thumbnail is empty, but this is confirmed
   // to be the right page — Wikidata's P18 claim for the same item is
   // set independently and sometimes has a photo Wikipedia doesn't.
-  return lookupWikidataImage(summary.wikibase_item, signal);
+  return lookupWikidataImage(summary.wikibase_item);
 }
 
-async function lookupWikidataImage(qid: string | undefined, signal?: AbortSignal): Promise<string | null> {
+async function lookupWikidataImage(qid: string | undefined): Promise<string | null> {
   if (!qid) return null;
   try {
     const url = `https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=${encodeURIComponent(qid)}&property=P18&format=json&origin=*`;
-    const res = await fetch(url, { signal });
+    const res = await fetch(url);
     if (!res.ok) return null;
     const json = await res.json();
     const filename = json?.claims?.P18?.[0]?.mainsnak?.datavalue?.value;

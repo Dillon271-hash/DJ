@@ -10,17 +10,18 @@
 
 import { findWikipediaSummary } from "./wikipedia";
 
-const cache = new Map<string, string | null>();
+// In-flight promises are cached too (see artistImage.ts for why).
+const cache = new Map<string, Promise<string | null>>();
 
-export async function fetchArtistBio(name: string, signal?: AbortSignal): Promise<string | null> {
+export function fetchArtistBio(name: string): Promise<string | null> {
   const query = name.trim();
-  if (!query) return null;
+  if (!query) return Promise.resolve(null);
 
   const key = query.toLowerCase();
-  if (cache.has(key)) return cache.get(key)!;
-
-  const summary = await findWikipediaSummary(query, signal);
-  const bio = summary?.extract?.trim() || null;
-  if (!signal?.aborted) cache.set(key, bio);
-  return bio;
+  let pending = cache.get(key);
+  if (!pending) {
+    pending = findWikipediaSummary(query).then((summary) => summary?.extract?.trim() || null);
+    cache.set(key, pending);
+  }
+  return pending;
 }

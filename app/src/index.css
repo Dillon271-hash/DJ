@@ -810,19 +810,6 @@ main.content {
   border-bottom: none;
 }
 
-.recent-row .icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: var(--ink);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  color: var(--smoke);
-  font-size: 0.9rem;
-}
-
 .recent-row .info {
   flex: 1;
   min-width: 0;

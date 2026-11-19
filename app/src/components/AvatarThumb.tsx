@@ -21,7 +21,18 @@ export function AvatarThumb({ name }: { name: string }) {
 
   return (
     <span className="avatar-thumb" aria-hidden="true">
-      {image ? <img src={image} alt="" referrerPolicy="no-referrer" onError={() => setImage(null)} /> : initials(name)}
+      {image ? (
+        <img
+          src={image}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+          onError={() => setImage(null)}
+        />
+      ) : (
+        initials(name)
+      )}
     </span>
   );
 }
