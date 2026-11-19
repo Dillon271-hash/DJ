@@ -10,7 +10,8 @@ import { BucketIcon, BucketPicker } from "../components/BucketPicker";
 import { ComparePicker, type CompareItem } from "../components/ComparePicker";
 import { VenuePicker } from "../components/VenuePicker";
 import { WithWhoInput, type WithTag } from "../components/WithWhoInput";
-import { Busy } from "../components/Vinyl";
+import { Busy, Vinyl } from "../components/Vinyl";
+import { spinsEarned } from "../lib/spins";
 
 type Step = "where" | "bucket" | "compare" | "venue-bucket" | "venue-compare" | "details" | "done";
 
@@ -396,6 +397,8 @@ function ScoreReveal({ log, logs, onView, onAnother }: { log: SetLog; logs: SetL
     return () => cancelAnimationFrame(frame);
   }, [log.score]);
 
+  // Spins this set earned — measured against everything logged before it.
+  const [earned] = useState(() => spinsEarned(log, logs.filter((l) => l.id !== log.id)));
   const inBucket = logs.filter((l) => l.bucket === log.bucket).length;
   const rank = rankInBucket(logs, log.bucket, log.id);
   const venue = splitVenue(log.event);
@@ -414,6 +417,11 @@ function ScoreReveal({ log, logs, onView, onAnother }: { log: SetLog; logs: SetL
       <p className="reveal-rank">
         {inBucket > 1 ? `#${rank} of the ${inBucket} ${RANK_PHRASE[log.bucket]}` : `Your first "${BUCKET_LABEL[log.bucket]}" set`}
       </p>
+      <div className="reveal-spins" title={earned.parts.join("  ")}>
+        <Vinyl size={22} spin />
+        <b>+{earned.total} spins</b>
+        <span>{earned.parts.slice(1).join(" · ")}</span>
+      </div>
       {log.venueScore !== undefined && log.venueBucket && (
         <div className="reveal-venue">
           {venue.name}

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { EmptyState } from "../components/EmptyState";
 import { RankingsList } from "../components/RankingsList";
 import { Loader } from "../components/Vinyl";
+import { SpinsCard } from "../components/SpinsCard";
 import { useEncoreStore } from "../lib/store";
 
 export function Rankings() {
@@ -23,6 +24,10 @@ export function Rankings() {
         <Link to="/log" className="sticker-btn">
           + Log
         </Link>
+      </div>
+
+      <div style={{ marginTop: "1.2rem" }}>
+        <SpinsCard logs={logs} />
       </div>
 
       <RankingsList logs={logs} onDelete={removeLog} />

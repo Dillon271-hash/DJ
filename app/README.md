@@ -27,6 +27,18 @@ build a personal ranking of every artist and venue over time. See
   ranked, and each person's full profile — their top 3, Sets/Venues
   rankings, and a taste match % against yours. Any signed-in user can read
   any user's logs; only the owner can add or delete them.
+- **Plus-ones (friends).** Send, accept and remove plus-one requests;
+  the People feed shows your plus-ones' sets (or everyone's), with their
+  photos and videos inline — tap one for a full-screen viewer.
+- **Crews (groups).** Start a crew, invite people (members can invite
+  more), join or decline invites. Each crew page shows everyone's sets
+  ranked together, a crew-wide artist ranking, the latest sets, and a
+  lineup of members by spins.
+- **Spins (points) and the Charts.** Every set earns spins (+10 a set,
+  +5 with notes, +5 with photos/videos, +5 per new artist), with tiers
+  Opener → Warm-up → Peak Time → Headliner → Legend. A crew's spins are
+  its members' spins added up. The Charts page has a Solo board and a
+  Crews board.
 - **Opening animation + record loaders.** A record rolls in and becomes
   the O in ENCORE on every app load (tap to skip); every loading state
   is a spinning record.
@@ -109,7 +121,10 @@ testing, but other people won't receive sign-up or reset emails.
 - `src/lib/venues.ts` — seed list of well-known nightclubs/festivals for
   venue autocomplete (global, not location-biased — DJ sets happen
   everywhere); anything not listed can still be typed in freely
-- `src/lib/social.ts` — reading other people's profiles, logs and feed
+- `src/lib/social.ts` — other people's profiles/logs/feed, plus-ones,
+  crews and the Charts (plus a small `useSocial` store)
+- `src/lib/spins.ts` — the spins formula and tiers (mirrors the
+  `spins_board` view in schema.sql — change both together)
 - `src/lib/artistImage.ts` — client-side helper that calls the
   `/api/artist-image` proxy below
 - `src/pages/`
@@ -125,6 +140,8 @@ testing, but other people won't receive sign-up or reset emails.
   - `SetDetail.tsx` — a single logged set (yours, or someone else's)
   - `People.tsx` — everyone on Encore + latest sets (`/people`)
   - `UserPage.tsx` — one person's profile and rankings (`/u/:id`)
+  - `Crews.tsx` / `CrewPage.tsx` — your crews + invites, and one crew
+  - `Charts.tsx` — Solo and Crews leaderboards
 - `src/components/`
   - `BucketPicker.tsx` — the branded Loved it / It was good / Not for me
     cards

@@ -8,6 +8,9 @@ import { Loader } from "../components/Vinyl";
 import { UserAvatar } from "../components/UserAvatar";
 import { AvatarThumb } from "../components/AvatarThumb";
 import { RankingsList } from "../components/RankingsList";
+import { PlusOneButton } from "../components/PlusOneButton";
+import { CrewInviteButton } from "../components/CrewInviteButton";
+import { spinsFor, tierFor } from "../lib/spins";
 
 type State = { status: "loading" } | { status: "missing" | "error" | "setup" } | { status: "ok"; name: string; logs: SetLog[] };
 
@@ -61,6 +64,8 @@ export function UserPage() {
   const venues = new Set(venueRatedLogs(state.logs).map((l) => l.event.trim().toLowerCase())).size;
   const avg = count ? state.logs.reduce((s, l) => s + l.score, 0) / count : null;
   const firstName = name.split(/\s+/)[0];
+  const spins = spinsFor(state.logs);
+  const { tier } = tierFor(spins);
 
   return (
     <div>
@@ -71,6 +76,14 @@ export function UserPage() {
       <div className="profile-hero">
         <UserAvatar id={id} name={name} size={88} />
         <h1 className="display artist-name">{name}</h1>
+        <p className="profile-tier">
+          <span className="tier-chip">{tier.name}</span>
+          <span>{spins.toLocaleString()} spins</span>
+        </p>
+        <div className="profile-actions">
+          <PlusOneButton person={{ id, name }} />
+          <CrewInviteButton person={{ id, name }} />
+        </div>
         {match && (
           <p className="taste-match">
             <b>{match.percent}% taste match</b> · {match.shared} artist{match.shared === 1 ? "" : "s"} you've both seen

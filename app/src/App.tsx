@@ -1,6 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from "react";
 import { Route, Routes } from "react-router-dom";
 import { Header } from "./components/Header";
+import { BottomNav } from "./components/BottomNav";
 import { Welcome } from "./pages/Welcome";
 import { ResetPassword } from "./pages/ResetPassword";
 import { Rankings } from "./pages/Rankings";
@@ -19,6 +20,9 @@ const ArtistPage = lazy(() => import("./pages/ArtistPage").then((m) => ({ defaul
 const VenuePage = lazy(() => import("./pages/VenuePage").then((m) => ({ default: m.VenuePage })));
 const People = lazy(() => import("./pages/People").then((m) => ({ default: m.People })));
 const UserPage = lazy(() => import("./pages/UserPage").then((m) => ({ default: m.UserPage })));
+const Crews = lazy(() => import("./pages/Crews").then((m) => ({ default: m.Crews })));
+const CrewPage = lazy(() => import("./pages/CrewPage").then((m) => ({ default: m.CrewPage })));
+const Charts = lazy(() => import("./pages/Charts").then((m) => ({ default: m.Charts })));
 
 function App() {
   // The opening animation plays over whatever is loading underneath, once
@@ -77,6 +81,7 @@ function Screens(): ReactNode {
   return (
     <div className="app-shell">
       <Header />
+      <BottomNav />
       <main className="content">
         <Suspense fallback={<Loader />}>
           <Routes>
@@ -88,6 +93,9 @@ function Screens(): ReactNode {
             <Route path="/venue/:name" element={<VenuePage />} />
             <Route path="/people" element={<People />} />
             <Route path="/u/:id" element={<UserPage />} />
+            <Route path="/crews" element={<Crews />} />
+            <Route path="/crews/:id" element={<CrewPage />} />
+            <Route path="/charts" element={<Charts />} />
           </Routes>
         </Suspense>
       </main>
