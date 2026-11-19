@@ -4,6 +4,27 @@ import { useEncoreStore } from "../lib/store";
 type Mode = "signup" | "login" | "forgot";
 type Notice = "confirm-signup" | "reset-sent";
 
+// Supabase's built-in email sender sends sign-up and reset emails before
+// it answers, and can occasionally take a very long time to do so. Rather
+// than leave the button on "Please wait…" forever, stop waiting after
+// this long and say what probably happened.
+const AUTH_TIMEOUT_MS = 20_000;
+
+const TIMEOUT_MESSAGE: Record<Mode, string> = {
+  signup:
+    "Supabase is taking a long time to respond. Your account may still have been created — check your inbox (and spam) for a confirmation email before trying again.",
+  forgot:
+    "Supabase is taking a long time to send the email. It may still arrive in a minute — check your inbox (and spam) before trying again.",
+  login: "Supabase isn't responding. Check your connection and try again in a moment.",
+};
+
+function withTimeout(request: Promise<string | null>, mode: Mode): Promise<string | null> {
+  return Promise.race([
+    request,
+    new Promise<string>((resolve) => setTimeout(() => resolve(TIMEOUT_MESSAGE[mode]), AUTH_TIMEOUT_MS)),
+  ]);
+}
+
 export function Welcome() {
   const signUp = useEncoreStore((s) => s.signUp);
   const signIn = useEncoreStore((s) => s.signIn);
@@ -33,12 +54,14 @@ export function Welcome() {
     clearAuthLinkError();
     setSubmitting(true);
     const trimmedEmail = email.trim();
-    const result =
+    const result = await withTimeout(
       mode === "signup"
-        ? await signUp(trimmedEmail, password, name.trim())
+        ? signUp(trimmedEmail, password, name.trim())
         : mode === "login"
-          ? await signIn(trimmedEmail, password)
-          : await requestPasswordReset(trimmedEmail);
+          ? signIn(trimmedEmail, password)
+          : requestPasswordReset(trimmedEmail),
+      mode,
+    );
     setSubmitting(false);
     if (result) {
       setError(result);
