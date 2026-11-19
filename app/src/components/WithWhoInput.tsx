@@ -6,8 +6,8 @@ export interface WithTag {
   userId?: string;
 }
 
-/** "Who were you with?" — type a name and Encore users matching it pop up
- * to tag; anyone not on Encore can still be added as a plain name. */
+/** "Who were you with?" — type a name and Disko users matching it pop up
+ * to tag; anyone not on Disko can still be added as a plain name. */
 export function WithWhoInput({ tags, onChange }: { tags: WithTag[]; onChange: (tags: WithTag[]) => void }) {
   const searchProfiles = useEncoreStore((s) => s.searchProfiles);
   const [text, setText] = useState("");
@@ -38,7 +38,7 @@ export function WithWhoInput({ tags, onChange }: { tags: WithTag[]; onChange: (t
     };
   }, [trimmed, searchProfiles, tags]);
 
-  // Popup rows: matching Encore users, then "add as a plain name".
+  // Popup rows: matching Disko users, then "add as a plain name".
   const options: WithTag[] = [
     ...matches.map((m) => ({ name: m.name, userId: m.id })),
     ...(trimmed ? [{ name: trimmed }] : []),
@@ -88,7 +88,7 @@ export function WithWhoInput({ tags, onChange }: { tags: WithTag[]; onChange: (t
             blurTimer.current = window.setTimeout(() => setOpen(false), 120);
           }}
           onKeyDown={onKeyDown}
-          placeholder={tags.length ? "Add someone else" : "Search friends on Encore, or type a name"}
+          placeholder={tags.length ? "Add someone else" : "Search friends on Disko, or type a name"}
           aria-label="Who were you with"
           aria-autocomplete="list"
           autoComplete="off"
@@ -116,7 +116,7 @@ export function WithWhoInput({ tags, onChange }: { tags: WithTag[]; onChange: (t
                 </span>
                 <span className="with-popup-text">
                   <span className="with-popup-name">{o.userId ? o.name : `Add “${o.name}”`}</span>
-                  <span className="with-popup-meta">{o.userId ? "On Encore — tag them" : "Not on Encore"}</span>
+                  <span className="with-popup-meta">{o.userId ? "On Disko — tag them" : "Not on Disko"}</span>
                 </span>
               </button>
             </li>

@@ -1993,7 +1993,7 @@ main.content {
   margin: 0 auto 1.2rem;
 }
 
-/* Wordmark: ENC◉RE */
+/* Wordmark: DISK◉ */
 .wordmark {
   display: inline-flex;
   align-items: center;
@@ -2087,7 +2087,7 @@ main.content {
 }
 
 .splash-letter.from-o-right {
-  --from: 0.5em;
+  --from: calc(0.35em + var(--i) * 0.3em);
 }
 
 .splash-letter.from-o-left {

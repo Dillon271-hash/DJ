@@ -1,6 +1,6 @@
 import type { SetLog } from "./types";
 
-// Spins: Encore's points. Keep in sync with the spins_board view in
+// Spins: Disko's points. Keep in sync with the spins_board view in
 // supabase/schema.sql, which computes the same thing for the Charts.
 export const SPINS = {
   perSet: 10,

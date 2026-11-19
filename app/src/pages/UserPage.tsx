@@ -47,7 +47,7 @@ export function UserPage() {
       <div className="empty-state">
         <p>
           {state.status === "missing"
-            ? "That person isn't on Encore."
+            ? "That person isn't on Disko."
             : state.status === "setup"
               ? "Re-run supabase/schema.sql in Supabase to turn on profiles."
               : "Couldn't load their rankings — check your connection."}

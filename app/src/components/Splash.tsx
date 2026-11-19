@@ -2,8 +2,8 @@ import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from
 import { Vinyl } from "./Vinyl";
 
 // Opening animation: a record rolls in from the left, spins up, then
-// shrinks into place as the O in ENCORE while the other letters slide out
-// from behind it. Plays once per app load, sits on top of whatever is
+// shrinks into place as the O in DISKO while the letters slide out from
+// behind it. Plays once per app load, sits on top of whatever is
 // loading underneath, and a tap skips it.
 
 const ROLL_MS = 750;
@@ -71,17 +71,12 @@ export function Splash({ onDone }: { onDone: () => void }) {
     >
       <div className="splash-center">
         <div className="splash-word display">
-          {"ENC".split("").map((ch, i) => (
-            <span key={`l${i}`} className="splash-letter from-o-right" style={{ "--i": 2 - i } as CSSProperties}>
+          {"DISK".split("").map((ch, i) => (
+            <span key={i} className="splash-letter from-o-right" style={{ "--i": 3 - i } as CSSProperties}>
               {ch}
             </span>
           ))}
           <span ref={slotRef} className="splash-slot" />
-          {"RE".split("").map((ch, i) => (
-            <span key={`r${i}`} className="splash-letter from-o-left" style={{ "--i": i } as CSSProperties}>
-              {ch}
-            </span>
-          ))}
         </div>
         <p className="splash-tag eyebrow">Rank every set</p>
       </div>

@@ -104,7 +104,7 @@ export function CrewPage() {
   }
 
   const isMember = crew.members.some((m) => m.id === me);
-  const latest: FeedItem[] = crew.logs.slice(0, 30).map((log) => ({ log, person: { id: log.userId, name: names.get(log.userId) ?? "Encore user" } }));
+  const latest: FeedItem[] = crew.logs.slice(0, 30).map((log) => ({ log, person: { id: log.userId, name: names.get(log.userId) ?? "Disko user" } }));
 
   return (
     <div>
@@ -220,7 +220,7 @@ export function CrewPage() {
                 </div>
                 <div className="meta crew-meta">
                   <UserAvatar id={log.userId} name={names.get(log.userId) ?? "?"} size={16} />
-                  {(names.get(log.userId) ?? "Encore user").split(/\s+/)[0]} · {log.event} · {formatShortDate(log.date)}
+                  {(names.get(log.userId) ?? "Disko user").split(/\s+/)[0]} · {log.event} · {formatShortDate(log.date)}
                 </div>
               </div>
               <ScoreRing score={log.score} bucket={log.bucket} />

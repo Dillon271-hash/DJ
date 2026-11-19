@@ -82,13 +82,13 @@ function check<T>(error: { code?: string; message: string } | null, data: T | nu
 }
 
 type NameRow = { display_name: string } | null;
-const nameOf = (p: NameRow | NameRow[] | undefined) => (Array.isArray(p) ? p[0] : p)?.display_name ?? "Encore user";
+const nameOf = (p: NameRow | NameRow[] | undefined) => (Array.isArray(p) ? p[0] : p)?.display_name ?? "Disko user";
 
 // ---------------------------------------------------------------- people
 
 const peopleCache = new Map<string, Promise<Person[]>>();
 
-/** Everyone on Encore except me, most active first. */
+/** Everyone on Disko except me, most active first. */
 export function fetchPeople(meId: string): Promise<Person[]> {
   const cached = peopleCache.get(meId);
   if (cached) return cached;
@@ -143,7 +143,7 @@ export async function fetchFeed(meId: string, opts: { userIds?: string[]; limit?
   const names = await namesFor([...new Set(rows.map((r) => r.user_id!).filter(Boolean))]);
   return rows.map((row) => ({
     log: rowToLog(row),
-    person: { id: row.user_id!, name: names.get(row.user_id!) ?? "Encore user" },
+    person: { id: row.user_id!, name: names.get(row.user_id!) ?? "Disko user" },
   }));
 }
 

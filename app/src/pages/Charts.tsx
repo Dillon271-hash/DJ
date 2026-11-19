@@ -43,7 +43,7 @@ export function Charts() {
     <div>
       <div className="page-head">
         <div>
-          <div className="eyebrow">Encore</div>
+          <div className="eyebrow">Disko</div>
           <h1 className="display page-title">The Charts</h1>
         </div>
       </div>

@@ -1,5 +1,5 @@
 -- Run this in your Supabase project's SQL Editor (Dashboard → SQL Editor
--- → New query → paste this whole file → Run) to set up everything Encore
+-- → New query → paste this whole file → Run) to set up everything Disko
 -- needs. Safe to re-run any time this file changes — every statement is
 -- written to skip cleanly if it's already been applied, so re-running
 -- after a pull just applies whatever's new (like media_paths/the
@@ -81,7 +81,7 @@ create policy "Users can delete their own media"
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
--- Public display names, so "who were you with?" can suggest other Encore
+-- Public display names, so "who were you with?" can suggest other Disko
 -- users. Deliberately just the name — never the email — and only visible
 -- to signed-in users. Filled in automatically for every new sign-up by
 -- the trigger below, and backfilled once for existing accounts.
@@ -112,7 +112,7 @@ set search_path = ''
 as $$
 begin
   insert into public.profiles (id, display_name)
-  values (new.id, coalesce(nullif(trim(new.raw_user_meta_data ->> 'name'), ''), 'Encore user'))
+  values (new.id, coalesce(nullif(trim(new.raw_user_meta_data ->> 'name'), ''), 'Disko user'))
   on conflict (id) do nothing;
   return new;
 end;
@@ -124,7 +124,7 @@ create trigger on_auth_user_created
   for each row execute function public.handle_new_user();
 
 insert into public.profiles (id, display_name)
-select id, coalesce(nullif(trim(raw_user_meta_data ->> 'name'), ''), 'Encore user')
+select id, coalesce(nullif(trim(raw_user_meta_data ->> 'name'), ''), 'Disko user')
 from auth.users
 on conflict (id) do nothing;
 

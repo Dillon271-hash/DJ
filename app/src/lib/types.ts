@@ -10,7 +10,7 @@ export interface SetLog {
   date: string;
   labels?: string[];
   withWho?: string;
-  // Encore accounts tagged in "who were you with" (their names are also
+  // Disko accounts tagged in "who were you with" (their names are also
   // in withWho, alongside any plain names typed in).
   withUserIds?: string[];
   note?: string;

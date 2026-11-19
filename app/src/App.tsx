@@ -55,7 +55,7 @@ function Screens(): ReactNode {
           Almost there
         </h1>
         <p style={{ color: "var(--smoke)", maxWidth: "360px" }}>
-          Encore needs a Supabase project to handle accounts. Copy{" "}
+          Disko needs a Supabase project to handle accounts. Copy{" "}
           <code>.env.example</code> to <code>.env</code>, fill in{" "}
           <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code>{" "}
           from your project's Settings → Data API page, run{" "}

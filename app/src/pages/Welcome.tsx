@@ -222,7 +222,7 @@ export function Welcome() {
 
         {existingAccount && (
           <div className="auth-notice" role="alert" style={{ maxWidth: "none" }}>
-            <p style={{ margin: "0 0 0.6rem" }}>There's already an Encore account for {email.trim()}.</p>
+            <p style={{ margin: "0 0 0.6rem" }}>There's already an Disko account for {email.trim()}.</p>
             <div style={{ display: "flex", gap: "1rem" }}>
               <button type="button" className="text-btn" style={{ color: "var(--bone)" }} onClick={() => switchMode("login")}>
                 Log in instead

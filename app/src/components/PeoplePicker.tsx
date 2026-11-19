@@ -6,7 +6,7 @@ import { UserAvatar } from "./UserAvatar";
 const NO_PEOPLE: Mini[] = [];
 
 // Pick people to invite: your plus-ones listed up front, anyone else on
-// Encore found by searching.
+// Disko found by searching.
 export function PeoplePicker({
   picked,
   onToggle,
@@ -41,7 +41,7 @@ export function PeoplePicker({
         className="text-input"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder={friends.length ? "Search plus-ones or anyone on Encore" : "Search anyone on Encore"}
+        placeholder={friends.length ? "Search plus-ones or anyone on Disko" : "Search anyone on Disko"}
         aria-label="Search people to invite"
       />
       <div className="invite-list">

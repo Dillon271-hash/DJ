@@ -10,7 +10,7 @@ export function Header() {
 
   return (
     <header className="topbar">
-      <NavLink to="/" className="topbar-brand" aria-label="Encore home">
+      <NavLink to="/" className="topbar-brand" aria-label="Disko home">
         <Wordmark spinOnHover />
       </NavLink>
       <div className="topbar-nav">

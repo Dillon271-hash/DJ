@@ -72,10 +72,10 @@ export function People() {
 
   async function invite() {
     const url = window.location.origin;
-    const text = "Rank every DJ set you've seen with me on Encore";
+    const text = "Rank every DJ set you've seen with me on Disko";
     try {
       if (navigator.share) {
-        await navigator.share({ title: "Encore", text, url });
+        await navigator.share({ title: "Disko", text, url });
         return;
       }
       await navigator.clipboard.writeText(url);
@@ -169,15 +169,15 @@ export function People() {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Find someone on Encore"
-            aria-label="Find someone on Encore"
+            placeholder="Find someone on Disko"
+            aria-label="Find someone on Disko"
           />
         </label>
       )}
 
       {people.length === 0 ? (
         <div className="people-empty">
-          <p>No one else is on Encore yet.</p>
+          <p>No one else is on Disko yet.</p>
           <button type="button" className="sticker-btn" onClick={invite}>
             {copied ? "Link copied" : "Invite your friends"}
           </button>

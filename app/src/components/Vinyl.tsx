@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 
-// The brand's vinyl record — grooves, a light sheen and the glowing Encore
+// The brand's vinyl record — grooves, a light sheen and the glowing Disko
 // label. Used as the "O" in the wordmark, the opening animation, and every
 // loading state (spinning).
 export function Vinyl({
@@ -39,17 +39,16 @@ export function Loader({
   );
 }
 
-// "ENCORE" with the record standing in for the O.
+// "DISKO" with the record standing in for the O.
 export function Wordmark({ className = "", spinOnHover = false }: { className?: string; spinOnHover?: boolean }) {
   return (
     <span
       className={`wordmark display${spinOnHover ? " spin-hover" : ""}${className ? ` ${className}` : ""}`}
       role="img"
-      aria-label="Encore"
+      aria-label="Disko"
     >
-      <span aria-hidden="true">ENC</span>
+      <span aria-hidden="true">DISK</span>
       <Vinyl size="0.86em" className="wordmark-o" />
-      <span aria-hidden="true">RE</span>
     </span>
   );
 }
