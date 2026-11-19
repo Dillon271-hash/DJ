@@ -291,6 +291,19 @@ main.content {
   text-decoration: underline;
 }
 
+.auth-notice {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 0 1.2rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--glow-core);
+  background: color-mix(in srgb, var(--glow-core) 12%, transparent);
+  color: var(--bone);
+  font-size: 0.85rem;
+  text-align: left;
+}
+
 .festival-session-card {
   background: var(--ink);
   border: 1px solid var(--line);

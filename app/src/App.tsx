@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import { Header } from "./components/Header";
 import { Welcome } from "./pages/Welcome";
+import { ResetPassword } from "./pages/ResetPassword";
 import { Rankings } from "./pages/Rankings";
 import { useEncoreStore } from "./lib/store";
 import { isSupabaseConfigured } from "./lib/supabase";
@@ -25,6 +26,7 @@ function PageLoading() {
 function App() {
   const authReady = useEncoreStore((s) => s.authReady);
   const session = useEncoreStore((s) => s.session);
+  const passwordRecovery = useEncoreStore((s) => s.passwordRecovery);
   const init = useEncoreStore((s) => s.init);
 
   useEffect(() => {
@@ -60,6 +62,10 @@ function App() {
 
   if (!session) {
     return <Welcome />;
+  }
+
+  if (passwordRecovery) {
+    return <ResetPassword />;
   }
 
   return (

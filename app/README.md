@@ -68,9 +68,21 @@ Credentials flow), never exposed to the browser.
    and the security rules that keep each user's data private to them.
 3. Restart `npm run dev` after saving `.env` — Vite only reads it on
    startup.
+4. Under **Authentication → URL Configuration**, set **Site URL** to the
+   deployed app's address and add every address the app runs at
+   (deployed and `http://localhost:5173/**`) under **Redirect URLs**.
+   Sign-up confirmation and password-reset emails link back there.
+5. Optional: paste the branded templates in `supabase/email-templates/`
+   into **Authentication → Emails** ("Confirm signup" and "Reset
+   password" tabs).
 
 If deploying to Vercel, add all four as Environment Variables in the
 project settings there too.
+
+Note that Supabase's built-in email sender (used until you configure
+custom SMTP under Authentication → Emails → SMTP Settings) only delivers
+to members of your Supabase team and only a few per hour — fine for
+testing, but other people won't receive sign-up or reset emails.
 
 ## Structure
 

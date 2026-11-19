@@ -64,6 +64,16 @@ interface EncoreStore {
   signUp: (email: string, password: string, name: string) => Promise<string | null>;
   signIn: (email: string, password: string) => Promise<string | null>;
   signOut: () => Promise<void>;
+  // True while the user has arrived via a password-reset email link and
+  // hasn't chosen a new password yet — App shows the reset screen instead
+  // of the app, even though the link has already signed them in.
+  passwordRecovery: boolean;
+  // Message from an expired/already-used email link, shown on the sign-in
+  // screen so the user knows why the link didn't work.
+  authLinkError: string | null;
+  clearAuthLinkError: () => void;
+  requestPasswordReset: (email: string) => Promise<string | null>;
+  updatePassword: (password: string) => Promise<string | null>;
   addLog: (
     draft: DraftLog,
     bucket: Bucket,
@@ -84,17 +94,35 @@ interface EncoreStore {
 
 let authListenerStarted = false;
 
+// Supabase email links (sign-up confirmation, password reset) land back
+// here with their result in the URL fragment, e.g.
+// "#access_token=…&type=recovery" or "#error_description=…". That's the
+// same fragment HashRouter uses for pages, so read it once at startup:
+// supabase-js clears a successful one itself once it has the session, but
+// an error one would otherwise linger and be treated as a page path.
+const linkParams = new URLSearchParams(
+  typeof window === "undefined" ? "" : window.location.hash.replace(/^#/, ""),
+);
+const arrivedViaResetLink = linkParams.get("type") === "recovery";
+const initialLinkError = linkParams.get("error_description");
+if (initialLinkError) {
+  window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#/`);
+}
+
 export const useEncoreStore = create<EncoreStore>()((set, get) => ({
   session: null,
   authReady: false,
   logs: [],
   logsLoading: false,
+  passwordRecovery: arrivedViaResetLink,
+  authLinkError: initialLinkError,
 
   init: () => {
     if (authListenerStarted) return;
     authListenerStarted = true;
-    client().auth.onAuthStateChange((_event, session) => {
+    client().auth.onAuthStateChange((event, session) => {
       set({ session, authReady: true });
+      if (event === "PASSWORD_RECOVERY") set({ passwordRecovery: true });
       if (session) {
         fetchLogs();
       } else {
@@ -119,6 +147,26 @@ export const useEncoreStore = create<EncoreStore>()((set, get) => ({
 
   signOut: async () => {
     await client().auth.signOut();
+  },
+
+  clearAuthLinkError: () => set({ authLinkError: null }),
+
+  requestPasswordReset: async (email) => {
+    // The link brings them back to whichever copy of the app they asked
+    // from (the Vercel site, or localhost while developing) — each needs
+    // to be listed under Supabase → Authentication → URL Configuration →
+    // Redirect URLs, or Supabase falls back to the Site URL.
+    const { error } = await client().auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/`,
+    });
+    return error?.message ?? null;
+  },
+
+  updatePassword: async (password) => {
+    const { error } = await client().auth.updateUser({ password });
+    if (error) return error.message;
+    set({ passwordRecovery: false });
+    return null;
   },
 
   addLog: async (draft, bucket, score, venueBucket, venueScore, mediaPaths) => {
