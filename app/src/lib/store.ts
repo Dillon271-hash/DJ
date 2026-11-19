@@ -61,7 +61,11 @@ interface EncoreStore {
   logs: SetLog[];
   logsLoading: boolean;
   init: () => void;
-  signUp: (email: string, password: string, name: string) => Promise<string | null>;
+  signUp: (
+    email: string,
+    password: string,
+    name: string,
+  ) => Promise<{ error: string | null; existingAccount: boolean }>;
   signIn: (email: string, password: string) => Promise<string | null>;
   signOut: () => Promise<void>;
   // True while the user has arrived via a password-reset email link and
@@ -132,12 +136,18 @@ export const useEncoreStore = create<EncoreStore>()((set, get) => ({
   },
 
   signUp: async (email, password, name) => {
-    const { error } = await client().auth.signUp({
+    const { data, error } = await client().auth.signUp({
       email,
       password,
       options: { data: { name } },
     });
-    return error?.message ?? null;
+    // Supabase signals "this email already has an account" one of two
+    // ways depending on project settings: a user_already_exists error, or
+    // (when email *and* phone confirmation are both on) a fake success
+    // whose user has no identities and for which no email is sent.
+    const existingAccount = error?.code === "user_already_exists" || data.user?.identities?.length === 0;
+    if (existingAccount) return { error: null, existingAccount: true };
+    return { error: error?.message ?? null, existingAccount: false };
   },
 
   signIn: async (email, password) => {

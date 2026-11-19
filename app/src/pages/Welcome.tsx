@@ -41,22 +41,29 @@ export function Welcome() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
+  const [existingAccount, setExistingAccount] = useState(false);
 
   function switchMode(next: Mode) {
     setMode(next);
     setError(null);
+    setExistingAccount(false);
     clearAuthLinkError();
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setExistingAccount(false);
     clearAuthLinkError();
     setSubmitting(true);
     const trimmedEmail = email.trim();
+    let alreadyRegistered = false;
     const result = await withTimeout(
       mode === "signup"
-        ? signUp(trimmedEmail, password, name.trim())
+        ? signUp(trimmedEmail, password, name.trim()).then((r) => {
+            alreadyRegistered = r.existingAccount;
+            return r.error;
+          })
         : mode === "login"
           ? signIn(trimmedEmail, password)
           : requestPasswordReset(trimmedEmail),
@@ -65,6 +72,10 @@ export function Welcome() {
     setSubmitting(false);
     if (result) {
       setError(result);
+      return;
+    }
+    if (alreadyRegistered) {
+      setExistingAccount(true);
       return;
     }
     // If email confirmation is on for this Supabase project, signUp()
@@ -207,6 +218,20 @@ export function Welcome() {
 
         {error && (
           <p style={{ color: "var(--glow-core)", fontSize: "0.85rem", margin: "0 0 1rem" }}>{error}</p>
+        )}
+
+        {existingAccount && (
+          <div className="auth-notice" role="alert" style={{ maxWidth: "none" }}>
+            <p style={{ margin: "0 0 0.6rem" }}>There's already an Encore account for {email.trim()}.</p>
+            <div style={{ display: "flex", gap: "1rem" }}>
+              <button type="button" className="text-btn" style={{ color: "var(--bone)" }} onClick={() => switchMode("login")}>
+                Log in instead
+              </button>
+              <button type="button" className="text-btn" style={{ color: "var(--bone)" }} onClick={() => switchMode("forgot")}>
+                Forgot password?
+              </button>
+            </div>
+          </div>
         )}
 
         <button type="submit" className="sticker-btn" style={{ width: "100%" }} disabled={submitting}>
