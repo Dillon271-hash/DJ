@@ -188,25 +188,33 @@ export const useEncoreStore = create<EncoreStore>()((set, get) => ({
   },
 
   addLog: async (draft, bucket, score, venueBucket, venueScore, mediaPaths) => {
-    const { data, error } = await client()
-      .from("logs")
-      .insert({
-        artist: draft.artist,
-        event: draft.event,
-        date: draft.date,
-        with_who: draft.withWho ?? null,
-        // Only sent when someone was tagged, so saving still works on a
-        // project that hasn't re-run schema.sql to add this column yet.
-        ...(draft.withUserIds?.length ? { with_user_ids: draft.withUserIds } : {}),
-        note: draft.note ?? null,
-        bucket,
-        score,
-        venue_bucket: venueBucket ?? null,
-        venue_score: venueScore ?? null,
-        media_paths: mediaPaths && mediaPaths.length > 0 ? mediaPaths : null,
-      })
-      .select()
-      .single();
+    const base = {
+      artist: draft.artist,
+      event: draft.event,
+      date: draft.date,
+      with_who: draft.withWho ?? null,
+      note: draft.note ?? null,
+      bucket,
+      score,
+      venue_bucket: venueBucket ?? null,
+      venue_score: venueScore ?? null,
+    };
+    // Newer columns are only sent when they have something in them, so a
+    // project that hasn't re-run schema.sql yet can still save plain sets.
+    const full = {
+      ...base,
+      ...(draft.withUserIds?.length ? { with_user_ids: draft.withUserIds } : {}),
+      ...(mediaPaths?.length ? { media_paths: mediaPaths } : {}),
+    };
+    const insert = (row: typeof full) => client().from("logs").insert(row).select().single();
+    let { data, error } = await insert(full);
+    // PGRST204 = "column not found" — schema.sql hasn't been re-run since
+    // tagging/media were added. Save the set without those extras rather
+    // than losing it entirely (names still live on in with_who).
+    if (error?.code === "PGRST204") {
+      console.warn("[logs] missing column, saving without tags/media — re-run supabase/schema.sql:", error.message);
+      ({ data, error } = await insert(base));
+    }
     if (error || !data) {
       console.error("[logs] insert failed:", error);
       return null;
