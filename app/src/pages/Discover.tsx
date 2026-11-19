@@ -11,7 +11,7 @@ import { Loader } from "../components/Vinyl";
 import { ArtistPhoto } from "../components/ArtistPhoto";
 import { ScoreRing } from "../components/ScoreRing";
 import { AvatarThumb } from "../components/AvatarThumb";
-import { Sheet } from "./Crews";
+import { Sheet } from "../components/Sheet";
 
 export function Discover() {
   const me = useEncoreStore((s) => s.session?.user.id ?? "");

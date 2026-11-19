@@ -4,6 +4,7 @@ import { Header } from "./components/Header";
 import { BottomNav } from "./components/BottomNav";
 import { Welcome } from "./pages/Welcome";
 import { ResetPassword } from "./pages/ResetPassword";
+import { PickUsername } from "./pages/PickUsername";
 import { Rankings } from "./pages/Rankings";
 import { Loader, Vinyl } from "./components/Vinyl";
 import { Splash } from "./components/Splash";
@@ -42,6 +43,7 @@ function Screens(): ReactNode {
   const authReady = useEncoreStore((s) => s.authReady);
   const session = useEncoreStore((s) => s.session);
   const passwordRecovery = useEncoreStore((s) => s.passwordRecovery);
+  const username = useEncoreStore((s) => s.username);
   const init = useEncoreStore((s) => s.init);
 
   useEffect(() => {
@@ -77,6 +79,11 @@ function Screens(): ReactNode {
 
   if (passwordRecovery) {
     return <ResetPassword />;
+  }
+
+  // Accounts from before usernames pick one before going any further.
+  if (username === null) {
+    return <PickUsername />;
   }
 
   return (

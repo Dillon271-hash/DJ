@@ -13,7 +13,8 @@ import { AvatarThumb } from "../components/AvatarThumb";
 import { ScoreRing } from "../components/ScoreRing";
 import { FeedCard } from "../components/FeedCard";
 import { PeoplePicker, useToggleSet } from "../components/PeoplePicker";
-import { crewTint, Sheet } from "./Crews";
+import { crewTint } from "./Crews";
+import { Sheet } from "../components/Sheet";
 
 type Tab = "sets" | "artists" | "latest";
 type Filter = "all" | Bucket;

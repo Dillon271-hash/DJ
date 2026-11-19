@@ -4186,3 +4186,139 @@ body:has(.flow) .tabbar {
   width: 15px;
   height: 15px;
 }
+
+/* ---------- Usernames + account ---------- */
+.username-input {
+  display: flex;
+  align-items: center;
+  background: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0 0.85rem;
+  transition: border-color 0.15s;
+}
+
+.username-input:focus-within {
+  outline: 2px solid var(--glow-edge);
+  outline-offset: 1px;
+}
+
+.username-input > span:first-child {
+  color: var(--smoke);
+  font-weight: 700;
+}
+
+.username-input input,
+.field .username-input input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0.75rem 0.3rem;
+  color: var(--bone);
+  font-size: 0.95rem;
+}
+
+.username-input.available {
+  border-color: #3fbf7f;
+}
+
+.username-input.taken,
+.username-input.invalid {
+  border-color: var(--pink);
+}
+
+.username-mark {
+  font-weight: 800;
+  width: 1rem;
+  text-align: center;
+}
+
+.username-input.available .username-mark {
+  color: #3fbf7f;
+}
+
+.username-input.taken .username-mark,
+.username-input.invalid .username-mark {
+  color: var(--pink);
+}
+
+.username-hint {
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--smoke);
+  text-align: left;
+}
+
+.username-hint.available {
+  color: #3fbf7f;
+}
+
+.username-hint.taken,
+.username-hint.invalid {
+  color: var(--pink);
+}
+
+.username-title {
+  text-transform: none;
+}
+
+.topbar-account {
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: inline-flex;
+}
+
+.topbar-account .user-avatar {
+  box-shadow:
+    0 0 0 2px var(--void),
+    0 0 0 3px color-mix(in srgb, var(--bone) 40%, transparent);
+}
+
+.account-head {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 0.4rem 0 1.2rem;
+}
+
+.account-name {
+  font-family: "Arial Black", sans-serif;
+  font-size: 1.25rem;
+}
+
+.account-email {
+  font-size: 0.8rem;
+  color: var(--smoke);
+}
+
+.account-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 0.2rem;
+  border: none;
+  border-top: 1px dashed var(--line);
+  background: none;
+  color: var(--bone);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.account-row small {
+  color: var(--smoke);
+  font-weight: 400;
+}
+
+.account-row.danger {
+  color: var(--pink);
+}

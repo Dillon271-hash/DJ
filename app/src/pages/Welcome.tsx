@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
-import { useEncoreStore } from "../lib/store";
+import { cleanUsername, useEncoreStore } from "../lib/store";
+import { UsernameField, usernameOk, type UsernameStatus } from "../components/UsernameField";
 import { Busy, Vinyl, Wordmark } from "../components/Vinyl";
 
 type Mode = "signup" | "login" | "forgot";
@@ -49,7 +50,8 @@ export function Welcome() {
   // Someone landing here from an expired email link almost certainly
   // wants to log in or request a fresh link, not create an account.
   const [mode, setMode] = useState<Mode>(authLinkError ? "login" : "signup");
-  const [name, setName] = useState("");
+  const [username, setUsernameValue] = useState("");
+  const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>("empty");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -74,6 +76,7 @@ export function Welcome() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (mode === "signup" && !usernameOk(usernameStatus)) return;
     setError(null);
     setExistingAccount(false);
     clearAuthLinkError();
@@ -82,7 +85,7 @@ export function Welcome() {
     let alreadyRegistered = false;
     const result = await withTimeout(
       mode === "signup"
-        ? signUp(trimmedEmail, password, name.trim()).then((r) => {
+        ? signUp(trimmedEmail, password, cleanUsername(username)).then((r) => {
             alreadyRegistered = r.existingAccount;
             return r.error;
           })
@@ -204,14 +207,13 @@ export function Welcome() {
       <form onSubmit={handleSubmit} style={{ width: "100%", maxWidth: "320px" }}>
         {mode === "signup" && (
           <div className="field">
-            <label htmlFor="welcome-name">Your name</label>
-            <input
-              id="welcome-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Your name"
+            <label htmlFor="welcome-username">Username</label>
+            <UsernameField
+              id="welcome-username"
+              value={username}
+              onChange={setUsernameValue}
+              onStatus={setUsernameStatus}
               autoFocus
-              required
             />
           </div>
         )}
@@ -286,7 +288,12 @@ export function Welcome() {
           </div>
         )}
 
-        <button type="submit" className="sticker-btn" style={{ width: "100%" }} disabled={submitting}>
+        <button
+          type="submit"
+          className="sticker-btn"
+          style={{ width: "100%" }}
+          disabled={submitting || (mode === "signup" && !usernameOk(usernameStatus))}
+        >
           {submitting ? <Busy>Please wait…</Busy> : submitLabel}
         </button>
 

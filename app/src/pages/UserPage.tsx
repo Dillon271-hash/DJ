@@ -75,7 +75,7 @@ export function UserPage() {
 
       <div className="profile-hero">
         <UserAvatar id={id} name={name} size={88} />
-        <h1 className="display artist-name">{name}</h1>
+        <h1 className="display artist-name username-title">@{name}</h1>
         <p className="profile-tier">
           <span className="tier-chip">{tier.name}</span>
           <span>{spins.toLocaleString()} spins</span>

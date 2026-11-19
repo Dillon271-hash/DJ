@@ -52,6 +52,11 @@ export function rowToLog(row: LogRow): SetLog {
   };
 }
 
+export type UsernameCheck = "available" | "taken" | "invalid" | "unknown";
+
+export const USERNAME_RE = /^[a-z0-9_.]{3,20}$/;
+export const cleanUsername = (s: string) => s.trim().replace(/^@/, "").toLowerCase();
+
 export interface ProfileMatch {
   id: string;
   name: string;
@@ -73,8 +78,12 @@ interface EncoreStore {
   signUp: (
     email: string,
     password: string,
-    name: string,
+    username: string,
   ) => Promise<{ error: string | null; existingAccount: boolean }>;
+  /** undefined while loading; null = this account hasn't picked one yet. */
+  username: string | null | undefined;
+  checkUsername: (candidate: string) => Promise<UsernameCheck>;
+  setUsername: (candidate: string) => Promise<string | null>;
   signIn: (email: string, password: string) => Promise<string | null>;
   signOut: () => Promise<void>;
   // True while the user has arrived via a password-reset email link and
@@ -129,6 +138,28 @@ export const useEncoreStore = create<EncoreStore>()((set, get) => ({
   authReady: false,
   logs: [],
   logsLoading: true,
+  username: undefined,
+
+  checkUsername: async (candidate) => {
+    const u = cleanUsername(candidate);
+    if (!USERNAME_RE.test(u)) return "invalid";
+    const { data, error } = await client().rpc("username_available", { candidate: u });
+    // Function missing (schema.sql not re-run yet) — let them try; the
+    // database still refuses a duplicate.
+    if (error) return "unknown";
+    return data ? "available" : "taken";
+  },
+
+  setUsername: async (candidate) => {
+    const u = cleanUsername(candidate);
+    if (!USERNAME_RE.test(u)) return "Use 3–20 letters, numbers, _ or .";
+    const me = get().session?.user.id;
+    if (!me) return "You're signed out.";
+    const { error } = await client().from("profiles").update({ username: u, display_name: u }).eq("id", me);
+    if (error) return error.code === "23505" ? "That username's taken." : error.message;
+    set({ username: u });
+    return null;
+  },
   passwordRecovery: arrivedViaResetLink,
   authLinkError: initialLinkError,
 
@@ -140,17 +171,18 @@ export const useEncoreStore = create<EncoreStore>()((set, get) => ({
       if (event === "PASSWORD_RECOVERY") set({ passwordRecovery: true });
       if (session) {
         fetchLogs(session.user.id);
+        if (get().username === undefined) fetchUsername(session.user.id);
       } else {
-        set({ logs: [] });
+        set({ logs: [], username: undefined });
       }
     });
   },
 
-  signUp: async (email, password, name) => {
+  signUp: async (email, password, username) => {
     const { data, error } = await client().auth.signUp({
       email,
       password,
-      options: { data: { name }, emailRedirectTo: `${window.location.origin}/` },
+      options: { data: { username, name: username }, emailRedirectTo: `${window.location.origin}/` },
     });
     // Supabase signals "this email already has an account" one of two
     // ways depending on project settings: a user_already_exists error, or
@@ -268,6 +300,16 @@ export const useEncoreStore = create<EncoreStore>()((set, get) => ({
   setFestivalSession: (session) => set({ festivalSession: session }),
   clearFestivalSession: () => set({ festivalSession: null }),
 }));
+
+async function fetchUsername(userId: string) {
+  const { data, error } = await client().from("profiles").select("username").eq("id", userId).maybeSingle();
+  // No username column yet (schema.sql not re-run): don't ask for one.
+  if (error) {
+    useEncoreStore.setState({ username: "" });
+    return;
+  }
+  useEncoreStore.setState({ username: (data as { username: string | null } | null)?.username ?? null });
+}
 
 async function fetchLogs(userId: string) {
   useEncoreStore.setState({ logsLoading: true });

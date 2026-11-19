@@ -104,15 +104,52 @@ create policy "Users can update their own profile"
   on public.profiles for update
   using (auth.uid() = id);
 
+-- Usernames: unique, 3–20 lowercase letters, numbers, "_" or ".".
+-- display_name is kept equal to the username, so everywhere that shows a
+-- name shows the username. Accounts from before usernames have none yet
+-- and get asked to pick one in the app.
+alter table public.profiles add column if not exists username text;
+do $$
+begin
+  alter table public.profiles
+    add constraint profiles_username_format check (username is null or username ~ '^[a-z0-9_.]{3,20}$');
+exception when duplicate_object then null;
+end $$;
+create unique index if not exists profiles_username_key on public.profiles (username);
+
+-- Lets the sign-up screen check a username before an account exists.
+create or replace function public.username_available(candidate text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select lower(trim(candidate)) ~ '^[a-z0-9_.]{3,20}$'
+    and not exists (select 1 from public.profiles where username = lower(trim(candidate)));
+$$;
+grant execute on function public.username_available(text) to anon, authenticated;
+
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer
 set search_path = ''
 as $$
+declare
+  uname text := lower(trim(coalesce(new.raw_user_meta_data ->> 'username', '')));
 begin
-  insert into public.profiles (id, display_name)
-  values (new.id, coalesce(nullif(trim(new.raw_user_meta_data ->> 'name'), ''), 'Disko user'))
+  -- A taken or malformed username never blocks sign-up: the account is
+  -- created without one and the app asks them to pick another.
+  if uname !~ '^[a-z0-9_.]{3,20}$' or exists (select 1 from public.profiles where username = uname) then
+    uname := null;
+  end if;
+  insert into public.profiles (id, display_name, username)
+  values (
+    new.id,
+    coalesce(uname, nullif(trim(new.raw_user_meta_data ->> 'name'), ''), 'Disko user'),
+    uname
+  )
   on conflict (id) do nothing;
   return new;
 end;
