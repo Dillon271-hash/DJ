@@ -2,6 +2,9 @@ export type Bucket = "loved" | "good" | "not";
 
 export interface SetLog {
   id: string;
+  // Whose log this is — every signed-in user can read everyone's logs, so
+  // anything showing "your" rankings must filter on this.
+  userId?: string;
   artist: string;
   event: string;
   date: string;

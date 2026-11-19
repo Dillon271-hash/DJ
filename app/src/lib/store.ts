@@ -14,8 +14,9 @@ function client(): SupabaseClient {
 }
 
 // Row shape as stored in Postgres (snake_case) — see supabase/schema.sql.
-interface LogRow {
+export interface LogRow {
   id: string;
+  user_id?: string;
   artist: string;
   event: string;
   date: string;
@@ -31,9 +32,10 @@ interface LogRow {
   created_at: string;
 }
 
-function rowToLog(row: LogRow): SetLog {
+export function rowToLog(row: LogRow): SetLog {
   return {
     id: row.id,
+    userId: row.user_id,
     artist: row.artist,
     event: row.event,
     date: row.date,
@@ -125,7 +127,7 @@ export const useEncoreStore = create<EncoreStore>()((set, get) => ({
   session: null,
   authReady: false,
   logs: [],
-  logsLoading: false,
+  logsLoading: true,
   passwordRecovery: arrivedViaResetLink,
   authLinkError: initialLinkError,
 
@@ -136,7 +138,7 @@ export const useEncoreStore = create<EncoreStore>()((set, get) => ({
       set({ session, authReady: true });
       if (event === "PASSWORD_RECOVERY") set({ passwordRecovery: true });
       if (session) {
-        fetchLogs();
+        fetchLogs(session.user.id);
       } else {
         set({ logs: [] });
       }
@@ -257,9 +259,15 @@ export const useEncoreStore = create<EncoreStore>()((set, get) => ({
   clearFestivalSession: () => set({ festivalSession: null }),
 }));
 
-async function fetchLogs() {
+async function fetchLogs(userId: string) {
   useEncoreStore.setState({ logsLoading: true });
-  const { data, error } = await client().from("logs").select("*").order("created_at", { ascending: true });
+  // Signed-in users can read everyone's logs (for People / profiles), so
+  // "my rankings" has to ask for just mine explicitly.
+  const { data, error } = await client()
+    .from("logs")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: true });
   if (error) {
     console.error("[logs] fetch failed:", error);
     useEncoreStore.setState({ logs: [], logsLoading: false });

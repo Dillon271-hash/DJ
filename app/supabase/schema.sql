@@ -33,10 +33,17 @@ alter table public.logs add column if not exists with_user_ids uuid[];
 
 alter table public.logs enable row level security;
 
+-- Rankings are social: any signed-in user can read anyone's logs (the
+-- People page and profiles). Only the owner can add or delete them.
 drop policy if exists "Users can view their own logs" on public.logs;
-create policy "Users can view their own logs"
+drop policy if exists "Signed-in users can view all logs" on public.logs;
+create policy "Signed-in users can view all logs"
   on public.logs for select
-  using (auth.uid() = user_id);
+  to authenticated
+  using (true);
+
+create index if not exists logs_user_id_created_at_idx on public.logs (user_id, created_at);
+create index if not exists logs_created_at_idx on public.logs (created_at desc);
 
 drop policy if exists "Users can insert their own logs" on public.logs;
 create policy "Users can insert their own logs"

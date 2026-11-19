@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useEncoreStore } from "../lib/store";
+import { Busy, Vinyl } from "../components/Vinyl";
 
 // Shown after someone opens a password-reset email link. The link has
 // already signed them in (that's how Supabase proves they own the
@@ -28,7 +29,7 @@ export function ResetPassword() {
 
   return (
     <div className="welcome-screen">
-      <span className="mark lg" aria-hidden="true" />
+      <Vinyl size={64} />
       <h1 className="display" style={{ fontSize: "1.8rem", margin: "1.2rem 0 0.4rem" }}>
         Choose a new password
       </h1>
@@ -67,7 +68,7 @@ export function ResetPassword() {
         )}
 
         <button type="submit" className="sticker-btn" style={{ width: "100%" }} disabled={submitting}>
-          {submitting ? "Saving…" : "Save new password"}
+          {submitting ? <Busy>Saving…</Busy> : "Save new password"}
         </button>
       </form>
     </div>

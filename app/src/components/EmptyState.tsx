@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
+import { Vinyl } from "./Vinyl";
 
 export function EmptyState() {
   return (
     <div className="empty-state">
-      <span className="mark" aria-hidden="true" />
+      <Vinyl size={56} className="empty-record" />
       <h2 className="display" style={{ fontSize: "1.6rem", margin: "0 0 0.6rem" }}>
         No sets logged yet
       </h2>

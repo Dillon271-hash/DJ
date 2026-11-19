@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
 import { fetchArtistImage } from "../lib/artistImage";
+import { Vinyl } from "./Vinyl";
 
 // Small circular avatar that resolves automatically on mount — no click
 // needed. Backed by the same cached lookup as the artist page, so an
 // artist that appears many times in a list only triggers one network
 // request. Falls back to initials, same as the artist page.
 export function AvatarThumb({ name }: { name: string }) {
-  const [image, setImage] = useState<string | null>(null);
+  // undefined while the lookup runs (spinning record), null if none found.
+  const [image, setImage] = useState<string | null | undefined>(undefined);
 
   useEffect(() => {
     let cancelled = false;
-    setImage(null);
+    setImage(undefined);
     fetchArtistImage(name).then((url) => {
       if (!cancelled) setImage(url);
     });
@@ -30,6 +32,8 @@ export function AvatarThumb({ name }: { name: string }) {
           referrerPolicy="no-referrer"
           onError={() => setImage(null)}
         />
+      ) : image === undefined ? (
+        <Vinyl size={26} spin />
       ) : (
         initials(name)
       )}

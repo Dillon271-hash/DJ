@@ -23,6 +23,13 @@ build a personal ranking of every artist and venue over time. See
 - **Artist and venue pages.** Each artist gets a page with their photo
   (fetched from Spotify), your stats (sets logged / avg score / best), and
   every set you've logged by them. Venues get the same, minus the photo.
+- **People.** See everyone else on Encore, the latest sets they've
+  ranked, and each person's full profile — their top 3, Sets/Venues
+  rankings, and a taste match % against yours. Any signed-in user can read
+  any user's logs; only the owner can add or delete them.
+- **Opening animation + record loaders.** A record rolls in and becomes
+  the O in ENCORE on every app load (tap to skip); every loading state
+  is a spinning record.
 - **Real accounts.** Sign up with an email/password, log in from any
   device, and your logged sets live in a real database (Supabase) instead
   of just your browser's localStorage.
@@ -102,6 +109,7 @@ testing, but other people won't receive sign-up or reset emails.
 - `src/lib/venues.ts` — seed list of well-known nightclubs/festivals for
   venue autocomplete (global, not location-biased — DJ sets happen
   everywhere); anything not listed can still be typed in freely
+- `src/lib/social.ts` — reading other people's profiles, logs and feed
 - `src/lib/artistImage.ts` — client-side helper that calls the
   `/api/artist-image` proxy below
 - `src/pages/`
@@ -114,7 +122,9 @@ testing, but other people won't receive sign-up or reset emails.
   - `ArtistPage.tsx` — artist profile: photo, bio, stats, past sets
   - `VenuePage.tsx` — same idea for venues (photo from Wikipedia when
     there's a confident match)
-  - `SetDetail.tsx` — a single logged set
+  - `SetDetail.tsx` — a single logged set (yours, or someone else's)
+  - `People.tsx` — everyone on Encore + latest sets (`/people`)
+  - `UserPage.tsx` — one person's profile and rankings (`/u/:id`)
 - `src/components/`
   - `BucketPicker.tsx` — the branded Loved it / It was good / Not for me
     cards
@@ -122,6 +132,11 @@ testing, but other people won't receive sign-up or reset emails.
     comparison scoring (with Too close to call / Undo / Skip)
   - `VenuePicker.tsx` — the browsable, searchable club/festival list
   - `WithWhoInput.tsx` — "who were you with", with an Encore-user popup
+  - `Vinyl.tsx` — the record mark: `Vinyl`, `Loader`, `Wordmark`, `Busy`
+  - `Splash.tsx` — the opening animation
+  - `RankingsList.tsx` — Sets/Venues + bucket filters + ranked rows,
+    shared by your Rankings page and other people's profiles
+  - `UserAvatar.tsx` — a person's initial on their own gradient
   - `ScoreRing.tsx` / `ScorePill.tsx` — score display
   - `RowMenu.tsx` — the "⋯" delete menu on ranking rows
   - `AvatarThumb.tsx` — auto-loading artist thumbnail

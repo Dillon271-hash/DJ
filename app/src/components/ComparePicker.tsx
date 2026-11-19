@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fetchArtistImage } from "../lib/artistImage";
 import { fetchVenueImage } from "../lib/venueImage";
 import { finalizeScore, maxComparisons, narrowRange, pickComparisonTarget, tooCloseScore } from "../lib/ranking";
+import { Vinyl } from "./Vinyl";
 
 export interface CompareItem {
   id: string;
@@ -184,11 +185,11 @@ function CompareCard({
   state: "idle" | "won" | "lost";
   onClick: () => void;
 }) {
-  const [image, setImage] = useState<string | null>(null);
+  const [image, setImage] = useState<string | null | undefined>(undefined);
 
   useEffect(() => {
     let stale = false;
-    setImage(null);
+    setImage(undefined);
     (kind === "artist" ? fetchArtistImage(title) : fetchVenueImage(title)).then((url) => {
       if (!stale) setImage(url);
     });
@@ -207,6 +208,10 @@ function CompareCard({
       <span className="compare-art">
         {image ? (
           <img src={image} alt="" referrerPolicy="no-referrer" decoding="async" onError={() => setImage(null)} />
+        ) : image === undefined ? (
+          <span className="compare-fallback loading">
+            <Vinyl size={56} spin />
+          </span>
         ) : (
           <span className={`compare-fallback ${kind}`}>
             <span>{initials(title)}</span>

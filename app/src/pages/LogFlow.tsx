@@ -10,6 +10,7 @@ import { BucketIcon, BucketPicker } from "../components/BucketPicker";
 import { ComparePicker, type CompareItem } from "../components/ComparePicker";
 import { VenuePicker } from "../components/VenuePicker";
 import { WithWhoInput, type WithTag } from "../components/WithWhoInput";
+import { Busy } from "../components/Vinyl";
 
 type Step = "where" | "bucket" | "compare" | "venue-bucket" | "venue-compare" | "details" | "done";
 
@@ -356,7 +357,7 @@ export function LogFlow() {
 
             <div className="flow-footer">
               <button type="button" className="sticker-btn" onClick={save} disabled={saving}>
-                {saving ? (mediaFiles.length ? "Uploading…" : "Saving…") : "Save set"}
+                {saving ? <Busy>{mediaFiles.length ? "Uploading…" : "Saving…"}</Busy> : "Save set"}
               </button>
             </div>
           </>

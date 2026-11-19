@@ -1,9 +1,11 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from "react";
 import { Route, Routes } from "react-router-dom";
 import { Header } from "./components/Header";
 import { Welcome } from "./pages/Welcome";
 import { ResetPassword } from "./pages/ResetPassword";
 import { Rankings } from "./pages/Rankings";
+import { Loader, Vinyl } from "./components/Vinyl";
+import { Splash } from "./components/Splash";
 import { useEncoreStore } from "./lib/store";
 import { isSupabaseConfigured } from "./lib/supabase";
 
@@ -15,16 +17,23 @@ const LogFlow = lazy(() => import("./pages/LogFlow").then((m) => ({ default: m.L
 const SetDetail = lazy(() => import("./pages/SetDetail").then((m) => ({ default: m.SetDetail })));
 const ArtistPage = lazy(() => import("./pages/ArtistPage").then((m) => ({ default: m.ArtistPage })));
 const VenuePage = lazy(() => import("./pages/VenuePage").then((m) => ({ default: m.VenuePage })));
+const People = lazy(() => import("./pages/People").then((m) => ({ default: m.People })));
+const UserPage = lazy(() => import("./pages/UserPage").then((m) => ({ default: m.UserPage })));
 
-function PageLoading() {
+function App() {
+  // The opening animation plays over whatever is loading underneath, once
+  // per app load.
+  const [splash, setSplash] = useState(true);
+  const endSplash = useCallback(() => setSplash(false), []);
   return (
-    <div className="page-loading">
-      <span className="mark lg pulse" aria-hidden="true" />
-    </div>
+    <>
+      <Screens />
+      {splash && <Splash onDone={endSplash} />}
+    </>
   );
 }
 
-function App() {
+function Screens(): ReactNode {
   const authReady = useEncoreStore((s) => s.authReady);
   const session = useEncoreStore((s) => s.session);
   const passwordRecovery = useEncoreStore((s) => s.passwordRecovery);
@@ -37,7 +46,7 @@ function App() {
   if (!isSupabaseConfigured) {
     return (
       <div className="welcome-screen">
-        <span className="mark lg" aria-hidden="true" />
+        <Vinyl size={64} />
         <h1 className="display" style={{ fontSize: "1.8rem", margin: "1.2rem 0 0.4rem" }}>
           Almost there
         </h1>
@@ -54,11 +63,7 @@ function App() {
   }
 
   if (!authReady) {
-    return (
-      <div className="page-loading" style={{ minHeight: "100vh" }}>
-        <span className="mark lg pulse" aria-hidden="true" />
-      </div>
-    );
+    return <Loader fullscreen size={72} />;
   }
 
   if (!session) {
@@ -73,7 +78,7 @@ function App() {
     <div className="app-shell">
       <Header />
       <main className="content">
-        <Suspense fallback={<PageLoading />}>
+        <Suspense fallback={<Loader />}>
           <Routes>
             <Route path="/" element={<Rankings />} />
             <Route path="/log" element={<LogSet />} />
@@ -81,6 +86,8 @@ function App() {
             <Route path="/set/:id" element={<SetDetail />} />
             <Route path="/artist/:name" element={<ArtistPage />} />
             <Route path="/venue/:name" element={<VenuePage />} />
+            <Route path="/people" element={<People />} />
+            <Route path="/u/:id" element={<UserPage />} />
           </Routes>
         </Suspense>
       </main>

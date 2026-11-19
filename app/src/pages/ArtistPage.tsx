@@ -4,6 +4,7 @@ import { useEncoreStore } from "../lib/store";
 import { fetchArtistImage } from "../lib/artistImage";
 import { fetchArtistBio } from "../lib/artistBio";
 import { ScorePill } from "../components/ScorePill";
+import { Loader } from "../components/Vinyl";
 
 export function ArtistPage() {
   const { name } = useParams();
@@ -59,12 +60,7 @@ export function ArtistPage() {
   }, [artist]);
 
   if (imageLoading) {
-    return (
-      <div className="page-loading">
-        <span className="mark lg pulse" aria-hidden="true" />
-        <p className="eyebrow">Loading {artist}…</p>
-      </div>
-    );
+    return <Loader label={`Loading ${artist}`} />;
   }
 
   const count = artistLogs.length;

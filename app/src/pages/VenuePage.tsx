@@ -6,6 +6,7 @@ import { fetchVenueImage } from "../lib/venueImage";
 import { splitVenue } from "../lib/venueNames";
 import { ScorePill } from "../components/ScorePill";
 import { BUCKET_LABEL } from "../lib/types";
+import { Vinyl } from "../components/Vinyl";
 
 export function VenuePage() {
   const { name } = useParams();
@@ -22,11 +23,11 @@ export function VenuePage() {
   );
 
   const { name: venueName, place } = splitVenue(venue);
-  const [image, setImage] = useState<string | null>(null);
+  const [image, setImage] = useState<string | null | undefined>(undefined);
 
   useEffect(() => {
     let stale = false;
-    setImage(null);
+    setImage(undefined);
     fetchVenueImage(venueName).then((url) => {
       if (!stale) setImage(url);
     });
@@ -49,6 +50,8 @@ export function VenuePage() {
         <div className="artist-avatar">
           {image ? (
             <img src={image} alt={venueName} decoding="async" referrerPolicy="no-referrer" onError={() => setImage(null)} />
+          ) : image === undefined ? (
+            <Vinyl size={64} spin />
           ) : (
             <span className="initials">{initials(venueName)}</span>
           )}

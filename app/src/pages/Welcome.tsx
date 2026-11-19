@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useEncoreStore } from "../lib/store";
+import { Busy, Vinyl, Wordmark } from "../components/Vinyl";
 
 type Mode = "signup" | "login" | "forgot";
 type Notice = "confirm-signup" | "reset-sent";
@@ -88,7 +89,7 @@ export function Welcome() {
   if (notice) {
     return (
       <div className="welcome-screen">
-        <span className="mark lg" aria-hidden="true" />
+        <Vinyl size={64} />
         <h1 className="display" style={{ fontSize: "1.8rem", margin: "1.2rem 0 0.4rem" }}>
           Check your email
         </h1>
@@ -120,9 +121,8 @@ export function Welcome() {
 
   return (
     <div className="welcome-screen">
-      <span className="mark lg" aria-hidden="true" />
-      <h1 className="display" style={{ fontSize: "2.1rem", margin: "1.2rem 0 0.4rem" }}>
-        Encore
+      <h1 style={{ fontSize: "2.6rem", margin: "0 0 0.5rem", lineHeight: 1.1 }}>
+        <Wordmark />
       </h1>
       <p style={{ color: "var(--smoke)", margin: "0 0 1.6rem" }}>
         Your personal ranked diary for DJ sets. Log who you've heard, rate
@@ -235,7 +235,7 @@ export function Welcome() {
         )}
 
         <button type="submit" className="sticker-btn" style={{ width: "100%" }} disabled={submitting}>
-          {submitting ? "Please wait…" : submitLabel}
+          {submitting ? <Busy>Please wait…</Busy> : submitLabel}
         </button>
 
         {mode === "forgot" && (
