@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { cleanUsername, useEncoreStore } from "../lib/store";
 import { Sheet } from "./Sheet";
 import { LegalLink } from "./LegalViewer";
-import { useAppearance } from "../lib/theme";
 import { UserAvatar } from "./UserAvatar";
 import { Busy, Vinyl } from "./Vinyl";
 import { UsernameField, usernameOk, type UsernameStatus } from "./UsernameField";
@@ -22,8 +21,6 @@ export function AccountSheet({ onClose }: { onClose: () => void }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
-  const appearance = useAppearance((s) => s.appearance);
-  const setAppearance = useAppearance((s) => s.set);
   const deleteAccount = useEncoreStore((s) => s.deleteAccount);
   const [deleting, setDeleting] = useState(false);
   const [confirmText, setConfirmText] = useState("");
@@ -133,16 +130,6 @@ export function AccountSheet({ onClose }: { onClose: () => void }) {
 
       {!editing && !deleting && (
         <>
-          <div className="account-row" style={{ cursor: "default" }}>
-            <span>Appearance</span>
-            <div className="seg appearance-seg" role="radiogroup" aria-label="Appearance">
-              {(["auto", "dark", "light"] as const).map((a) => (
-                <button key={a} type="button" role="radio" aria-checked={appearance === a} className={appearance === a ? "on" : ""} onClick={() => setAppearance(a)}>
-                  {a === "auto" ? "Auto" : a === "dark" ? "Dark" : "Light"}
-                </button>
-              ))}
-            </div>
-          </div>
           <Link to="/charts" className="account-row" onClick={onClose}>
             <span>The Charts</span>
             <small>Leaderboards</small>

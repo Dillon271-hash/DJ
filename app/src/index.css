@@ -1,9 +1,8 @@
 :root {
-  /* Follows the phone's setting unless you pick one in the account menu
-     (sets data-theme on <html>). Native controls follow along. */
+  /* Disko is dark-only — this also keeps native controls (date picker,
+     scrollbars, autofill) dark regardless of the phone's setting. */
   color-scheme: dark;
-  /* Fills for buttons/badges — stay vivid in both themes (the text-accent
-     colours above get darker in light mode for contrast; fills shouldn't). */
+  /* Fills for buttons and badges. */
   --fill-a: #ff3d22;
   --fill-b: #ffb13b;
   --void: #08070a;
@@ -21,48 +20,6 @@
   --smoke: #8b8779;
   --line: rgba(239, 234, 223, 0.14);
   --radius: 14px;
-}
-
-:root[data-theme="light"] {
-  --void: #f0deb8;
-  --ink: #fbf4e2;
-  --ink-2: #ffffff;
-  --paper: #ffffff;
-  --paper-ink: #1c1408;
-  --bone: #1c1408;
-  --bone-dim: #55503f;
-  --glow-core: #e02c14;
-  --glow-edge: #b3790a;
-  --pink: #c8115f;
-  --violet: #4b1fa6;
-  --yellow: #ffd000;
-  --fill-a: #ff4a1c;
-  --fill-b: #ffa726;
-  --smoke: #726b57;
-  --line: rgba(28, 20, 8, 0.16);
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --void: #f0deb8;
-    --ink: #fbf4e2;
-    --ink-2: #ffffff;
-    --paper: #ffffff;
-    --paper-ink: #1c1408;
-    --bone: #1c1408;
-    --bone-dim: #55503f;
-    --glow-core: #e02c14;
-    --glow-edge: #b3790a;
-    --pink: #c8115f;
-    --violet: #4b1fa6;
-    --yellow: #ffd000;
-    --fill-a: #ff4a1c;
-    --fill-b: #ffa726;
-    --smoke: #726b57;
-    --line: rgba(28, 20, 8, 0.16);
-    color-scheme: light;
-  }
 }
 
 * {
@@ -5042,17 +4999,6 @@ main.content {
   }
 }
 
-/* Light mode: same glows, gentler. */
-:root[data-theme="light"] .ambient {
-  --amb-strength: 0.16;
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) .ambient {
-    --amb-strength: 0.16;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .amb {
     animation: none;
@@ -5062,33 +5008,4 @@ main.content {
 /* Edge-to-edge on notched iPhones (viewport-fit=cover). */
 .topbar {
   padding-top: calc(0.9rem + env(safe-area-inset-top));
-}
-
-/* ---------- Light mode polish ---------- */
-:root[data-theme="light"] .tier-chip,
-:root[data-theme="light"] .rec-near {
-  color: #1c0b00;
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) .tier-chip {
-    color: #1c0b00;
-  }
-}
-
-/* Sticker buttons keep a crisp dark outline on cream. */
-:root[data-theme="light"] .sticker-btn,
-:root[data-theme="light"] .plus-btn:not(.on):not(.pending):not(.ghost):not(.danger) {
-  border-color: #1c1408;
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) .sticker-btn,
-  :root:not([data-theme="dark"]) .plus-btn:not(.on):not(.pending):not(.ghost):not(.danger) {
-    border-color: #1c1408;
-  }
-}
-
-.appearance-seg {
-  margin: 0.2rem 0 0.4rem;
 }
