@@ -1,10 +1,11 @@
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { cleanUsername, useEncoreStore } from "../lib/store";
 import { Sheet } from "./Sheet";
 import { UserAvatar } from "./UserAvatar";
-import { Busy } from "./Vinyl";
+import { Busy, Vinyl } from "./Vinyl";
 import { UsernameField, usernameOk, type UsernameStatus } from "./UsernameField";
+import { removeAvatar, setAvatar, useAvatars } from "../lib/avatars";
 
 // Your account: username (and changing it), shortcuts, log out.
 export function AccountSheet({ onClose }: { onClose: () => void }) {
@@ -19,6 +20,21 @@ export function AccountSheet({ onClose }: { onClose: () => void }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const hasPhoto = useAvatars((s) => Boolean(s.paths[me]));
+  const photoInput = useRef<HTMLInputElement>(null);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+
+  async function onPhoto(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setPhotoBusy(true);
+    setPhotoError(null);
+    const err = await setAvatar(file);
+    setPhotoBusy(false);
+    if (err) setPhotoError(err);
+  }
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -39,12 +55,35 @@ export function AccountSheet({ onClose }: { onClose: () => void }) {
   return (
     <Sheet onClose={onClose} label="Your account">
       <div className="account-head">
-        <UserAvatar id={me} name={shown} size={64} />
+        <button
+          type="button"
+          className="account-photo"
+          onClick={() => photoInput.current?.click()}
+          disabled={photoBusy}
+          aria-label={hasPhoto ? "Change profile photo" : "Add profile photo"}
+        >
+          <UserAvatar id={me} name={shown} size={72} />
+          <span className="account-photo-badge" aria-hidden="true">
+            {photoBusy ? <Vinyl size={16} spin /> : "＋"}
+          </span>
+        </button>
         <div>
           <div className="account-name">@{shown}</div>
           <div className="account-email">{email}</div>
+          <div className="account-photo-actions">
+            <button type="button" className="text-btn" onClick={() => photoInput.current?.click()} disabled={photoBusy}>
+              {photoBusy ? "Uploading…" : hasPhoto ? "Change photo" : "Add a photo"}
+            </button>
+            {hasPhoto && !photoBusy && (
+              <button type="button" className="text-btn" onClick={() => removeAvatar()}>
+                Remove
+              </button>
+            )}
+          </div>
         </div>
+        <input ref={photoInput} type="file" accept="image/*" onChange={onPhoto} hidden />
       </div>
+      {photoError && <p className="flow-error" style={{ margin: "-0.6rem 0 1rem" }}>{photoError}</p>}
 
       {username !== "" &&
         (editing ? (

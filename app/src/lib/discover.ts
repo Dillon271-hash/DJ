@@ -87,16 +87,40 @@ export function fetchCommunityLogs(): Promise<CommunityLog[]> {
 
 export const cityName = (place: string) => place.split(",")[0].trim();
 
-/** Sets anyone on Disko has logged at venues in this city, newest first. */
-export async function fetchCityLogs(place: string): Promise<FeedItem[]> {
-  const name = cityName(place).replace(/[\\%_]/g, (c) => `\\${c}`);
+// Places that count as the same city (venues are usually listed by their
+// neighbourhood or borough, not the metro name).
+const METRO: Record<string, string[]> = {
+  "new york": ["New York", "Brooklyn", "Manhattan", "Queens", "Bronx", "NYC"],
+  brooklyn: ["New York", "Brooklyn", "Manhattan", "Queens", "NYC"],
+  "los angeles": ["Los Angeles", "Hollywood", "Inglewood", "Pomona", "Long Beach", "Santa Monica"],
+  "san francisco": ["San Francisco", "Oakland"],
+  "miami": ["Miami", "Wynwood"],
+  "las vegas": ["Las Vegas", "Paradise, NV"],
+};
+
+/** The names a venue's location might use for this city. */
+export function cityTerms(place: string): string[] {
+  const name = cityName(place);
   if (!name) return [];
+  return METRO[name.toLowerCase()] ?? [name];
+}
+
+/** Whether a logged set's "Venue, City" is in this city. */
+export function isInCity(event: string, place: string): boolean {
+  const e = event.toLowerCase();
+  return cityTerms(place).some((t) => e.includes(t.toLowerCase()));
+}
+
+/** Sets anyone on Disko has logged at venues in this city, newest first. */
+export async function fetchCityLogs(place: string, limit = 60): Promise<FeedItem[]> {
+  const terms = cityTerms(place).map((t) => t.replace(/[\\%_"]/g, ""));
+  if (terms.length === 0) return [];
   const { data, error } = await db()
     .from("logs")
     .select("*")
-    .ilike("event", `%${name}%`)
+    .or(terms.map((t) => `event.ilike."%${t}%"`).join(","))
     .order("created_at", { ascending: false })
-    .limit(60);
+    .limit(limit);
   if (error || !data) return [];
   const rows = data as LogRow[];
   const names = await namesFor([...new Set(rows.map((r) => r.user_id!).filter(Boolean))]).catch(() => new Map<string, string>());

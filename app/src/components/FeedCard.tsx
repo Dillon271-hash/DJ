@@ -8,7 +8,7 @@ import { MediaStrip } from "./MediaStrip";
 import { BUCKET_LABEL } from "../lib/types";
 
 // One set in a feed: who, what they rated, their note and photos inline.
-export function FeedCard({ item: { log, person } }: { item: FeedItem }) {
+export function FeedCard({ item: { log, person }, near = false }: { item: FeedItem; near?: boolean }) {
   return (
     <article className={`feed-item ${log.bucket}`}>
       <Link to={`/u/${person.id}`} className="feed-who">
@@ -16,6 +16,7 @@ export function FeedCard({ item: { log, person } }: { item: FeedItem }) {
         <span>
           <b>{person.name}</b> {log.bucket === "loved" ? "loved" : log.bucket === "good" ? "rated" : "wasn't into"}
         </span>
+        {near && <span className="near-tag">📍 Near you</span>}
         <span className="feed-time">{timeAgo(log.createdAt)}</span>
       </Link>
       <Link to={`/set/${log.id}`} className="feed-set">

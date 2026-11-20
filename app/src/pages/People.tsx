@@ -6,6 +6,8 @@ import { Loader } from "../components/Vinyl";
 import { UserAvatar } from "../components/UserAvatar";
 import { PlusOneButton } from "../components/PlusOneButton";
 import { FeedCard } from "../components/FeedCard";
+import { CitySheet, PinIcon } from "../components/CitySheet";
+import { cityName, fetchCityLogs, isInCity, useCity } from "../lib/discover";
 
 const PEOPLE_PREVIEW = 5;
 type FeedTab = "plus-ones" | "everyone";
@@ -23,7 +25,13 @@ export function People() {
   const [showAll, setShowAll] = useState(false);
   const [copied, setCopied] = useState(false);
   const [tab, setTab] = useState<FeedTab | null>(null);
-  const [feed, setFeed] = useState<FeedItem[] | null>(null);
+  const [feed, setFeed] = useState<(FeedItem & { near?: boolean })[] | null>(null);
+  const { city, load: loadCity } = useCity();
+  const [pickingCity, setPickingCity] = useState(false);
+
+  useEffect(() => {
+    if (city === undefined) loadCity();
+  }, [city, loadCity]);
 
   const friendIds = useMemo(() => plusOnes?.friends.map((f) => f.id) ?? null, [plusOnes]);
   // Default to your plus-ones' sets once you have some.
@@ -45,18 +53,35 @@ export function People() {
 
   const friendKey = friendIds?.join(",");
   useEffect(() => {
-    if (friendIds === null) return;
+    if (friendIds === null || city === undefined) return;
     let stale = false;
     setFeed(null);
-    fetchFeed(me, activeTab === "plus-ones" ? { userIds: friendIds } : {})
-      .then((f) => !stale && setFeed(f))
+    const scope = activeTab === "plus-ones" ? new Set(friendIds) : null;
+    Promise.all([
+      fetchFeed(me, scope ? { userIds: friendIds } : {}),
+      city ? fetchCityLogs(city, 80).catch(() => []) : Promise.resolve([]),
+    ])
+      .then(([latest, local]) => {
+        if (stale) return;
+        // Sets near your city from the last 45 days go first (newest
+        // first), then everything else in time order.
+        const cutoff = Date.now() - 45 * 86_400_000;
+        const near = local.filter(
+          (i) => i.person.id !== me && (!scope || scope.has(i.person.id)) && i.log.createdAt >= cutoff,
+        );
+        const nearIds = new Set(near.map((i) => i.log.id));
+        const rest = latest
+          .filter((i) => !nearIds.has(i.log.id))
+          .map((i) => ({ ...i, near: city ? isInCity(i.log.event, city) : false }));
+        setFeed([...near.map((i) => ({ ...i, near: true })), ...rest]);
+      })
       .catch(() => !stale && setFeed([]));
     return () => {
       stale = true;
     };
     // friendKey stands in for friendIds' contents.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [me, activeTab, friendKey]);
+  }, [me, activeTab, friendKey, city]);
 
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -217,8 +242,12 @@ export function People() {
         <section style={{ marginTop: "2rem" }}>
           <div className="feed-head">
             <div className="section-label" style={{ margin: 0 }}>
-              Latest sets
+              Latest
             </div>
+            <button type="button" className="feed-city" onClick={() => setPickingCity(true)}>
+              <PinIcon />
+              {city ? cityName(city) : "Set city"}
+            </button>
             <div className="seg">
               <button type="button" className={activeTab === "plus-ones" ? "on" : ""} onClick={() => setTab("plus-ones")}>
                 Plus-ones
@@ -239,10 +268,12 @@ export function People() {
                 : "No one else has logged a set yet."}
             </p>
           ) : (
-            feed.map((item) => <FeedCard key={item.log.id} item={item} />)
+            feed.map((item) => <FeedCard key={item.log.id} item={item} near={item.near} />)
           )}
         </section>
       )}
+
+      {pickingCity && <CitySheet current={city ?? ""} onClose={() => setPickingCity(false)} />}
     </div>
   );
 }

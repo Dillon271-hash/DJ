@@ -45,6 +45,12 @@ build a personal ranking of every artist and venue over time. See
   city to see upcoming electronic shows near you (Ticketmaster — needs
   `TICKETMASTER_API_KEY`) and what Disko people have logged there. Artist
   pages show their sound and "If you like …" picks.
+- **Profile photos.** Add/change/remove from the account menu (tap your
+  avatar, top right). Cropped to a square 512px JPEG in the browser and
+  stored in the public `avatars` bucket — one file per person, the old
+  one is deleted on change. Shown everywhere an avatar appears.
+- **Near you first.** The People feed puts sets logged in your city
+  (last 45 days) first, tagged "Near you"; change city from the feed.
 - **Opening animation + record loaders.** A record rolls in and becomes
   the O in DISKO on every app load (tap to skip); every loading state
   is a spinning record.

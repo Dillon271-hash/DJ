@@ -348,3 +348,39 @@ grant select on public.spins_board, public.crew_board to authenticated;
 -- type (e.g. "Miami, FL") — never a precise location.
 -- ============================================================
 alter table public.profiles add column if not exists city text check (city is null or char_length(city) <= 80);
+
+-- ============================================================
+-- Profile pictures. Stored in a public "avatars" bucket at
+-- "<user id>/<timestamp>.jpg"; the profile keeps just that path (never an
+-- arbitrary URL), and it must sit in the owner's own folder.
+-- ============================================================
+alter table public.profiles add column if not exists avatar_path text;
+do $$
+begin
+  alter table public.profiles
+    add constraint profiles_avatar_path_own_folder
+    check (avatar_path is null or (split_part(avatar_path, '/', 1) = id::text and avatar_path ~ '^[0-9a-f-]{36}/[A-Za-z0-9._-]{1,80}$'));
+exception when duplicate_object then null;
+end $$;
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('avatars', 'avatars', true, 2097152, array['image/jpeg', 'image/png', 'image/webp'])
+on conflict (id) do nothing;
+
+drop policy if exists "Users can upload their own avatar" on storage.objects;
+create policy "Users can upload their own avatar"
+  on storage.objects for insert
+  to authenticated
+  with check (
+    bucket_id = 'avatars'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "Users can delete their own avatar" on storage.objects;
+create policy "Users can delete their own avatar"
+  on storage.objects for delete
+  to authenticated
+  using (
+    bucket_id = 'avatars'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
