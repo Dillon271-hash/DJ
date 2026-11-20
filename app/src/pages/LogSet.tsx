@@ -105,7 +105,7 @@ export function LogSet() {
                   </span>
                   {r.lastEvent && (
                     <span className="where">
-                      <Doodle kind="pin" size={18} bare />
+                      <Doodle kind="pin" size={28} bare />
                       <span>{r.lastEvent}</span>
                     </span>
                   )}
