@@ -23,11 +23,13 @@ export function Splash({ onDone }: { onDone: () => void }) {
     if (!record || !slot) return;
 
     const r = record.getBoundingClientRect();
-    const s = slot.getBoundingClientRect();
-    const dx = s.left + s.width / 2 - (r.left + r.width / 2);
-    const dy = s.top + s.height / 2 - (r.top + r.height / 2);
-    const scale = s.width / r.width;
-    const landed = `translate(${dx}px, ${dy}px) rotate(540deg) scale(${scale})`;
+    const landing = () => {
+      const s = slot.getBoundingClientRect();
+      const dx = s.left + s.width / 2 - (r.left + r.width / 2);
+      const dy = s.top + s.height / 2 - (r.top + r.height / 2);
+      return `translate(${dx}px, ${dy}px) rotate(540deg) scale(${s.width / r.width})`;
+    };
+    const landed = landing();
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       record.style.transform = landed;
@@ -47,7 +49,19 @@ export function Splash({ onDone }: { onDone: () => void }) {
       ],
       { duration: total, fill: "both" },
     );
-    return () => anim.cancel();
+    // The letters change width once the headline font finishes loading;
+    // re-aim the landing so the record still drops exactly into the O.
+    let live = true;
+    document.fonts?.ready.then(() => {
+      if (!live) return;
+      const frames = (anim.effect as KeyframeEffect).getKeyframes();
+      frames[frames.length - 1] = { ...frames[frames.length - 1], transform: landing() };
+      (anim.effect as KeyframeEffect).setKeyframes(frames);
+    });
+    return () => {
+      live = false;
+      anim.cancel();
+    };
   }, []);
 
   useEffect(() => {

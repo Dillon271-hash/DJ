@@ -1,4 +1,35 @@
+@font-face {
+  font-family: "Darumadrop One";
+  src: url("/fonts/darumadrop-one.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fredoka";
+  src: url("/fonts/fredoka.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Patrick Hand";
+  src: url("/fonts/patrick-hand.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
+  /* Hand-painted headlines, rounded body, handwritten labels — the
+     type matches the doodle characters. Files live in public/fonts. */
+  --font-display: "Darumadrop One", "Arial Black", system-ui, sans-serif;
+  --font-body: "Fredoka", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "Patrick Hand", "SF Mono", Menlo, Consolas, monospace;
+  /* Darumadrop and Patrick Hand only come in one weight: never fake-bold them. */
+  font-synthesis: none;
   /* Disko is dark-only — this also keeps native controls (date picker,
      scrollbars, autofill) dark regardless of the phone's setting. */
   color-scheme: dark;
@@ -37,8 +68,7 @@ body,
 body {
   background: var(--void);
   color: var(--bone);
-  font-family:
-    -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-body);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -61,18 +91,19 @@ textarea {
 }
 
 .display {
-  font-family: "Arial Black", "Helvetica Neue", system-ui, sans-serif;
-  font-weight: 900;
+  font-family: var(--font-display);
+  font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
+  line-height: 1.05;
 }
 
 .mono {
-  font-family: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  font-family: var(--font-mono);
 }
 
 .eyebrow {
-  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.16em;
   font-size: 0.7rem;
@@ -190,7 +221,7 @@ main.content {
 
 /* ---------- Buttons ---------- */
 .sticker-btn {
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-weight: 900;
   text-transform: uppercase;
   font-size: 0.85rem;
@@ -320,7 +351,7 @@ main.content {
 }
 
 .chip {
-  font-family: "SF Mono", Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.72rem;
   letter-spacing: 0.03em;
   padding: 0.4rem 0.75rem;
@@ -340,7 +371,7 @@ main.content {
 
 /* ---------- Score pill ---------- */
 .pill {
-  font-family: "SF Mono", monospace;
+  font-family: var(--font-mono);
   font-size: 0.78rem;
   font-weight: 700;
   padding: 0.2rem 0.55rem;
@@ -372,7 +403,7 @@ main.content {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-family: "SF Mono", monospace;
+  font-family: var(--font-mono);
   font-weight: 700;
   font-size: 0.95rem;
 }
@@ -528,7 +559,7 @@ main.content {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-size: 0.85rem;
   color: var(--bone-dim);
   box-shadow: inset 0 0 0 1px var(--line);
@@ -595,7 +626,7 @@ main.content {
 
 .stat b {
   display: block;
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-size: 1.15rem;
 }
 
@@ -681,7 +712,7 @@ main.content {
 }
 
 .recent-row .plus {
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   color: var(--glow-edge);
   font-size: 1.1rem;
 }
@@ -813,7 +844,7 @@ main.content {
 }
 
 .artist-avatar .initials {
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-weight: 900;
   font-size: 2.6rem;
   color: var(--bone-dim);
@@ -924,7 +955,7 @@ main.content {
   min-width: 0;
   padding-top: 0.45rem;
   border-top: 3px solid var(--line);
-  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-family: var(--font-mono);
   font-size: 0.6rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1005,7 +1036,7 @@ main.content {
 }
 
 .flow-title {
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-weight: 900;
   font-size: clamp(1.6rem, 6.4vw, 2.2rem);
   line-height: 1.05;
@@ -1278,7 +1309,7 @@ main.content {
 }
 
 .bucket-label {
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-weight: 900;
   font-size: 1.2rem;
   letter-spacing: -0.01em;
@@ -1450,7 +1481,7 @@ main.content {
 }
 
 .compare-fallback span {
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-weight: 900;
   font-size: clamp(2.2rem, 10vw, 3.4rem);
   letter-spacing: -0.02em;
@@ -1493,7 +1524,7 @@ main.content {
   border-radius: 999px;
   background: var(--yellow);
   color: #120b00;
-  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-family: var(--font-mono);
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -1550,7 +1581,7 @@ main.content {
   border: 2px solid var(--line);
   background: var(--void);
   color: var(--bone);
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-weight: 900;
   font-size: 0.8rem;
   pointer-events: none;
@@ -1802,7 +1833,7 @@ main.content {
 }
 
 .reveal-score {
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-weight: 900;
   font-size: 3.6rem;
   letter-spacing: -0.03em;
@@ -1976,9 +2007,9 @@ main.content {
 }
 
 .wordmark .wordmark-o {
-  margin: 0 0.04em;
-  /* Arial Black caps sit a touch high of the line box's center. */
-  transform: translateY(-0.02em);
+  margin: 0 0.04em 0 0.06em;
+  /* Darumadrop's caps sit low in the line box: drop the record to meet them. */
+  transform: translateY(0.13em);
 }
 
 .wordmark.spin-hover .wordmark-o {
@@ -1987,7 +2018,7 @@ main.content {
 
 .topbar-brand:hover .wordmark.spin-hover .wordmark-o,
 .topbar-brand:focus-visible .wordmark.spin-hover .wordmark-o {
-  transform: translateY(-0.02em) rotate(360deg);
+  transform: translateY(0.13em) rotate(360deg);
 }
 
 .topbar-signout {
@@ -2045,11 +2076,12 @@ main.content {
 }
 
 .splash-slot {
+  /* Same size and offset as .wordmark-o, so the landing matches the logo. */
   display: inline-block;
-  width: 0.86em;
-  height: 0.86em;
-  margin: 0 0.04em;
-  transform: translateY(-0.02em);
+  width: 0.74em;
+  height: 0.74em;
+  margin: 0 0.04em 0 0.06em;
+  transform: translateY(0.13em);
 }
 
 .splash-letter {
@@ -2125,7 +2157,7 @@ main.content {
 
 /* ---------- People ---------- */
 .section-label {
-  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.16em;
   font-size: 0.68rem;
@@ -2155,7 +2187,7 @@ main.content {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-weight: 900;
   font-size: calc(var(--size) * 0.42);
   color: #fff;
@@ -2325,7 +2357,7 @@ main.content {
   position: absolute;
   top: 0.45rem;
   left: 0.55rem;
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-size: 0.8rem;
   color: var(--smoke);
 }
@@ -2344,7 +2376,7 @@ main.content {
 }
 
 .podium-score {
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-size: 0.95rem;
 }
 
@@ -2773,7 +2805,7 @@ main.content {
   justify-content: center;
   background: rgba(8, 7, 10, 0.55);
   color: #fff;
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-size: 1.4rem;
 }
 
@@ -2916,7 +2948,7 @@ main.content {
   border-radius: 999px;
   background: linear-gradient(135deg, var(--fill-a), var(--fill-b));
   color: #140d00;
-  font-family: "SF Mono", Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.64rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -2958,7 +2990,7 @@ a.spins-card:hover .spins-record {
 }
 
 .spins-num {
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-size: 1.35rem;
   line-height: 1;
 }
@@ -3075,7 +3107,7 @@ a.spins-card:hover .spins-record {
 
 .crew-badge span {
   position: relative;
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-weight: 900;
   font-size: calc(var(--size) * 0.2);
   letter-spacing: -0.02em;
@@ -3115,7 +3147,7 @@ a.spins-card:hover .spins-record {
 }
 
 .crew-card-name {
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: -0.01em;
@@ -3159,7 +3191,7 @@ a.spins-card:hover .spins-record {
 }
 
 .crew-card-spins b {
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-size: 1.05rem;
 }
 
@@ -3270,7 +3302,7 @@ a.spins-card:hover .spins-record {
 .lineup-pos {
   width: 1.1rem;
   text-align: center;
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-size: 0.8rem;
   color: var(--smoke);
 }
@@ -3294,7 +3326,7 @@ a.spins-card:hover .spins-record {
 }
 
 .lineup-spins {
-  font-family: "SF Mono", Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.8rem;
   color: var(--bone-dim);
 }
@@ -3369,7 +3401,7 @@ a.spins-card:hover .spins-record {
 
 .field-label {
   display: block;
-  font-family: "SF Mono", Menlo, monospace;
+  font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 0.66rem;
@@ -3526,7 +3558,7 @@ a.spins-card:hover .spins-record {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-size: 0.72rem;
   color: #140d00;
   background: #c9c3b6;
@@ -3552,7 +3584,7 @@ a.spins-card:hover .spins-record {
 }
 
 .chart-step-spins {
-  font-family: "SF Mono", Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.74rem;
   color: var(--bone-dim);
 }
@@ -3606,7 +3638,7 @@ a.spins-card:hover .spins-record {
 .chart-pos {
   width: 1.6rem;
   text-align: center;
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-size: 0.85rem;
   color: var(--smoke);
 }
@@ -3633,7 +3665,7 @@ a.spins-card:hover .spins-record {
 }
 
 .chart-spins {
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-size: 0.95rem;
 }
 
@@ -3772,7 +3804,7 @@ main.content {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-size: 1.15rem;
   color: #140d00;
   pointer-events: none;
@@ -3928,7 +3960,7 @@ body:has(.flow) .tabbar {
 }
 
 .rec-genre {
-  font-family: "SF Mono", Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.6rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -3962,7 +3994,7 @@ body:has(.flow) .tabbar {
 }
 
 .artist-photo-initials {
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-weight: 900;
   font-size: 1.4rem;
   color: var(--bone-dim);
@@ -4016,7 +4048,7 @@ body:has(.flow) .tabbar {
 }
 
 .show-date small {
-  font-family: "SF Mono", Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.58rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -4028,7 +4060,7 @@ body:has(.flow) .tabbar {
 }
 
 .show-date b {
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-size: 1.2rem;
 }
 
@@ -4125,7 +4157,7 @@ body:has(.flow) .tabbar {
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
   border: 1px solid var(--line);
-  font-family: "SF Mono", Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.64rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -4260,7 +4292,7 @@ body:has(.flow) .tabbar {
 }
 
 .account-name {
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-size: 1.25rem;
 }
 
@@ -4492,7 +4524,7 @@ body:has(.flow) .tabbar {
 }
 
 .reveal-compare b {
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-size: 1.1rem;
 }
 
@@ -4627,7 +4659,7 @@ body:has(.flow) .tabbar {
 }
 
 .bf-top b {
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-size: 0.95rem;
   color: var(--bone);
 }
@@ -4765,7 +4797,7 @@ body:has(.flow) .tabbar {
 }
 
 .legal-doc .eyebrow {
-  font-family: "SF Mono", Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -4773,7 +4805,7 @@ body:has(.flow) .tabbar {
 }
 
 .legal-doc h1 {
-  font-family: "Arial Black", "Helvetica Neue", sans-serif;
+  font-family: var(--font-display);
   font-weight: 900;
   font-size: 2rem;
   line-height: 1.05;
@@ -5270,7 +5302,7 @@ main.content {
 }
 
 .trio-label {
-  font-family: "SF Mono", Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.6rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -5278,7 +5310,7 @@ main.content {
 }
 
 .trio-score {
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-size: 1.6rem;
   line-height: 1.1;
 }
@@ -5309,7 +5341,7 @@ main.content {
 .community-row .num {
   width: 1.4rem;
   text-align: center;
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   font-size: 0.85rem;
   color: var(--smoke);
   flex-shrink: 0;
@@ -5634,7 +5666,7 @@ main.content {
 }
 
 .combo-at {
-  font-family: "SF Mono", Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -5704,6 +5736,6 @@ main.content {
 
 .night-rating b {
   margin-left: auto;
-  font-family: "Arial Black", sans-serif;
+  font-family: var(--font-display);
   color: var(--bone);
 }

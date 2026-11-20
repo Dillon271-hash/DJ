@@ -48,7 +48,7 @@ export function Wordmark({ className = "", spinOnHover = false }: { className?: 
       aria-label="Disko"
     >
       <span aria-hidden="true">DISK</span>
-      <Vinyl size="0.86em" className="wordmark-o" />
+      <Vinyl size="0.74em" className="wordmark-o" />
     </span>
   );
 }
