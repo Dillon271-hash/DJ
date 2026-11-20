@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import type { FromTag } from "../lib/tags";
 import { useEncoreStore } from "../lib/store";
+import { supabase } from "../lib/supabase";
 import { bucketRange, finalizeScore, rankInBucket } from "../lib/ranking";
 import { splitVenue, venueCandidates } from "../lib/venueNames";
 import { uploadSetMedia } from "../lib/mediaUpload";
@@ -49,11 +51,16 @@ export function LogFlow() {
   const festivalSession = useEncoreStore((s) => s.festivalSession);
   const setFestivalSession = useEncoreStore((s) => s.setFestivalSession);
 
+  // Ranking a set you were tagged in: venue, date and who you were with
+  // come from your friend's log, and it opens straight on "How was it?"
+  // (Back still lets you change the venue/date).
+  const fromTag = (useLocation().state as { fromTag?: FromTag } | null)?.fromTag ?? null;
+
   // Adding another DJ from the same festival visit starts with the venue
   // and date already filled in (one tap to confirm, or change them).
-  const [event, setEvent] = useState(festivalSession?.event ?? "");
-  const [date, setDate] = useState(festivalSession?.date ?? todayISO());
-  const [stack, setStack] = useState<Step[]>(["where"]);
+  const [event, setEvent] = useState(fromTag?.event ?? festivalSession?.event ?? "");
+  const [date, setDate] = useState(fromTag?.date ?? festivalSession?.date ?? todayISO());
+  const [stack, setStack] = useState<Step[]>(fromTag ? ["where", "bucket"] : ["where"]);
   const [direction, setDirection] = useState<"forward" | "back">("forward");
   const step = stack[stack.length - 1];
 
@@ -62,7 +69,9 @@ export function LogFlow() {
   const [venueBucket, setVenueBucket] = useState<Bucket | null>(null);
   const [venueScore, setVenueScore] = useState<number | null>(null);
 
-  const [tags, setTags] = useState<WithTag[]>([]);
+  const [tags, setTags] = useState<WithTag[]>(() =>
+    fromTag ? fromTag.with.filter((p) => p.id !== userId).map((p) => ({ name: p.name, userId: p.id })) : [],
+  );
   const [note, setNote] = useState("");
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [saving, setSaving] = useState(false);
@@ -275,6 +284,11 @@ export function LogFlow() {
         {step === "bucket" && (
           <>
             <h1 className="flow-title">How was {artist}?</h1>
+            {fromTag && (
+              <p className="flow-hint tagged-hint">
+                @{fromTag.by.name} tagged you — rank it your way, then see how your scores compare.
+              </p>
+            )}
             <BucketPicker context="set" selected={bucket} onPick={pickBucket} />
           </>
         )}
@@ -368,6 +382,7 @@ export function LogFlow() {
           <ScoreReveal
             log={saved}
             logs={logs}
+            fromTag={fromTag}
             onView={() => navigate(`/set/${saved.id}`, { replace: true })}
             onAnother={() => navigate("/log", { replace: true })}
           />
@@ -377,8 +392,32 @@ export function LogFlow() {
   );
 }
 
-function ScoreReveal({ log, logs, onView, onAnother }: { log: SetLog; logs: SetLog[]; onView: () => void; onAnother: () => void }) {
+function ScoreReveal({
+  log,
+  logs,
+  fromTag,
+  onView,
+  onAnother,
+}: {
+  log: SetLog;
+  logs: SetLog[];
+  fromTag: FromTag | null;
+  onView: () => void;
+  onAnother: () => void;
+}) {
   const [shown, setShown] = useState(0);
+  // Ranked from a tag: fetch the friend's score to compare (only now that
+  // yours is locked in).
+  const [theirs, setTheirs] = useState<number | null>(null);
+  useEffect(() => {
+    if (!fromTag || !supabase) return;
+    supabase
+      .from("logs")
+      .select("score")
+      .eq("id", fromTag.logId)
+      .maybeSingle()
+      .then(({ data }) => data && setTheirs((data as { score: number }).score));
+  }, [fromTag]);
 
   // Count up to the score while the ring fills.
   useEffect(() => {
@@ -417,6 +456,21 @@ function ScoreReveal({ log, logs, onView, onAnother }: { log: SetLog; logs: SetL
       <p className="reveal-rank">
         {inBucket > 1 ? `#${rank} of the ${inBucket} ${RANK_PHRASE[log.bucket]}` : `Your first "${BUCKET_LABEL[log.bucket]}" set`}
       </p>
+      {fromTag && theirs !== null && (
+        <div className="reveal-compare">
+          <span>
+            <small>You</small>
+            <b>{log.score.toFixed(1)}</b>
+          </span>
+          <span className="reveal-compare-vs">
+            {Math.abs(log.score - theirs) < 0.25 ? "Same wavelength" : log.score > theirs ? "You loved it more" : `@${fromTag.by.name} loved it more`}
+          </span>
+          <span>
+            <small>@{fromTag.by.name}</small>
+            <b>{theirs.toFixed(1)}</b>
+          </span>
+        </div>
+      )}
       <div className="reveal-spins" title={earned.parts.join("  ")}>
         <Vinyl size={22} spin />
         <b>+{earned.total} spins</b>

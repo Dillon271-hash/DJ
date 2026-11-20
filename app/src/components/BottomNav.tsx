@@ -1,16 +1,18 @@
 import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { useSocial } from "../lib/social";
+import { useOpenInvites } from "../lib/tags";
 import { Vinyl } from "./Vinyl";
 
 // App-style tab bar. The centre "Log" tab is a record you drop the needle on.
 export function BottomNav() {
   const requests = useSocial((s) => s.plusOnes?.incoming.length ?? 0);
   const invites = useSocial((s) => s.crews?.invites.length ?? 0);
+  const tagged = useOpenInvites().length;
 
   return (
     <nav className="tabbar" aria-label="Main">
-      <Tab to="/" end label="Rankings" icon={<IconList />} />
+      <Tab to="/" end label="Rankings" icon={<IconList />} badge={tagged} />
       <Tab to="/discover" label="Discover" icon={<IconCompass />} />
       <NavLink to="/log" className={({ isActive }) => `tab tab-log${isActive ? " active" : ""}`} aria-label="Log a set">
         <span className="tab-log-disc">

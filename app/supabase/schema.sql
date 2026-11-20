@@ -384,3 +384,25 @@ create policy "Users can delete their own avatar"
     bucket_id = 'avatars'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
+
+-- ============================================================
+-- Tag invites: when someone tags you in a set, you're invited to rank it
+-- too. Dismissing one ("not now") is remembered here.
+-- ============================================================
+create index if not exists logs_with_user_ids_idx on public.logs using gin (with_user_ids);
+
+create table if not exists public.tag_dismissals (
+  user_id uuid not null default auth.uid() references public.profiles (id) on delete cascade,
+  log_id uuid not null references public.logs (id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (user_id, log_id)
+);
+
+alter table public.tag_dismissals enable row level security;
+
+drop policy if exists "Manage your own tag dismissals" on public.tag_dismissals;
+create policy "Manage your own tag dismissals"
+  on public.tag_dismissals for all
+  to authenticated
+  using (user_id = auth.uid())
+  with check (user_id = auth.uid());

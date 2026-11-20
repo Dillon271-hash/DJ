@@ -3,6 +3,7 @@ import { EmptyState } from "../components/EmptyState";
 import { RankingsList } from "../components/RankingsList";
 import { Loader } from "../components/Vinyl";
 import { SpinsCard } from "../components/SpinsCard";
+import { TagInvites } from "../components/TagInvites";
 import { useEncoreStore } from "../lib/store";
 
 export function Rankings() {
@@ -10,7 +11,15 @@ export function Rankings() {
   const logsLoading = useEncoreStore((s) => s.logsLoading);
   const removeLog = useEncoreStore((s) => s.removeLog);
 
-  if (logs.length === 0) return logsLoading ? <Loader label="Loading your rankings" /> : <EmptyState />;
+  if (logs.length === 0)
+    return logsLoading ? (
+      <Loader label="Loading your rankings" />
+    ) : (
+      <>
+        <TagInvites />
+        <EmptyState />
+      </>
+    );
 
   return (
     <div>
@@ -25,6 +34,8 @@ export function Rankings() {
           + Log
         </Link>
       </div>
+
+      <TagInvites />
 
       <div style={{ marginTop: "1.2rem" }}>
         <SpinsCard logs={logs} />

@@ -45,6 +45,12 @@ build a personal ranking of every artist and venue over time. See
   city to see upcoming electronic shows near you (Ticketmaster — needs
   `TICKETMASTER_API_KEY`) and what Disko people have logged there. Artist
   pages show their sound and "If you like …" picks.
+- **Rank sets you were tagged in.** When someone tags you in a set, it
+  shows up under "You were tagged" on Rankings (with a badge on the tab)
+  and as "Rank it too" on that feed post. One tap opens the log flow with
+  the artist, venue, date and who you were with pre-filled; after you
+  rate it, the reveal compares your score with theirs. Dismissed invites
+  are remembered in `tag_dismissals`.
 - **Profile photos.** Add/change/remove from the account menu (tap your
   avatar, top right). Cropped to a square 512px JPEG in the browser and
   stored in the public `avatars` bucket — one file per person, the old
