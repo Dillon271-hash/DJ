@@ -98,3 +98,4 @@ export function useCommunityScores(kind: "artist" | "venue", target: string) {
 
   return { items, summary, loading: community === null || items === null };
 }
+

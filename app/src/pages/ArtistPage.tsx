@@ -11,6 +11,8 @@ import { ArtistPhoto } from "../components/ArtistPhoto";
 import { useCommunityScores } from "../lib/community";
 import { ScoreTrio } from "../components/ScoreTrio";
 import { CommunitySection } from "../components/CommunitySection";
+import { BreakdownSheet } from "../components/BreakdownSheet";
+import { ComboPanel } from "../components/ComboPanel";
 
 export function ArtistPage() {
   const { name } = useParams();
@@ -27,6 +29,8 @@ export function ArtistPage() {
   );
 
   const { items, summary, loading } = useCommunityScores("artist", artist);
+  const [breakdown, setBreakdown] = useState(false);
+  const [pick, setPick] = useState<string | null>(null);
   const [image, setImage] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(true);
 
@@ -107,6 +111,19 @@ export function ArtistPage() {
       {bio && <p className="artist-bio">{bio}</p>}
 
       <ScoreTrio summary={summary} loading={loading} />
+
+      <button type="button" className="breakdown-btn" onClick={() => setBreakdown(true)} disabled={!items}>
+        <span aria-hidden="true">🏛</span>
+        <span>
+          <b>Ratings at a venue</b>
+          <small>{items ? `${new Set(items.map((i) => i.log.event.split(",")[0].trim().toLowerCase())).size} venues rated` : "Loading…"}</small>
+        </span>
+        <span className="chevron" aria-hidden="true">›</span>
+      </button>
+      {breakdown && items && (
+        <BreakdownSheet kind="artist" subject={artist} items={items} onPick={setPick} onClose={() => setBreakdown(false)} />
+      )}
+      {pick && items && <ComboPanel artist={artist} venue={pick} items={items} onClear={() => setPick(null)} />}
 
       {count > 0 ? (
         <div className="artist-stats">

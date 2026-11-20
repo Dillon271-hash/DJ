@@ -10,6 +10,8 @@ import { Vinyl } from "../components/Vinyl";
 import { useCommunityScores } from "../lib/community";
 import { ScoreTrio } from "../components/ScoreTrio";
 import { CommunitySection } from "../components/CommunitySection";
+import { BreakdownSheet } from "../components/BreakdownSheet";
+import { ComboPanel } from "../components/ComboPanel";
 
 export function VenuePage() {
   const { name } = useParams();
@@ -27,6 +29,8 @@ export function VenuePage() {
 
   const { name: venueName, place } = splitVenue(venue);
   const { items, summary, loading } = useCommunityScores("venue", venue);
+  const [breakdown, setBreakdown] = useState(false);
+  const [pick, setPick] = useState<string | null>(null);
   const [image, setImage] = useState<string | null | undefined>(undefined);
 
   useEffect(() => {
@@ -65,6 +69,19 @@ export function VenuePage() {
       </div>
 
       <ScoreTrio summary={summary} loading={loading} />
+
+      <button type="button" className="breakdown-btn" onClick={() => setBreakdown(true)} disabled={!items}>
+        <span aria-hidden="true">🎧</span>
+        <span>
+          <b>Ratings for a DJ</b>
+          <small>{items ? `${new Set(items.map((i) => i.log.artist.trim().toLowerCase())).size} DJs rated here` : "Loading…"}</small>
+        </span>
+        <span className="chevron" aria-hidden="true">›</span>
+      </button>
+      {breakdown && items && (
+        <BreakdownSheet kind="venue" subject={venue} items={items} onPick={setPick} onClose={() => setBreakdown(false)} />
+      )}
+      {pick && items && <ComboPanel artist={pick} venue={venue} items={items} onClear={() => setPick(null)} />}
 
       {count > 0 ? (
         <div className="artist-stats">
