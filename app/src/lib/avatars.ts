@@ -67,7 +67,7 @@ export function useAvatarUrl(id: string): string | null {
 
 // Centre-crop to a square and shrink to 512px JPEG — a phone photo goes
 // from several MB to ~60 KB.
-async function squareJpeg(file: File): Promise<Blob> {
+export async function squareJpeg(file: File): Promise<Blob> {
   const bitmap = await createImageBitmap(file);
   const side = Math.min(bitmap.width, bitmap.height);
   const canvas = document.createElement("canvas");

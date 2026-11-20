@@ -217,6 +217,17 @@ create table if not exists public.crews (
   created_at timestamptz not null default now()
 );
 
+-- A crew's photo (shown as the label on its record). Path in the
+-- "crew-photos" bucket, always inside that crew's own folder.
+alter table public.crews add column if not exists photo_path text;
+do $$
+begin
+  alter table public.crews
+    add constraint crews_photo_path_own_folder
+    check (photo_path is null or (split_part(photo_path, '/', 1) = id::text and photo_path ~ '^[0-9a-f-]{36}/[A-Za-z0-9._-]{1,80}$'));
+exception when duplicate_object then null;
+end $$;
+
 create table if not exists public.crew_members (
   crew_id uuid not null references public.crews (id) on delete cascade,
   user_id uuid not null references public.profiles (id) on delete cascade,
@@ -335,11 +346,12 @@ select
   c.name,
   c.color,
   count(m.user_id)::int as member_count,
-  coalesce(sum(s.spins), 0)::int as spins
+  coalesce(sum(s.spins), 0)::int as spins,
+  c.photo_path
 from public.crews c
 left join public.crew_members m on m.crew_id = c.id and m.status = 'member'
 left join public.spins_board s on s.user_id = m.user_id
-group by c.id, c.name, c.color;
+group by c.id, c.name, c.color, c.photo_path;
 
 grant select on public.spins_board, public.crew_board to authenticated;
 
@@ -429,3 +441,37 @@ end;
 $$;
 revoke all on function public.delete_my_account() from public, anon;
 grant execute on function public.delete_my_account() to authenticated;
+
+-- ============================================================
+-- Crew photos. Any member can upload or remove their crew's photo; files
+-- live at "<crew id>/<timestamp>.jpg".
+-- ============================================================
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('crew-photos', 'crew-photos', true, 2097152, array['image/jpeg', 'image/png', 'image/webp'])
+on conflict (id) do nothing;
+
+drop policy if exists "Crew members can upload the crew photo" on storage.objects;
+create policy "Crew members can upload the crew photo"
+  on storage.objects for insert
+  to authenticated
+  with check (
+    bucket_id = 'crew-photos'
+    and case
+      when (storage.foldername(name))[1] ~ '^[0-9a-f-]{36}$'
+        then public.is_crew_member(((storage.foldername(name))[1])::uuid)
+      else false
+    end
+  );
+
+drop policy if exists "Crew members can remove the crew photo" on storage.objects;
+create policy "Crew members can remove the crew photo"
+  on storage.objects for delete
+  to authenticated
+  using (
+    bucket_id = 'crew-photos'
+    and case
+      when (storage.foldername(name))[1] ~ '^[0-9a-f-]{36}$'
+        then public.is_crew_member(((storage.foldername(name))[1])::uuid)
+      else false
+    end
+  );

@@ -4853,3 +4853,64 @@ body:has(.flow) .tabbar {
 .legal-doc .card p {
   margin: 0.3rem 0;
 }
+
+/* ---------- Crew photos on the record ---------- */
+.crew-badge.has-photo::before {
+  inset: 17%;
+  background: #111;
+}
+
+.crew-badge img {
+  position: absolute;
+  inset: 17%;
+  width: 66%;
+  height: 66%;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 calc(var(--size) * 0.02) rgba(0, 0, 0, 0.45);
+}
+
+/* The spindle hole, so it still reads as a record. */
+.crew-badge-hole {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--size) * 0.07);
+  height: calc(var(--size) * 0.07);
+  min-width: 3px;
+  min-height: 3px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--void);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.photo-pick-badge {
+  position: relative;
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.photo-pick-badge:disabled {
+  cursor: progress;
+}
+
+.photo-pick-plus {
+  position: absolute;
+  right: 2%;
+  bottom: 2%;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--yellow);
+  color: #140d00;
+  border: 2px solid var(--void);
+  box-shadow: 2px 2px 0 var(--pink);
+}

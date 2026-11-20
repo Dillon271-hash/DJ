@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { inviteToCrew, useSocial, type CrewSummary, type Mini } from "../lib/social";
 import { CrewBadge } from "./CrewBadge";
+import { crewPhotoUrl } from "../lib/crewPhotos";
 
 const NO_CREWS: CrewSummary[] = [];
 
@@ -41,7 +42,7 @@ export function CrewInviteButton({ person }: { person: Mini }) {
         <div className="crew-invite-menu" role="menu">
           {eligible.map((c) => (
             <button key={c.id} type="button" role="menuitem" disabled={sent.has(c.id)} onClick={() => invite(c.id)}>
-              <CrewBadge name={c.name} color={c.color} size={30} />
+              <CrewBadge name={c.name} color={c.color} size={30} photoUrl={crewPhotoUrl(c.photoPath)} />
               <span>{c.name}</span>
               <small>{sent.has(c.id) ? "Invited ✓" : "Invite"}</small>
             </button>

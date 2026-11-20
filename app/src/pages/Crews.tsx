@@ -6,6 +6,8 @@ import { Busy, Loader } from "../components/Vinyl";
 import { Sheet } from "../components/Sheet";
 import { CrewBadge } from "../components/CrewBadge";
 import { UserAvatar } from "../components/UserAvatar";
+import { crewPhotoUrl, setCrewPhoto } from "../lib/crewPhotos";
+import { PhotoPickBadge, useObjectUrl } from "../components/PhotoPickBadge";
 
 export function Crews() {
   const crews = useSocial((s) => s.crews);
@@ -60,7 +62,7 @@ export function Crews() {
           {crews.invites.map((inv) => (
             <div key={inv.crewId} className="request-row">
               <div className="request-who">
-                <CrewBadge name={inv.name} color={inv.color} size={40} />
+                <CrewBadge name={inv.name} color={inv.color} size={40} photoUrl={crewPhotoUrl(inv.photoPath)} />
                 <span>
                   <b>{inv.name}</b>
                   <small>{inv.invitedBy ? `${inv.invitedBy} invited you` : "You're invited"}</small>
@@ -91,9 +93,9 @@ export function Crews() {
       {crews.mine.length === 0 ? (
         <div className="crews-empty">
           <div className="crews-empty-art" aria-hidden="true">
-            <CrewBadge name="You" color={0} size={64} />
-            <CrewBadge name="Plus One" color={2} size={64} />
-            <CrewBadge name="Crew" color={4} size={64} />
+            <CrewBadge name="Decks" color={0} size={64} photoUrl="/examples/crew-decks.jpg" />
+            <CrewBadge name="Crowd" color={2} size={64} photoUrl="/examples/crew-crowd.jpg" />
+            <CrewBadge name="Confetti" color={4} size={64} photoUrl="/examples/crew-confetti.jpg" />
           </div>
           <h2 className="display" style={{ fontSize: "1.3rem", margin: "0 0 0.5rem" }}>
             Roll deep
@@ -110,7 +112,7 @@ export function Crews() {
         <div className="crew-list">
           {crews.mine.map((c) => (
             <Link key={c.id} to={`/crews/${c.id}`} className="crew-card" style={crewTint(c.color)}>
-              <CrewBadge name={c.name} color={c.color} size={56} />
+              <CrewBadge name={c.name} color={c.color} size={56} photoUrl={crewPhotoUrl(c.photoPath)} />
               <div className="crew-card-info">
                 <div className="crew-card-name">{c.name}</div>
                 <div className="avatar-stack">
@@ -146,6 +148,8 @@ function NewCrewSheet({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState("");
   const [color, setColor] = useState(0);
   const [picked, toggle] = useToggleSet();
+  const [photo, setPhoto] = useState<File | null>(null);
+  const photoPreview = useObjectUrl(photo);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -156,6 +160,9 @@ function NewCrewSheet({ onClose }: { onClose: () => void }) {
     setError(null);
     try {
       const id = await createCrew(name, color, [...picked]);
+      // The photo needs the crew's id, so it goes up right after creating
+      // it; a failed upload doesn't undo the crew (it can be added later).
+      if (photo) await setCrewPhoto(id, photo).catch((e) => console.error("[crew photo]", e));
       navigate(`/crews/${id}`);
     } catch (err) {
       console.error("[crew] create failed:", err);
@@ -168,8 +175,18 @@ function NewCrewSheet({ onClose }: { onClose: () => void }) {
     <Sheet onClose={onClose} label="Start a crew">
       <form onSubmit={submit}>
         <div className="new-crew-preview">
-          <CrewBadge name={name || "Crew"} color={color} size={84} />
+          <PhotoPickBadge
+            name={name || "Crew"}
+            color={color}
+            size={92}
+            photoUrl={photoPreview}
+            onPick={(f) => setPhoto(f)}
+            label={photo ? "Change crew photo" : "Add a crew photo"}
+          />
         </div>
+        <p className="hint" style={{ textAlign: "center", margin: "-0.2rem 0 0.8rem" }}>
+          {photo ? "Looking good." : "Tap the record to add a crew photo (optional)."}
+        </p>
         <h2 className="display sheet-title">Start a crew</h2>
 
         <label className="field-label" htmlFor="crew-name">

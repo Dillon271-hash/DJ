@@ -36,6 +36,7 @@ export interface CrewSummary {
   id: string;
   name: string;
   color: number;
+  photoPath?: string | null;
   memberCount: number;
   spins: number;
   members: Mini[];
@@ -45,6 +46,7 @@ export interface CrewInvite {
   crewId: string;
   name: string;
   color: number;
+  photoPath?: string | null;
   invitedBy?: string;
 }
 
@@ -55,6 +57,7 @@ export interface BoardRow {
   setCount?: number;
   memberCount?: number;
   color?: number;
+  photoPath?: string | null;
 }
 
 export class SocialSetupError extends Error {}
@@ -79,6 +82,18 @@ function check<T>(error: { code?: string; message: string } | null, data: T | nu
     throw new Error(error.message);
   }
   return data as T;
+}
+
+// Crew photos need schema.sql re-run (crews.photo_path). Until then, ask
+// without the column instead of breaking crews entirely.
+let crewPhotos = true;
+async function withCrewPhoto<R extends { error: { code?: string } | null }>(run: (photoCols: string) => PromiseLike<R>): Promise<R> {
+  if (crewPhotos) {
+    const r = await run(", photo_path");
+    if (r.error?.code !== "42703" && r.error?.code !== "PGRST204") return r;
+    crewPhotos = false;
+  }
+  return run("");
 }
 
 type NameRow = { display_name: string } | null;
@@ -200,23 +215,35 @@ async function loadPlusOnes(meId: string): Promise<PlusOnes> {
 // ------------------------------------------------------------------ crews
 
 async function loadMyCrews(meId: string): Promise<{ mine: CrewSummary[]; invites: CrewInvite[] }> {
-  const { data, error } = await db()
-    .from("crew_members")
-    .select("status, crew:crews(id, name, color), inviter:profiles!crew_members_invited_by_fkey(display_name)")
-    .eq("user_id", meId);
+  const { data, error } = await withCrewPhoto((photo) =>
+    db()
+      .from("crew_members")
+      .select(`status, crew:crews(id, name, color${photo}), inviter:profiles!crew_members_invited_by_fkey(display_name)`)
+      .eq("user_id", meId),
+  );
   const rows = check(error, data) as unknown as {
     status: "invited" | "member";
-    crew: { id: string; name: string; color: number } | null;
+    crew: { id: string; name: string; color: number; photo_path?: string | null } | null;
     inviter: NameRow;
   }[];
   const invites: CrewInvite[] = rows
     .filter((r) => r.status === "invited" && r.crew)
-    .map((r) => ({ crewId: r.crew!.id, name: r.crew!.name, color: r.crew!.color, invitedBy: r.inviter ? nameOf(r.inviter) : undefined }));
-  const crews = rows.filter((r) => r.status === "member" && r.crew).map((r) => r.crew!);
+    .map((r) => ({
+      crewId: r.crew!.id,
+      name: r.crew!.name,
+      color: r.crew!.color,
+      photoPath: r.crew!.photo_path ?? null,
+      invitedBy: r.inviter ? nameOf(r.inviter) : undefined,
+    }));
+  const crews = rows
+    .filter((r) => r.status === "member" && r.crew)
+    .map((r) => ({ id: r.crew!.id, name: r.crew!.name, color: r.crew!.color, photoPath: r.crew!.photo_path ?? null }));
   return { mine: await summarize(crews), invites };
 }
 
-async function summarize(crews: { id: string; name: string; color: number }[]): Promise<CrewSummary[]> {
+async function summarize(
+  crews: { id: string; name: string; color: number; photoPath?: string | null }[],
+): Promise<CrewSummary[]> {
   if (crews.length === 0) return [];
   const ids = crews.map((c) => c.id);
   const [board, members] = await Promise.all([
@@ -251,13 +278,19 @@ export interface CrewDetail extends CrewSummary {
 
 export async function fetchCrew(crewId: string): Promise<CrewDetail | null> {
   const [crewRes, membersRes] = await Promise.all([
-    db().from("crews").select("id, name, color, created_by").eq("id", crewId).maybeSingle(),
+    withCrewPhoto((photo) => db().from("crews").select(`id, name, color, created_by${photo}`).eq("id", crewId).maybeSingle()),
     db()
       .from("crew_members")
       .select("user_id, status, who:profiles!crew_members_user_id_fkey(display_name)")
       .eq("crew_id", crewId),
   ]);
-  const crew = check(crewRes.error, crewRes.data) as { id: string; name: string; color: number; created_by: string } | null;
+  const crew = check(crewRes.error, crewRes.data) as unknown as {
+    id: string;
+    name: string;
+    color: number;
+    created_by: string;
+    photo_path?: string | null;
+  } | null;
   if (!crew) return null;
   const memberRows = check(membersRes.error, membersRes.data) as unknown as {
     user_id: string;
@@ -279,6 +312,7 @@ export async function fetchCrew(crewId: string): Promise<CrewDetail | null> {
   return {
     id: crew.id,
     name: crew.name,
+    photoPath: crew.photo_path ?? null,
     color: crew.color,
     createdBy: crew.created_by,
     members,
@@ -332,14 +366,30 @@ export async function fetchSoloBoard(): Promise<BoardRow[]> {
 }
 
 export async function fetchCrewBoard(): Promise<BoardRow[]> {
-  const { data, error } = await db()
-    .from("crew_board")
-    .select("crew_id, name, color, spins, member_count")
-    .gt("member_count", 0)
-    .order("spins", { ascending: false })
-    .limit(100);
-  const rows = check(error, data) as { crew_id: string; name: string; color: number; spins: number; member_count: number }[];
-  return rows.map((r) => ({ id: r.crew_id, name: r.name, color: r.color, spins: r.spins, memberCount: r.member_count }));
+  const { data, error } = await withCrewPhoto((photo) =>
+    db()
+      .from("crew_board")
+      .select(`crew_id, name, color, spins, member_count${photo}`)
+      .gt("member_count", 0)
+      .order("spins", { ascending: false })
+      .limit(100),
+  );
+  const rows = check(error, data) as unknown as {
+    crew_id: string;
+    name: string;
+    color: number;
+    spins: number;
+    member_count: number;
+    photo_path?: string | null;
+  }[];
+  return rows.map((r) => ({
+    id: r.crew_id,
+    name: r.name,
+    color: r.color,
+    spins: r.spins,
+    memberCount: r.member_count,
+    photoPath: r.photo_path ?? null,
+  }));
 }
 
 // ------------------------------------------------------- shared social state

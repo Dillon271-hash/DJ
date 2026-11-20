@@ -60,7 +60,7 @@ export const useTagInvites = create<TagState>()((set, get) => ({
       return;
     }
     const dismissed = new Set<string>(localDismissed());
-    if (!dismissRes.error) for (const r of dismissRes.data as { log_id: string }[]) dismissed.add(r.log_id);
+    if (!dismissRes.error && Array.isArray(dismissRes.data)) for (const r of dismissRes.data as { log_id: string }[]) dismissed.add(r.log_id);
 
     const rows = logsRes.data as LogRow[];
     const ids = new Set<string>();

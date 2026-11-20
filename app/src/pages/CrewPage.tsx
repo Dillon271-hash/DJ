@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { fetchCrew, inviteToCrew, leaveCrew, SocialSetupError, type CrewDetail, type FeedItem } from "../lib/social";
+import { fetchCrew, inviteToCrew, leaveCrew, useSocial, SocialSetupError, type CrewDetail, type FeedItem } from "../lib/social";
 import { useEncoreStore } from "../lib/store";
 import { sortLogs, bucketForScore } from "../lib/ranking";
 import { spinsFor } from "../lib/spins";
@@ -16,6 +16,8 @@ import { BucketFilter } from "../components/BucketFilter";
 import { PeoplePicker, useToggleSet } from "../components/PeoplePicker";
 import { crewTint } from "./Crews";
 import { Sheet } from "../components/Sheet";
+import { crewPhotoUrl, removeCrewPhoto, setCrewPhoto } from "../lib/crewPhotos";
+import { PhotoPickBadge } from "../components/PhotoPickBadge";
 
 type Tab = "sets" | "artists" | "latest";
 type Filter = "all" | Bucket;
@@ -30,6 +32,23 @@ export function CrewPage() {
   const [filter, setFilter] = useState<Filter>("all");
   const [inviting, setInviting] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+
+  async function changePhoto(file: File) {
+    if (!crew) return;
+    setPhotoBusy(true);
+    setPhotoError(null);
+    try {
+      const path = await setCrewPhoto(crew.id, file, crew.photoPath);
+      setCrew({ ...crew, photoPath: path });
+      useSocial.getState().refresh();
+    } catch (e) {
+      setPhotoError(e instanceof Error ? e.message : "Upload failed.");
+    } finally {
+      setPhotoBusy(false);
+    }
+  }
 
   const load = useCallback(() => {
     let stale = false;
@@ -129,7 +148,34 @@ export function CrewPage() {
       </button>
 
       <div className="crew-hero" style={crewTint(crew.color)}>
-        <CrewBadge name={crew.name} color={crew.color} size={96} />
+        {isMember ? (
+          <PhotoPickBadge
+            name={crew.name}
+            color={crew.color}
+            size={104}
+            photoUrl={crewPhotoUrl(crew.photoPath)}
+            busy={photoBusy}
+            onPick={changePhoto}
+            label={crew.photoPath ? "Change crew photo" : "Add a crew photo"}
+            spinning
+          />
+        ) : (
+          <CrewBadge name={crew.name} color={crew.color} size={104} photoUrl={crewPhotoUrl(crew.photoPath)} />
+        )}
+        {photoError && <p className="flow-error" style={{ margin: 0 }}>{photoError}</p>}
+        {isMember && crew.photoPath && !photoBusy && (
+          <button
+            type="button"
+            className="text-btn"
+            onClick={async () => {
+              await removeCrewPhoto(crew.id, crew.photoPath);
+              setCrew({ ...crew, photoPath: null });
+              useSocial.getState().refresh();
+            }}
+          >
+            Remove photo
+          </button>
+        )}
         <h1 className="display crew-hero-name">{crew.name}</h1>
         <div className="crew-hero-stats">
           <span>
@@ -301,7 +347,7 @@ function InviteSheet({ crew, onClose, onSent }: { crew: CrewDetail; onClose: () 
   return (
     <Sheet onClose={onClose} label={`Invite to ${crew.name}`}>
       <div className="new-crew-preview">
-        <CrewBadge name={crew.name} color={crew.color} size={64} />
+        <CrewBadge name={crew.name} color={crew.color} size={64} photoUrl={crewPhotoUrl(crew.photoPath)} />
       </div>
       <h2 className="display sheet-title">Invite to {crew.name}</h2>
       <PeoplePicker picked={picked} onToggle={toggle} exclude={[...crew.members, ...crew.invited]} />

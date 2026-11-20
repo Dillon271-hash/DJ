@@ -7,6 +7,7 @@ import { Loader } from "../components/Vinyl";
 import { UserAvatar } from "../components/UserAvatar";
 import { CrewBadge } from "../components/CrewBadge";
 import { SpinsCard } from "../components/SpinsCard";
+import { crewPhotoUrl } from "../lib/crewPhotos";
 
 type Board = "solo" | "crews";
 
@@ -144,7 +145,7 @@ function Podium({ rows, board, mine }: { rows: BoardRow[]; board: Board; mine: S
             {board === "solo" ? (
               <UserAvatar id={r.id} name={r.name} size={places[i] === 1 ? 72 : 56} />
             ) : (
-              <CrewBadge name={r.name} color={r.color ?? 0} size={places[i] === 1 ? 76 : 58} />
+              <CrewBadge name={r.name} color={r.color ?? 0} size={places[i] === 1 ? 76 : 58} photoUrl={crewPhotoUrl(r.photoPath)} />
             )}
             <span className="chart-step-name">{r.name}</span>
             <span className="chart-step-spins">{r.spins.toLocaleString()}</span>
@@ -166,7 +167,7 @@ function ChartRow({ row, pos, board, me, highlight }: { row: BoardRow; pos: numb
       {board === "solo" ? (
         <UserAvatar id={row.id} name={row.name} size={38} />
       ) : (
-        <CrewBadge name={row.name} color={row.color ?? 0} size={40} />
+        <CrewBadge name={row.name} color={row.color ?? 0} size={40} photoUrl={crewPhotoUrl(row.photoPath)} />
       )}
       <span className="chart-name">
         {row.name}
