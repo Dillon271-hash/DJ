@@ -1,4 +1,7 @@
 :root {
+  /* Disko is dark-only — this also keeps native controls (date picker,
+     scrollbars, autofill) dark regardless of the phone's setting. */
+  color-scheme: dark;
   --void: #08070a;
   --ink: #17151c;
   --ink-2: #201e27;
@@ -14,42 +17,6 @@
   --smoke: #8b8779;
   --line: rgba(239, 234, 223, 0.14);
   --radius: 14px;
-}
-
-:root[data-theme="light"] {
-  --void: #f0deb8;
-  --ink: #fbf4e2;
-  --ink-2: #ffffff;
-  --paper: #ffffff;
-  --paper-ink: #1c1408;
-  --bone: #1c1408;
-  --bone-dim: #55503f;
-  --glow-core: #e02c14;
-  --glow-edge: #b3790a;
-  --pink: #c8115f;
-  --violet: #4b1fa6;
-  --yellow: #a5820a;
-  --smoke: #726b57;
-  --line: rgba(28, 20, 8, 0.16);
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --void: #f0deb8;
-    --ink: #fbf4e2;
-    --ink-2: #ffffff;
-    --paper: #ffffff;
-    --paper-ink: #1c1408;
-    --bone: #1c1408;
-    --bone-dim: #55503f;
-    --glow-core: #e02c14;
-    --glow-edge: #b3790a;
-    --pink: #c8115f;
-    --violet: #4b1fa6;
-    --yellow: #a5820a;
-    --smoke: #726b57;
-    --line: rgba(28, 20, 8, 0.16);
-  }
 }
 
 * {
@@ -5029,19 +4996,13 @@ main.content {
   }
 }
 
-/* Light mode: same idea, gentler. */
-:root[data-theme="light"] .ambient {
-  --amb-strength: 0.14;
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) .ambient {
-    --amb-strength: 0.14;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .amb {
     animation: none;
   }
+}
+
+/* Edge-to-edge on notched iPhones (viewport-fit=cover). */
+.topbar {
+  padding-top: calc(0.9rem + env(safe-area-inset-top));
 }
