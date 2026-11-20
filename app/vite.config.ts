@@ -10,6 +10,13 @@ function devApiRoutes(): Plugin {
   return {
     name: 'dev-api-routes',
     configureServer(server) {
+      // Vercel serves public/privacy.html at /privacy (cleanUrls in
+      // vercel.json); do the same in dev so the in-app links work locally.
+      server.middlewares.use((req, _res, next) => {
+        const m = req.url?.match(/^\/(privacy|terms|support)\/?(\?.*)?$/)
+        if (m) req.url = `/${m[1]}.html`
+        next()
+      })
       server.middlewares.use('/api/artist-image', async (req, res) => {
         const { searchParams } = new URL(req.url ?? '', 'http://localhost')
         const image = await lookupSpotifyImage(searchParams.get('name') ?? '')

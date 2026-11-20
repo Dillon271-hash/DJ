@@ -20,6 +20,24 @@ export function AccountSheet({ onClose }: { onClose: () => void }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const deleteAccount = useEncoreStore((s) => s.deleteAccount);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
+  const [deletingNow, setDeletingNow] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const expected = username ? `@${username}` : "DELETE";
+  const confirmed = confirmText.trim().toLowerCase() === expected.toLowerCase() || (username ? confirmText.trim().toLowerCase() === username : false);
+
+  async function doDelete() {
+    if (!confirmed || deletingNow) return;
+    setDeletingNow(true);
+    setDeleteError(null);
+    const err = await deleteAccount();
+    if (err) {
+      setDeleteError(err);
+      setDeletingNow(false);
+    }
+  }
   const hasPhoto = useAvatars((s) => Boolean(s.paths[me]));
   const photoInput = useRef<HTMLInputElement>(null);
   const [photoBusy, setPhotoBusy] = useState(false);
@@ -109,16 +127,63 @@ export function AccountSheet({ onClose }: { onClose: () => void }) {
           </button>
         ))}
 
-      {!editing && (
+      {!editing && !deleting && (
         <>
           <Link to="/charts" className="account-row" onClick={onClose}>
             <span>The Charts</span>
             <small>Leaderboards</small>
           </Link>
-          <button type="button" className="account-row danger" onClick={() => signOut()}>
+          <a href="/support" target="_blank" rel="noopener" className="account-row">
+            <span>Support</span>
+            <small>Help &amp; contact ↗</small>
+          </a>
+          <a href="/privacy" target="_blank" rel="noopener" className="account-row">
+            <span>Privacy Policy</span>
+            <small>↗</small>
+          </a>
+          <a href="/terms" target="_blank" rel="noopener" className="account-row">
+            <span>Terms of Service</span>
+            <small>↗</small>
+          </a>
+          <button type="button" className="account-row" onClick={() => signOut()}>
             <span>Log out</span>
           </button>
+          <button type="button" className="account-row danger" onClick={() => setDeleting(true)}>
+            <span>Delete account</span>
+          </button>
         </>
+      )}
+
+      {deleting && (
+        <div className="delete-account">
+          <h3 className="display">Delete your account?</h3>
+          <p>
+            This permanently deletes your account, every set you've logged, your photos and videos, your profile photo,
+            your plus-ones and crew memberships, and any crews you started. It can't be undone.
+          </p>
+          <label className="field-label" htmlFor="delete-confirm">
+            Type {username ? `@${username}` : "DELETE"} to confirm
+          </label>
+          <input
+            id="delete-confirm"
+            className="text-input"
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            autoFocus
+          />
+          {deleteError && <p className="flow-error">{deleteError}</p>}
+          <div className="sheet-actions">
+            <button type="button" className="ghost-btn" onClick={() => (setDeleting(false), setConfirmText(""), setDeleteError(null))}>
+              Cancel
+            </button>
+            <button type="button" className="danger-btn" disabled={!confirmed || deletingNow} onClick={doDelete}>
+              {deletingNow ? <Busy>Deleting…</Busy> : "Delete forever"}
+            </button>
+          </div>
+        </div>
       )}
     </Sheet>
   );

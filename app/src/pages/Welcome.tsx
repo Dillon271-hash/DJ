@@ -301,6 +301,20 @@ export function Welcome() {
           {submitting ? <Busy>Please wait…</Busy> : submitLabel}
         </button>
 
+        {mode === "signup" && (
+          <p className="legal-note">
+            By creating an account you agree to the{" "}
+            <a href="/terms" target="_blank" rel="noopener">
+              Terms of Service
+            </a>{" "}
+            and{" "}
+            <a href="/privacy" target="_blank" rel="noopener">
+              Privacy Policy
+            </a>
+            .
+          </p>
+        )}
+
         {mode === "forgot" && (
           <button
             type="button"
@@ -312,6 +326,18 @@ export function Welcome() {
           </button>
         )}
       </form>
+
+      <footer className="legal-footer">
+        <a href="/privacy" target="_blank" rel="noopener">
+          Privacy
+        </a>
+        <a href="/terms" target="_blank" rel="noopener">
+          Terms
+        </a>
+        <a href="/support" target="_blank" rel="noopener">
+          Support
+        </a>
+      </footer>
     </div>
   );
 }

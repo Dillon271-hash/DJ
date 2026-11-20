@@ -86,6 +86,8 @@ interface EncoreStore {
   setUsername: (candidate: string) => Promise<string | null>;
   signIn: (email: string, password: string) => Promise<string | null>;
   signOut: () => Promise<void>;
+  /** Permanently deletes the account and everything in it. */
+  deleteAccount: () => Promise<string | null>;
   // True while the user has arrived via a password-reset email link and
   // hasn't chosen a new password yet — App shows the reset screen instead
   // of the app, even though the link has already signed them in.
@@ -200,6 +202,30 @@ export const useEncoreStore = create<EncoreStore>()((set, get) => ({
 
   signOut: async () => {
     await client().auth.signOut();
+  },
+
+  deleteAccount: async () => {
+    const me = get().session?.user.id;
+    if (!me) return "You're signed out.";
+    // Storage files first — they aren't removed by the database cascade.
+    for (const bucket of ["set-media", "avatars"]) {
+      for (;;) {
+        const { data, error } = await client().storage.from(bucket).list(me, { limit: 100 });
+        if (error || !data || data.length === 0) break;
+        const { error: rmError } = await client().storage.from(bucket).remove(data.map((f) => `${me}/${f.name}`));
+        if (rmError) break;
+      }
+    }
+    const { error } = await client().rpc("delete_my_account");
+    if (error) {
+      console.error("[account] delete failed:", error);
+      return error.code === "PGRST202"
+        ? "Account deletion isn't switched on yet — re-run schema.sql in Supabase."
+        : "Couldn't delete your account — check your connection and try again.";
+    }
+    // The user no longer exists, so only clear this device's session.
+    await client().auth.signOut({ scope: "local" });
+    return null;
   },
 
   clearAuthLinkError: () => set({ authLinkError: null }),

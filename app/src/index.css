@@ -4530,3 +4530,53 @@ body:has(.flow) .tabbar {
   max-width: 7.5rem;
   text-align: center;
 }
+
+/* ---------- Legal links + account deletion ---------- */
+.legal-note {
+  margin: 0.9rem 0 0;
+  font-size: 0.74rem;
+  color: var(--smoke);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.legal-note a,
+.legal-footer a {
+  color: var(--bone-dim);
+}
+
+.legal-footer {
+  display: flex;
+  gap: 1.2rem;
+  justify-content: center;
+  margin-top: 2rem;
+  font-size: 0.78rem;
+}
+
+.delete-account h3 {
+  font-size: 1.2rem;
+  margin: 0.4rem 0 0.5rem;
+  color: var(--pink);
+}
+
+.delete-account p {
+  color: var(--bone-dim);
+  font-size: 0.88rem;
+  margin: 0 0 0.4rem;
+}
+
+.danger-btn {
+  flex: 1;
+  border: none;
+  border-radius: 999px;
+  padding: 0.8rem 1.2rem;
+  background: var(--pink);
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.danger-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
