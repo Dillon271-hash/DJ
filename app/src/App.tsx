@@ -8,6 +8,7 @@ import { PickUsername } from "./pages/PickUsername";
 import { Rankings } from "./pages/Rankings";
 import { Loader, Vinyl } from "./components/Vinyl";
 import { Splash } from "./components/Splash";
+import { LegalViewer } from "./components/LegalViewer";
 import { useEncoreStore } from "./lib/store";
 import { isSupabaseConfigured } from "./lib/supabase";
 
@@ -34,6 +35,7 @@ function App() {
   return (
     <>
       <Screens />
+      <LegalViewer />
       {splash && <Splash onDone={endSplash} />}
     </>
   );

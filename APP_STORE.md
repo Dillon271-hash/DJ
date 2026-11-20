@@ -27,7 +27,9 @@ app is served from (e.g. `dj-app-coral.vercel.app`).
 ## In-app legal access — done
 
 Tap your profile picture (top right) → **Support**, **Privacy Policy**,
-**Terms of Service** are each one tap. The sign-up screen also links Terms
+**Terms of Service** are each one tap, and open full-screen *inside* the
+app (no trip out to Safari). The in-app view loads the same public pages,
+so the in-app text and the App Store Connect URLs always match. The sign-up screen also links Terms
 and Privacy ("By creating an account you agree to…"), and the sign-in
 screen has a Privacy · Terms · Support footer.
 

@@ -2,6 +2,7 @@ import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { cleanUsername, useEncoreStore } from "../lib/store";
 import { Sheet } from "./Sheet";
+import { LegalLink } from "./LegalViewer";
 import { UserAvatar } from "./UserAvatar";
 import { Busy, Vinyl } from "./Vinyl";
 import { UsernameField, usernameOk, type UsernameStatus } from "./UsernameField";
@@ -133,18 +134,18 @@ export function AccountSheet({ onClose }: { onClose: () => void }) {
             <span>The Charts</span>
             <small>Leaderboards</small>
           </Link>
-          <a href="/support" target="_blank" rel="noopener" className="account-row">
+          <LegalLink doc="support" className="account-row">
             <span>Support</span>
-            <small>Help &amp; contact ↗</small>
-          </a>
-          <a href="/privacy" target="_blank" rel="noopener" className="account-row">
+            <small>Help &amp; contact</small>
+          </LegalLink>
+          <LegalLink doc="privacy" className="account-row">
             <span>Privacy Policy</span>
-            <small>↗</small>
-          </a>
-          <a href="/terms" target="_blank" rel="noopener" className="account-row">
+            <small>›</small>
+          </LegalLink>
+          <LegalLink doc="terms" className="account-row">
             <span>Terms of Service</span>
-            <small>↗</small>
-          </a>
+            <small>›</small>
+          </LegalLink>
           <button type="button" className="account-row" onClick={() => signOut()}>
             <span>Log out</span>
           </button>

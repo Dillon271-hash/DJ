@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { cleanUsername, useEncoreStore } from "../lib/store";
+import { LegalLink } from "../components/LegalViewer";
 import { UsernameField, usernameOk, type UsernameStatus } from "../components/UsernameField";
 import { Busy, Vinyl, Wordmark } from "../components/Vinyl";
 
@@ -304,13 +305,13 @@ export function Welcome() {
         {mode === "signup" && (
           <p className="legal-note">
             By creating an account you agree to the{" "}
-            <a href="/terms" target="_blank" rel="noopener">
+            <LegalLink doc="terms">
               Terms of Service
-            </a>{" "}
+            </LegalLink>{" "}
             and{" "}
-            <a href="/privacy" target="_blank" rel="noopener">
+            <LegalLink doc="privacy">
               Privacy Policy
-            </a>
+            </LegalLink>
             .
           </p>
         )}
@@ -328,15 +329,15 @@ export function Welcome() {
       </form>
 
       <footer className="legal-footer">
-        <a href="/privacy" target="_blank" rel="noopener">
+        <LegalLink doc="privacy">
           Privacy
-        </a>
-        <a href="/terms" target="_blank" rel="noopener">
+        </LegalLink>
+        <LegalLink doc="terms">
           Terms
-        </a>
-        <a href="/support" target="_blank" rel="noopener">
+        </LegalLink>
+        <LegalLink doc="support">
           Support
-        </a>
+        </LegalLink>
       </footer>
     </div>
   );
