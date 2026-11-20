@@ -4580,3 +4580,154 @@ body:has(.flow) .tabbar {
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* ---------- Sets/Venues toggle + bucket filter tiles ---------- */
+.view-toggle {
+  margin: 1.6rem 0 0.8rem;
+}
+
+.seg-count {
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: color-mix(in srgb, var(--bone) 12%, transparent);
+  color: inherit;
+}
+
+.seg button.on .seg-count {
+  background: color-mix(in srgb, var(--void) 14%, transparent);
+}
+
+.bucket-filter {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1.2rem;
+}
+
+.bf {
+  --c: var(--bone);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  min-width: 0;
+  padding: 0.6rem 0.65rem 0.55rem;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--ink);
+  color: var(--bone-dim);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.12s,
+    box-shadow 0.12s,
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.bf.loved {
+  --c: var(--glow-core);
+}
+
+.bf.good {
+  --c: var(--pink);
+}
+
+.bf.not {
+  --c: var(--violet);
+}
+
+.bf-top {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bf-top svg {
+  width: 17px;
+  height: 17px;
+  color: var(--c);
+}
+
+.bf-top b {
+  font-family: "Arial Black", sans-serif;
+  font-size: 0.95rem;
+  color: var(--bone);
+}
+
+.bf-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.bf:hover {
+  border-color: color-mix(in srgb, var(--c) 55%, transparent);
+}
+
+.bf.on {
+  border: 2px solid var(--void);
+  background: var(--c);
+  color: #fff;
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--c) 45%, var(--void));
+  transform: translate(-1px, -1px);
+}
+
+.bf.on .bf-top svg,
+.bf.on .bf-top b {
+  color: #fff;
+}
+
+.bf.loved.on {
+  background: var(--bucket-loved);
+  color: #1c0b00;
+}
+
+.bf.loved.on .bf-top svg,
+.bf.loved.on .bf-top b {
+  color: #1c0b00;
+}
+
+.bf.all.on {
+  background: var(--bone);
+  color: var(--void);
+}
+
+.bf.all.on .bf-top svg,
+.bf.all.on .bf-top b {
+  color: var(--void);
+}
+
+@media (max-width: 360px) {
+  .bf-label {
+    font-size: 0.66rem;
+  }
+}
+
+.bf {
+  padding: 0.6rem 0.5rem 0.55rem;
+}
+
+.bf-label {
+  font-size: 0.7rem;
+  letter-spacing: -0.01em;
+  text-overflow: clip;
+}
+
+@media (max-width: 360px) {
+  .bucket-filter {
+    gap: 0.35rem;
+  }
+
+  .bf-label {
+    white-space: normal;
+    line-height: 1.15;
+  }
+}

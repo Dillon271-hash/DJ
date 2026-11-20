@@ -5,13 +5,14 @@ import { useEncoreStore } from "../lib/store";
 import { sortLogs, bucketForScore } from "../lib/ranking";
 import { spinsFor } from "../lib/spins";
 import { formatShortDate } from "../lib/dates";
-import { BUCKET_LABEL, type Bucket } from "../lib/types";
+import type { Bucket } from "../lib/types";
 import { Busy, Loader } from "../components/Vinyl";
 import { CrewBadge } from "../components/CrewBadge";
 import { UserAvatar } from "../components/UserAvatar";
 import { AvatarThumb } from "../components/AvatarThumb";
 import { ScoreRing } from "../components/ScoreRing";
 import { FeedCard } from "../components/FeedCard";
+import { BucketFilter } from "../components/BucketFilter";
 import { PeoplePicker, useToggleSet } from "../components/PeoplePicker";
 import { crewTint } from "./Crews";
 import { Sheet } from "../components/Sheet";
@@ -59,7 +60,7 @@ export function CrewPage() {
 
   // The crew's consensus: every artist anyone in the crew has logged, by
   // the average of everyone's scores.
-  const artists = useMemo(() => {
+  const artistsAll = useMemo(() => {
     if (!crew) return [];
     const by = new Map<string, { name: string; scores: number[]; who: Set<string> }>();
     for (const l of crew.logs) {
@@ -71,9 +72,23 @@ export function CrewPage() {
     }
     return [...by.values()]
       .map((e) => ({ ...e, avg: e.scores.reduce((a, b) => a + b, 0) / e.scores.length }))
-      .filter((e) => filter === "all" || bucketForScore(e.avg) === filter)
       .sort((a, b) => b.avg - a.avg || b.scores.length - a.scores.length);
-  }, [crew, filter]);
+  }, [crew]);
+
+  const artists = useMemo(
+    () => (filter === "all" ? artistsAll : artistsAll.filter((e) => bucketForScore(e.avg) === filter)),
+    [artistsAll, filter],
+  );
+
+  const crewCounts = useMemo(() => {
+    const items = tab === "artists" ? artistsAll.map((a) => bucketForScore(a.avg)) : (crew?.logs ?? []).map((l) => l.bucket);
+    return {
+      all: items.length,
+      loved: items.filter((b) => b === "loved").length,
+      good: items.filter((b) => b === "good").length,
+      not: items.filter((b) => b === "not").length,
+    };
+  }, [tab, crew, artistsAll]);
 
   const memberSpins = useMemo(() => {
     if (!crew) return [];
@@ -194,13 +209,7 @@ export function CrewPage() {
       </div>
 
       {tab !== "latest" && (
-        <div className="chip-row" style={{ marginTop: "0.9rem" }}>
-          {(["all", "loved", "good", "not"] as Filter[]).map((f) => (
-            <button key={f} className={`chip ${filter === f ? "active" : ""}`} onClick={() => setFilter(f)}>
-              {f === "all" ? "All" : BUCKET_LABEL[f]}
-            </button>
-          ))}
-        </div>
+        <BucketFilter value={filter} onChange={setFilter} counts={crewCounts} />
       )}
 
       {crew.logs.length === 0 ? (

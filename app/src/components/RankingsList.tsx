@@ -1,21 +1,16 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ScoreRing } from "./ScoreRing";
+import { BucketFilter, ViewToggle, type BucketFilterValue } from "./BucketFilter";
 import { AvatarThumb } from "./AvatarThumb";
 import { RowMenu } from "./RowMenu";
 import { bucketForScore, sortLogs, venueRatedLogs } from "../lib/ranking";
 import { BUCKET_LABEL, type Bucket, type SetLog } from "../lib/types";
 import { formatShortDate } from "../lib/dates";
 
-type Filter = "all" | Bucket;
+type Filter = BucketFilterValue;
 type View = "sets" | "venues";
 
-const FILTERS: { key: Filter; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "loved", label: "Loved it" },
-  { key: "good", label: "It was good" },
-  { key: "not", label: "Not for me" },
-];
 
 interface VenueSummary {
   name: string;
@@ -36,7 +31,7 @@ export function RankingsList({ logs, onDelete }: { logs: SetLog[]; onDelete?: (i
     return filter === "all" ? sorted : sorted.filter((l) => l.bucket === filter);
   }, [logs, filter]);
 
-  const venueSummaries = useMemo<VenueSummary[]>(() => {
+  const allVenues = useMemo<VenueSummary[]>(() => {
     const byVenue = new Map<string, { name: string; scores: number[] }>();
     for (const log of venueRatedLogs(logs)) {
       const key = log.event.trim().toLowerCase();
@@ -49,31 +44,38 @@ export function RankingsList({ logs, onDelete }: { logs: SetLog[]; onDelete?: (i
       return { name: v.name, count: v.scores.length, avg, bucket: bucketForScore(avg) };
     });
     summaries.sort((a, b) => b.avg - a.avg);
-    return filter === "all" ? summaries : summaries.filter((v) => v.bucket === filter);
-  }, [logs, filter]);
+    return summaries;
+  }, [logs]);
+
+  const venueSummaries = useMemo(
+    () => (filter === "all" ? allVenues : allVenues.filter((v) => v.bucket === filter)),
+    [allVenues, filter],
+  );
+  const venueTotal = allVenues.length;
+
+  // How many are in each bucket, for whichever view is showing.
+  const counts = useMemo(() => {
+    const items: Bucket[] = view === "sets" ? logs.map((l) => l.bucket) : allVenues.map((v) => v.bucket);
+    return {
+      all: items.length,
+      loved: items.filter((b) => b === "loved").length,
+      good: items.filter((b) => b === "good").length,
+      not: items.filter((b) => b === "not").length,
+    };
+  }, [view, logs, allVenues]);
 
   return (
     <>
-      <div className="chip-row" style={{ marginTop: "1.6rem", marginBottom: "0.6rem" }}>
-        <button className={`chip ${view === "sets" ? "active" : ""}`} onClick={() => setView("sets")}>
-          Sets
-        </button>
-        <button className={`chip ${view === "venues" ? "active" : ""}`} onClick={() => setView("venues")}>
-          Venues
-        </button>
-      </div>
+      <ViewToggle
+        value={view}
+        onChange={setView}
+        options={[
+          { key: "sets", label: "Sets", count: logs.length },
+          { key: "venues", label: "Venues", count: venueTotal },
+        ]}
+      />
 
-      <div className="chip-row">
-        {FILTERS.map((f) => (
-          <button
-            key={f.key}
-            className={`chip ${filter === f.key ? "active" : ""}`}
-            onClick={() => setFilter(f.key)}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
+      <BucketFilter value={filter} onChange={setFilter} counts={counts} />
 
       {view === "sets" ? (
         visibleSets.length === 0 ? (
