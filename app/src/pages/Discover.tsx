@@ -159,7 +159,7 @@ export function Discover() {
       <>
 
       <button type="button" className={`city-bar${city ? "" : " empty"}`} onClick={() => setPickingCity(true)}>
-        <PinIcon />
+        <PinIcon size={30} />
         {city === undefined ? (
           <span>Finding your city…</span>
         ) : city ? (

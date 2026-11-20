@@ -699,11 +699,30 @@ main.content {
 .recent-row .info {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
 }
 
 .recent-row .who {
   font-weight: 600;
-  font-size: 0.92rem;
+  font-size: 0.98rem;
+  line-height: 1.25;
+}
+
+.recent-row .where {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  color: var(--bone-dim);
+  min-width: 0;
+}
+
+.recent-row .where > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .recent-row .meta {

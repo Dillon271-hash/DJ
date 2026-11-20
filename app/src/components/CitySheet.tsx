@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { fetchEvents, KNOWN_CITIES, useCity } from "../lib/discover";
 import { Sheet } from "./Sheet";
+import { Doodle } from "./Doodle";
 
 // Set or change your city (Discover's "near you" and the feed's ordering).
 export function CitySheet({ current, onClose }: { current: string; onClose: () => void }) {
@@ -89,11 +90,7 @@ export function CitySheet({ current, onClose }: { current: string; onClose: () =
 }
 
 
-export function PinIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z" />
-      <circle cx="12" cy="9.5" r="2.5" />
-    </svg>
-  );
+/** The one-eyed pin guy, wherever a place or city shows up. */
+export function PinIcon({ size = 20 }: { size?: number }) {
+  return <Doodle kind="pin" size={size} bare />;
 }

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useEncoreStore } from "../lib/store";
 import { SEED_ARTISTS } from "../lib/artists";
 import { AvatarThumb } from "../components/AvatarThumb";
+import { Doodle } from "../components/Doodle";
 
 interface RecentArtist {
   artist: string;
@@ -100,8 +101,14 @@ export function LogSet() {
                 <span className="info">
                   <span className="who">{r.artist}</span>
                   <span className="meta">
-                    {r.count} set{r.count === 1 ? "" : "s"} logged · last {r.lastEvent}
+                    {r.count} set{r.count === 1 ? "" : "s"} logged
                   </span>
+                  {r.lastEvent && (
+                    <span className="where">
+                      <Doodle kind="pin" size={18} bare />
+                      <span>{r.lastEvent}</span>
+                    </span>
+                  )}
                 </span>
                 <span className="plus">+</span>
               </button>
