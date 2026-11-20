@@ -25,6 +25,10 @@ const TIMEOUT_MESSAGE: Record<Mode, string> = {
 // cause in Supabase's settings.
 function friendlyAuthError(message: string): string {
   const m = message.toLowerCase();
+  // An empty "{}" is what Supabase sends back when its request to the
+  // email server timed out — i.e. the SMTP settings can't connect.
+  if (!m.trim() || m.trim() === "{}" || m.includes("gateway") || m.includes("timeout"))
+    return "Disko couldn't reach its email server to send your confirmation, so it timed out. Please try again later. (Supabase SMTP timed out)";
   if (m.includes("rate limit")) return "Too many emails were sent in the last hour. Wait a bit and try again.";
   if (m.includes("error sending") || m.includes("smtp") || m.includes("unexpected_failure"))
     return `Disko couldn't send the email right now — please try again later. (${message})`;
@@ -165,7 +169,7 @@ export function Welcome() {
       <h1 style={{ fontSize: "2.6rem", margin: "0 0 0.5rem", lineHeight: 1.1 }}>
         <Wordmark />
       </h1>
-      <p style={{ color: "var(--smoke)", margin: "0 0 1.6rem" }}>
+      <p style={{ color: "var(--smoke)", margin: "0 0 1.6rem", maxWidth: "360px" }}>
         Your personal ranked diary for DJ sets. Log who you've heard, rate
         them, and build your all-time list.
       </p>
