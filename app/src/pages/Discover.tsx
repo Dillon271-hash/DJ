@@ -301,7 +301,7 @@ function ShowRow({ show }: { show: ShowListing & { tag: "loved" | "rec" | "seen"
         </span>
         {show.tag && (
           <span className={`show-tag ${show.tag}`}>
-            {show.tag === "loved" ? <><Doodle kind="heart" size={14} bare /> You loved them</> : show.tag === "rec" ? "Recommended for you" : "You've seen them"}
+            {show.tag === "loved" ? <><Doodle kind="heart" size={19} bare /> You loved them</> : show.tag === "rec" ? "Recommended for you" : "You've seen them"}
           </span>
         )}
       </span>

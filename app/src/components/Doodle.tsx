@@ -32,7 +32,7 @@ const TILE: Record<DoodleKind, [string, string]> = {
 
 export function Doodle({
   kind,
-  size = 42,
+  size = 52,
   className = "",
   bare = false,
 }: {

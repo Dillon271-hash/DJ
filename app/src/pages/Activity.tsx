@@ -54,8 +54,8 @@ export function Activity() {
           {items.map((i) => (
             <li key={i.id} className={`activity-item ${i.kind}${i.at > seenAt ? " new" : ""}`}>
               <Link to={`/u/${i.user.id}`} className="activity-avatar">
-                <UserAvatar id={i.user.id} name={i.user.name} size={40} />
-                <Doodle kind={ICON[i.kind]} size={24} className="activity-icon" />
+                <UserAvatar id={i.user.id} name={i.user.name} size={48} />
+                <Doodle kind={ICON[i.kind]} size={34} className="activity-icon" />
               </Link>
               <Link to={i.kind === "tag" ? "/" : `/set/${i.logId}${i.kind === "comment" ? "#comments" : ""}`} className="activity-text">
                 <span>

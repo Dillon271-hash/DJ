@@ -23,7 +23,7 @@ export function FeedCard({ item: { log, person }, near = false }: { item: FeedIt
         <span>
           <b>{person.name}</b> {log.bucket === "loved" ? "loved" : log.bucket === "good" ? "rated" : "wasn't into"}
         </span>
-        {near && <span className="near-tag"><Doodle kind="pin" size={14} bare /> Near you</span>}
+        {near && <span className="near-tag"><Doodle kind="pin" size={19} bare /> Near you</span>}
         <span className="feed-time">{timeAgo(log.createdAt)}</span>
       </Link>
       <Link to={`/set/${log.id}`} className="feed-set">

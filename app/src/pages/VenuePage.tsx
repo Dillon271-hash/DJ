@@ -72,7 +72,7 @@ export function VenuePage() {
       <ScoreTrio summary={summary} loading={loading} />
 
       <button type="button" className="breakdown-btn" onClick={() => setBreakdown(true)} disabled={!items}>
-        <Doodle kind="dj" size={46} />
+        <Doodle kind="dj" size={62} />
         <span>
           <b>Ratings for a DJ</b>
           <small>{items ? `${new Set(items.map((i) => i.log.artist.trim().toLowerCase())).size} DJs rated here` : "Loading…"}</small>
