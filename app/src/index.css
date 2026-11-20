@@ -5009,3 +5009,459 @@ main.content {
 .topbar {
   padding-top: calc(0.9rem + env(safe-area-inset-top));
 }
+
+/* ============================================================
+   Likes, comments, share, saves
+   ============================================================ */
+.post-actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.7rem;
+  padding-top: 0.55rem;
+  border-top: 1px dashed var(--line);
+}
+
+.post-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.6rem;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: var(--bone-dim);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.post-action:hover {
+  background: color-mix(in srgb, var(--bone) 7%, transparent);
+  color: var(--bone);
+}
+
+.post-action svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.post-action.like.on {
+  color: var(--pink);
+}
+
+.post-action.like.on svg {
+  fill: var(--pink);
+  stroke: var(--pink);
+}
+
+.post-action.like.pop svg {
+  animation: like-pop 0.4s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+@keyframes like-pop {
+  40% {
+    transform: scale(1.35);
+  }
+}
+
+.post-action.save {
+  margin-left: auto;
+}
+
+.post-action.save.on {
+  color: var(--yellow);
+}
+
+.post-action.save.on svg {
+  fill: var(--yellow);
+  stroke: var(--yellow);
+}
+
+.post-toast {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: var(--bone);
+  color: var(--void);
+  font-size: 0.74rem;
+  font-weight: 700;
+  animation: splash-fade-up 0.25s ease-out;
+  pointer-events: none;
+}
+
+.comments {
+  margin-top: 1.8rem;
+  scroll-margin-top: 5rem;
+}
+
+.comment-list {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+}
+
+.comment {
+  display: flex;
+  gap: 0.65rem;
+  padding: 0.6rem 0;
+}
+
+.comment + .comment {
+  border-top: 1px dashed var(--line);
+}
+
+.comment-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.comment-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.comment-head a {
+  color: var(--bone);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.comment-head span {
+  color: var(--smoke);
+  font-size: 0.72rem;
+}
+
+.comment-head .text-btn {
+  margin-left: auto;
+  padding: 0;
+  font-size: 0.72rem;
+}
+
+.comment-body p {
+  margin: 0.15rem 0 0;
+  color: var(--bone-dim);
+  font-size: 0.92rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.comment-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+
+.comment-form textarea {
+  flex: 1;
+  min-height: 2.6rem;
+  max-height: 8rem;
+  resize: vertical;
+  background: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0.65rem 0.8rem;
+  color: var(--bone);
+  font: inherit;
+  font-size: 0.92rem;
+}
+
+.comment-form textarea:focus {
+  outline: 2px solid var(--glow-edge);
+  outline-offset: 1px;
+}
+
+/* ============================================================
+   Scores, community, search
+   ============================================================ */
+.score-trio {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin: 1.2rem 0 1.4rem;
+}
+
+.trio-tile {
+  --c: var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.75rem 0.4rem 0.7rem;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--ink);
+  text-align: center;
+  min-width: 0;
+}
+
+.trio-tile.loved {
+  --c: var(--fill-a);
+}
+
+.trio-tile.good {
+  --c: var(--pink);
+}
+
+.trio-tile.not {
+  --c: var(--violet);
+}
+
+.trio-tile.highlight {
+  border-color: color-mix(in srgb, var(--c) 70%, transparent);
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--c) 22%, transparent), transparent 70%),
+    var(--ink);
+}
+
+.trio-label {
+  font-family: "SF Mono", Menlo, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--smoke);
+}
+
+.trio-score {
+  font-family: "Arial Black", sans-serif;
+  font-size: 1.6rem;
+  line-height: 1.1;
+}
+
+.trio-score i {
+  font-style: normal;
+  font-size: 0.7rem;
+  margin-left: 0.15rem;
+  vertical-align: super;
+  color: var(--glow-edge);
+}
+
+.trio-sub {
+  font-size: 0.68rem;
+  color: var(--bone-dim);
+  line-height: 1.25;
+}
+
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-top: 0.6rem;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.community-row .num {
+  width: 1.4rem;
+  text-align: center;
+  font-family: "Arial Black", sans-serif;
+  font-size: 0.85rem;
+  color: var(--smoke);
+  flex-shrink: 0;
+}
+
+.search-field .search-clear {
+  border: none;
+  background: none;
+  color: var(--smoke);
+  cursor: pointer;
+  padding: 0 0.2rem;
+}
+
+.search-results {
+  margin-top: 0.8rem;
+}
+
+.venue-search-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--line);
+  font-size: 1.2rem;
+}
+
+/* ============================================================
+   Feed header, Want to see, notifications
+   ============================================================ */
+.feed-head-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.people-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.8rem;
+  text-decoration: none;
+  font-size: 0.8rem;
+}
+
+.request-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 1.2rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--radius);
+  border: 1px solid color-mix(in srgb, var(--pink) 50%, transparent);
+  background: color-mix(in srgb, var(--pink) 10%, var(--void));
+  color: var(--bone-dim);
+  text-decoration: none;
+  font-size: 0.86rem;
+}
+
+.request-banner .avatar-stack {
+  margin: 0;
+}
+
+.request-banner b {
+  color: var(--bone);
+}
+
+.request-banner .chevron {
+  margin-left: auto;
+  color: var(--smoke);
+  font-size: 1.3rem;
+}
+
+.want-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem 0.8rem;
+}
+
+.want-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  text-decoration: none;
+  color: var(--bone);
+}
+
+.want-tile .artist-photo {
+  border-radius: 16px;
+  border: 2px solid var(--void);
+  box-shadow: 4px 4px 0 var(--yellow);
+  margin-bottom: 0.3rem;
+}
+
+.want-tile b {
+  font-size: 0.92rem;
+}
+
+.want-tile small {
+  font-size: 0.72rem;
+  color: var(--smoke);
+}
+
+.topbar-bell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: var(--bone);
+  background: color-mix(in srgb, var(--void) 45%, transparent);
+}
+
+.topbar-bell .tab-badge {
+  top: -3px;
+  right: -4px;
+}
+
+.activity-list {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+.activity-item {
+  display: flex;
+  gap: 0.8rem;
+  padding: 0.75rem 0.6rem;
+  border-radius: 14px;
+}
+
+.activity-item + .activity-item {
+  margin-top: 0.2rem;
+}
+
+.activity-item.new {
+  background: color-mix(in srgb, var(--glow-edge) 9%, transparent);
+}
+
+.activity-avatar {
+  position: relative;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.activity-icon {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  background: var(--ink);
+  border: 2px solid var(--void);
+}
+
+.activity-item.like .activity-icon {
+  color: var(--pink);
+}
+
+.activity-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  text-decoration: none;
+  color: var(--bone-dim);
+  font-size: 0.9rem;
+}
+
+.activity-text b {
+  color: var(--bone);
+}
+
+.activity-text q {
+  color: var(--bone);
+  font-size: 0.86rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-text small {
+  color: var(--smoke);
+  font-size: 0.72rem;
+}

@@ -130,6 +130,10 @@ export function AccountSheet({ onClose }: { onClose: () => void }) {
 
       {!editing && !deleting && (
         <>
+          <Link to="/saved" className="account-row" onClick={onClose}>
+            <span>Want to see</span>
+            <small>Saved sets</small>
+          </Link>
           <Link to="/charts" className="account-row" onClick={onClose}>
             <span>The Charts</span>
             <small>Leaderboards</small>

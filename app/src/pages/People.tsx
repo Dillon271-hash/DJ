@@ -1,16 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useEncoreStore } from "../lib/store";
-import { fetchFeed, fetchPeople, SocialSetupError, useSocial, type FeedItem, type Person } from "../lib/social";
+import { fetchPeople, SocialSetupError, useSocial, type Person } from "../lib/social";
 import { Loader } from "../components/Vinyl";
 import { UserAvatar } from "../components/UserAvatar";
 import { PlusOneButton } from "../components/PlusOneButton";
-import { FeedCard } from "../components/FeedCard";
-import { CitySheet, PinIcon } from "../components/CitySheet";
-import { cityName, fetchCityLogs, isInCity, useCity } from "../lib/discover";
 
 const PEOPLE_PREVIEW = 5;
-type FeedTab = "plus-ones" | "everyone";
 
 export function People() {
   const me = useEncoreStore((s) => s.session?.user.id ?? "");
@@ -24,18 +20,7 @@ export function People() {
   const [query, setQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [tab, setTab] = useState<FeedTab | null>(null);
-  const [feed, setFeed] = useState<(FeedItem & { near?: boolean })[] | null>(null);
-  const { city, load: loadCity } = useCity();
-  const [pickingCity, setPickingCity] = useState(false);
-
-  useEffect(() => {
-    if (city === undefined) loadCity();
-  }, [city, loadCity]);
-
   const friendIds = useMemo(() => plusOnes?.friends.map((f) => f.id) ?? null, [plusOnes]);
-  // Default to your plus-ones' sets once you have some.
-  const activeTab: FeedTab = tab ?? (friendIds && friendIds.length > 0 ? "plus-ones" : "everyone");
 
   useEffect(() => {
     let stale = false;
@@ -50,38 +35,6 @@ export function People() {
       stale = true;
     };
   }, [me]);
-
-  const friendKey = friendIds?.join(",");
-  useEffect(() => {
-    if (friendIds === null || city === undefined) return;
-    let stale = false;
-    setFeed(null);
-    const scope = activeTab === "plus-ones" ? new Set(friendIds) : null;
-    Promise.all([
-      fetchFeed(me, scope ? { userIds: friendIds } : {}),
-      city ? fetchCityLogs(city, 80).catch(() => []) : Promise.resolve([]),
-    ])
-      .then(([latest, local]) => {
-        if (stale) return;
-        // Sets near your city from the last 45 days go first (newest
-        // first), then everything else in time order.
-        const cutoff = Date.now() - 45 * 86_400_000;
-        const near = local.filter(
-          (i) => i.person.id !== me && (!scope || scope.has(i.person.id)) && i.log.createdAt >= cutoff,
-        );
-        const nearIds = new Set(near.map((i) => i.log.id));
-        const rest = latest
-          .filter((i) => !nearIds.has(i.log.id))
-          .map((i) => ({ ...i, near: city ? isInCity(i.log.event, city) : false }));
-        setFeed([...near.map((i) => ({ ...i, near: true })), ...rest]);
-      })
-      .catch(() => !stale && setFeed([]));
-    return () => {
-      stale = true;
-    };
-    // friendKey stands in for friendIds' contents.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [me, activeTab, friendKey, city]);
 
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -132,6 +85,9 @@ export function People() {
 
   return (
     <div>
+      <button className="artist-back" onClick={() => history.back()}>
+        ← Back
+      </button>
       <div className="page-head">
         <div>
           <div className="eyebrow">People</div>
@@ -238,42 +194,6 @@ export function People() {
         )
       )}
 
-      {!matches && (
-        <section style={{ marginTop: "2rem" }}>
-          <div className="feed-head">
-            <div className="section-label" style={{ margin: 0 }}>
-              Latest
-            </div>
-            <button type="button" className="feed-city" onClick={() => setPickingCity(true)}>
-              <PinIcon />
-              {city ? cityName(city) : "Set city"}
-            </button>
-            <div className="seg">
-              <button type="button" className={activeTab === "plus-ones" ? "on" : ""} onClick={() => setTab("plus-ones")}>
-                Plus-ones
-              </button>
-              <button type="button" className={activeTab === "everyone" ? "on" : ""} onClick={() => setTab("everyone")}>
-                Everyone
-              </button>
-            </div>
-          </div>
-          {feed === null ? (
-            <Loader size={44} />
-          ) : feed.length === 0 ? (
-            <p className="hint" style={{ marginTop: "1rem" }}>
-              {activeTab === "plus-ones"
-                ? plusOnes.friends.length === 0
-                  ? "No plus-ones yet — add some people above."
-                  : "Your plus-ones haven't logged any sets yet."
-                : "No one else has logged a set yet."}
-            </p>
-          ) : (
-            feed.map((item) => <FeedCard key={item.log.id} item={item} near={item.near} />)
-          )}
-        </section>
-      )}
-
-      {pickingCity && <CitySheet current={city ?? ""} onClose={() => setPickingCity(false)} />}
     </div>
   );
 }

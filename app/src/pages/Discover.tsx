@@ -12,6 +12,7 @@ import { ArtistPhoto } from "../components/ArtistPhoto";
 import { ScoreRing } from "../components/ScoreRing";
 import { AvatarThumb } from "../components/AvatarThumb";
 import { CitySheet, PinIcon } from "../components/CitySheet";
+import { SearchAll } from "../components/SearchAll";
 
 export function Discover() {
   const me = useEncoreStore((s) => s.session?.user.id ?? "");
@@ -24,6 +25,7 @@ export function Discover() {
   const [cityLogs, setCityLogs] = useState<FeedItem[] | null>(null);
   const [pickingCity, setPickingCity] = useState(false);
   const [genre, setGenre] = useState<Genre | null>(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (city === undefined) loadCity();
@@ -132,6 +134,29 @@ export function Discover() {
         </div>
       </div>
 
+      <label className="search-field" style={{ marginTop: "1.2rem", marginBottom: "0.4rem" }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" />
+        </svg>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search artists, venues & festivals"
+          aria-label="Search artists, venues and festivals"
+        />
+        {search && (
+          <button type="button" className="search-clear" onClick={() => setSearch("")} aria-label="Clear search">
+            ✕
+          </button>
+        )}
+      </label>
+
+      {search.trim() ? (
+        <SearchAll query={search} community={community} />
+      ) : (
+      <>
+
       <button type="button" className={`city-bar${city ? "" : " empty"}`} onClick={() => setPickingCity(true)}>
         <PinIcon />
         {city === undefined ? (
@@ -236,6 +261,9 @@ export function Discover() {
           </div>
         )}
       </section>
+
+      </>
+      )}
 
       {pickingCity && <CitySheet current={city ?? ""} onClose={() => setPickingCity(false)} />}
     </div>

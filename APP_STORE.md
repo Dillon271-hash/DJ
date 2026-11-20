@@ -70,7 +70,7 @@ Disko requires a login, so App Review needs a working test account:
 - **Re-run `app/supabase/schema.sql`** in the Supabase SQL Editor — account
   deletion and several newer features need it.
 - **User-generated content (Apple guideline 1.2).** Apps where people
-  post content others see (notes, photos, usernames) must offer a way to
+  post content others see (notes, photos, comments, usernames) must offer a way to
   **report** posts/users and to **block** users, act on reports, and
   publish contact info. Right now reports go through the support email;
   in-app Report and Block buttons are the next thing to build.

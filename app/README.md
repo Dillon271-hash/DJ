@@ -45,6 +45,19 @@ build a personal ranking of every artist and venue over time. See
   city to see upcoming electronic shows near you (Ticketmaster — needs
   `TICKETMASTER_API_KEY`) and what Disko people have logged there. Artist
   pages show their sound and "If you like …" picks.
+- **Feed is home.** The app opens on the Feed: your plus-ones' sets
+  (or everyone's), near-you first, with **likes, comments, share** and a
+  **save to Want to see** bookmark on every post. People (find friends,
+  requests) is a button on the Feed.
+- **Notifications** (bell, top right): likes, comments and saves on your
+  sets, and tags — built from those tables, unread state per device.
+- **Want to see** (`/saved`): saved posts rolled up into artists to see
+  and venues to go to.
+- **Search + community scores.** Discover searches artists, venues and
+  festivals. Artist and venue pages show a **Disko score** (everyone's
+  average), a **For you** prediction (taste-matched users → your scores
+  for that sound → the Disko average; `src/lib/predict.ts`), a
+  **Friends** score, everyone's rankings, and their photos/videos.
 - **Rank sets you were tagged in.** When someone tags you in a set, it
   shows up under "You were tagged" on Rankings (with a badge on the tab)
   and as "Rank it too" on that feed post. One tap opens the log flow with

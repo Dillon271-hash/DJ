@@ -13,6 +13,8 @@ export interface CommunityLog {
   userId: string;
   artist: string;
   score: number;
+  event?: string;
+  venueScore?: number | null;
 }
 
 export interface Rec {

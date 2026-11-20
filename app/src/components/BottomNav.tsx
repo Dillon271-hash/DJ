@@ -6,13 +6,13 @@ import { Vinyl } from "./Vinyl";
 
 // App-style tab bar. The centre "Log" tab is a record you drop the needle on.
 export function BottomNav() {
-  const requests = useSocial((s) => s.plusOnes?.incoming.length ?? 0);
-  const invites = useSocial((s) => s.crews?.invites.length ?? 0);
+    const invites = useSocial((s) => s.crews?.invites.length ?? 0);
   const tagged = useOpenInvites().length;
+  const requests = useSocial((s) => s.plusOnes?.incoming.length ?? 0);
 
   return (
     <nav className="tabbar" aria-label="Main">
-      <Tab to="/" end label="Rankings" icon={<IconList />} badge={tagged} />
+      <Tab to="/" end label="Feed" icon={<IconHome />} badge={tagged + requests} />
       <Tab to="/discover" label="Discover" icon={<IconCompass />} />
       <NavLink to="/log" className={({ isActive }) => `tab tab-log${isActive ? " active" : ""}`} aria-label="Log a set">
         <span className="tab-log-disc">
@@ -23,7 +23,7 @@ export function BottomNav() {
         </span>
         <span className="tab-label">Log</span>
       </NavLink>
-      <Tab to="/people" label="People" icon={<IconPeople />} badge={requests} />
+      <Tab to="/rankings" label="Rankings" icon={<IconList />} />
       <Tab to="/crews" label="Crews" icon={<IconCrew />} badge={invites} />
     </nav>
   );
@@ -57,15 +57,6 @@ function IconList() {
     </svg>
   );
 }
-function IconPeople() {
-  return (
-    <svg {...svg}>
-      <circle cx="9" cy="8" r="3.5" />
-      <path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5" />
-      <path d="M16 4.8a3.3 3.3 0 0 1 0 6.4M18 14.8c1.9.7 3.1 2.4 3.5 5.2" />
-    </svg>
-  );
-}
 function IconCrew() {
   return (
     <svg {...svg}>
@@ -75,6 +66,16 @@ function IconCrew() {
     </svg>
   );
 }
+function IconHome() {
+  return (
+    <svg {...svg}>
+      <path d="M3 11.5 12 4l9 7.5" />
+      <path d="M5.5 10v10h13V10" />
+      <circle cx="12" cy="15" r="2.4" />
+    </svg>
+  );
+}
+
 function IconCompass() {
   return (
     <svg {...svg}>

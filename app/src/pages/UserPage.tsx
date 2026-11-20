@@ -40,7 +40,7 @@ export function UserPage() {
   const match = useMemo(() => (logs ? tasteMatch(myLogs, logs) : null), [myLogs, logs]);
   const top = useMemo(() => (logs ? [...logs].sort((a, b) => b.score - a.score).slice(0, 3) : []), [logs]);
 
-  if (id === me) return <Navigate to="/" replace />;
+  if (id === me) return <Navigate to="/rankings" replace />;
   if (state.status === "loading") return <Loader label="Loading their rankings" />;
   if (state.status !== "ok") {
     return (

@@ -71,14 +71,16 @@ export function fetchCommunityLogs(): Promise<CommunityLog[]> {
   const promise = (async () => {
     const { data, error } = await db()
       .from("logs")
-      .select("user_id, artist, score")
+      .select("user_id, artist, score, event, venue_score")
       .order("created_at", { ascending: false })
       .limit(5000);
     if (error) return [];
-    return (data as { user_id: string; artist: string; score: number }[]).map((r) => ({
+    return (data as { user_id: string; artist: string; score: number; event: string; venue_score: number | null }[]).map((r) => ({
       userId: r.user_id,
       artist: r.artist,
       score: r.score,
+      event: r.event,
+      venueScore: r.venue_score,
     }));
   })();
   communityCache = { at: Date.now(), promise };

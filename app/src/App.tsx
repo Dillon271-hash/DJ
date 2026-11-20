@@ -6,6 +6,7 @@ import { Welcome } from "./pages/Welcome";
 import { ResetPassword } from "./pages/ResetPassword";
 import { PickUsername } from "./pages/PickUsername";
 import { Rankings } from "./pages/Rankings";
+import { Feed } from "./pages/Feed";
 import { Loader, Vinyl } from "./components/Vinyl";
 import { Splash } from "./components/Splash";
 import { LegalViewer } from "./components/LegalViewer";
@@ -26,6 +27,8 @@ const UserPage = lazy(() => import("./pages/UserPage").then((m) => ({ default: m
 const Crews = lazy(() => import("./pages/Crews").then((m) => ({ default: m.Crews })));
 const CrewPage = lazy(() => import("./pages/CrewPage").then((m) => ({ default: m.CrewPage })));
 const Discover = lazy(() => import("./pages/Discover").then((m) => ({ default: m.Discover })));
+const Saved = lazy(() => import("./pages/Saved").then((m) => ({ default: m.Saved })));
+const Activity = lazy(() => import("./pages/Activity").then((m) => ({ default: m.Activity })));
 const Charts = lazy(() => import("./pages/Charts").then((m) => ({ default: m.Charts })));
 
 function App() {
@@ -97,7 +100,8 @@ function Screens(): ReactNode {
       <main className="content">
         <Suspense fallback={<Loader />}>
           <Routes>
-            <Route path="/" element={<Rankings />} />
+            <Route path="/" element={<Feed />} />
+            <Route path="/rankings" element={<Rankings />} />
             <Route path="/log" element={<LogSet />} />
             <Route path="/log/:artist" element={<LogFlow />} />
             <Route path="/set/:id" element={<SetDetail />} />
@@ -109,6 +113,8 @@ function Screens(): ReactNode {
             <Route path="/crews/:id" element={<CrewPage />} />
             <Route path="/charts" element={<Charts />} />
             <Route path="/discover" element={<Discover />} />
+            <Route path="/saved" element={<Saved />} />
+            <Route path="/activity" element={<Activity />} />
           </Routes>
         </Suspense>
       </main>

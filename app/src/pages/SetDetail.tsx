@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useEncoreStore } from "../lib/store";
 import { overallRank, rankInBucket } from "../lib/ranking";
 import { isVideoPath, mediaUrl } from "../lib/media";
@@ -7,6 +7,8 @@ import { formatLongDate } from "../lib/dates";
 import { BUCKET_LABEL, type SetLog } from "../lib/types";
 import { Loader } from "../components/Vinyl";
 import { UserAvatar } from "../components/UserAvatar";
+import { PostActions } from "../components/PostActions";
+import { Comments } from "../components/Comments";
 
 type Shared =
   | { status: "loading" }
@@ -18,6 +20,9 @@ export function SetDetail() {
   const navigate = useNavigate();
   const logs = useEncoreStore((s) => s.logs);
   const logsLoading = useEncoreStore((s) => s.logsLoading);
+  const me = useEncoreStore((s) => s.session?.user.id ?? "");
+  // Opened from a feed card's comment button → jump to the thread.
+  const wantsComments = useLocation().hash === "#comments";
 
   const mine = logs.find((l) => l.id === id);
   // Not one of mine (once mine have loaded) → it's someone else's set,
@@ -44,7 +49,7 @@ export function SetDetail() {
     return (
       <div className="empty-state">
         <p>That set doesn't exist anymore.</p>
-        <button className="ghost-btn" onClick={() => navigate("/")}>
+        <button className="ghost-btn" onClick={() => navigate("/rankings")}>
           Back to rankings
         </button>
       </div>
@@ -139,6 +144,12 @@ export function SetDetail() {
         </>
       )}
 
+      <PostActions
+        log={log}
+        ownerName={owner?.name}
+        onComment={() => document.getElementById("comments")?.querySelector("textarea")?.focus()}
+      />
+
       <hr className="perf" />
       <div className="stat-grid">
         <div className="stat">
@@ -154,6 +165,8 @@ export function SetDetail() {
           <span>Total logs</span>
         </div>
       </div>
+
+      <Comments logId={log.id} ownerId={owner?.id ?? me} autoFocus={wantsComments} />
     </div>
   );
 }

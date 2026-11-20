@@ -198,7 +198,7 @@ export function CrewPage() {
         </div>
         <div className="lineup">
           {memberSpins.map((m, i) => (
-            <Link key={m.id} to={m.id === me ? "/" : `/u/${m.id}`} className="lineup-row">
+            <Link key={m.id} to={m.id === me ? "/rankings" : `/u/${m.id}`} className="lineup-row">
               <span className="lineup-pos">{i + 1}</span>
               <UserAvatar id={m.id} name={m.name} size={34} />
               <span className="lineup-name">

@@ -7,6 +7,9 @@ import { splitVenue } from "../lib/venueNames";
 import { ScorePill } from "../components/ScorePill";
 import { BUCKET_LABEL } from "../lib/types";
 import { Vinyl } from "../components/Vinyl";
+import { useCommunityScores } from "../lib/community";
+import { ScoreTrio } from "../components/ScoreTrio";
+import { CommunitySection } from "../components/CommunitySection";
 
 export function VenuePage() {
   const { name } = useParams();
@@ -23,6 +26,7 @@ export function VenuePage() {
   );
 
   const { name: venueName, place } = splitVenue(venue);
+  const { items, summary, loading } = useCommunityScores("venue", venue);
   const [image, setImage] = useState<string | null | undefined>(undefined);
 
   useEffect(() => {
@@ -60,6 +64,8 @@ export function VenuePage() {
         {place && <p className="venue-hero-place">{place}</p>}
       </div>
 
+      <ScoreTrio summary={summary} loading={loading} />
+
       {count > 0 ? (
         <div className="artist-stats">
           <div className="stat">
@@ -77,15 +83,17 @@ export function VenuePage() {
         </div>
       ) : (
         <p style={{ textAlign: "center", color: "var(--smoke)" }}>
-          No rated visits to {venue} yet.
+          You haven't rated {venueName} yet.
         </p>
       )}
+
+      {items && <CommunitySection items={items} kind="venue" />}
 
       {count > 0 && (
         <>
           <hr className="perf" style={{ margin: "1.8rem 0 0.6rem" }} />
           <div className="eyebrow" style={{ margin: "0 0 0.4rem" }}>
-            Sets logged here
+            Your visits
           </div>
           <div>
             {visits.map((log) => (

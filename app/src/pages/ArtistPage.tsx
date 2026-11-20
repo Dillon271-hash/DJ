@@ -8,6 +8,9 @@ import { Loader } from "../components/Vinyl";
 import { genresOf } from "../lib/genres";
 import { similarArtists } from "../lib/recommend";
 import { ArtistPhoto } from "../components/ArtistPhoto";
+import { useCommunityScores } from "../lib/community";
+import { ScoreTrio } from "../components/ScoreTrio";
+import { CommunitySection } from "../components/CommunitySection";
 
 export function ArtistPage() {
   const { name } = useParams();
@@ -23,6 +26,7 @@ export function ArtistPage() {
     [logs, artist],
   );
 
+  const { items, summary, loading } = useCommunityScores("artist", artist);
   const [image, setImage] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(true);
 
@@ -102,6 +106,8 @@ export function ArtistPage() {
 
       {bio && <p className="artist-bio">{bio}</p>}
 
+      <ScoreTrio summary={summary} loading={loading} />
+
       {count > 0 ? (
         <div className="artist-stats">
           <div className="stat">
@@ -130,6 +136,8 @@ export function ArtistPage() {
       >
         Log a set by {artist}
       </button>
+
+      {items && <CommunitySection items={items} kind="artist" />}
 
       {similar.length > 0 && (
         <section style={{ marginTop: "1.8rem" }}>

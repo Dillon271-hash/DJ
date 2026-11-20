@@ -475,3 +475,89 @@ create policy "Crew members can remove the crew photo"
       else false
     end
   );
+
+-- ============================================================
+-- Likes and comments on logged sets. Visible to all signed-in users;
+-- you can only like/comment as yourself, remove your own likes/comments,
+-- and remove comments left on your own sets.
+-- ============================================================
+create table if not exists public.log_likes (
+  log_id uuid not null references public.logs (id) on delete cascade,
+  user_id uuid not null default auth.uid() references public.profiles (id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (log_id, user_id)
+);
+
+create table if not exists public.log_comments (
+  id uuid primary key default gen_random_uuid(),
+  log_id uuid not null references public.logs (id) on delete cascade,
+  user_id uuid not null default auth.uid() references public.profiles (id) on delete cascade,
+  body text not null check (char_length(trim(body)) between 1 and 500),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists log_comments_log_id_idx on public.log_comments (log_id, created_at);
+
+alter table public.log_likes enable row level security;
+alter table public.log_comments enable row level security;
+
+drop policy if exists "Signed-in users can see likes" on public.log_likes;
+create policy "Signed-in users can see likes"
+  on public.log_likes for select to authenticated using (true);
+
+drop policy if exists "Like as yourself" on public.log_likes;
+create policy "Like as yourself"
+  on public.log_likes for insert to authenticated with check (user_id = auth.uid());
+
+drop policy if exists "Unlike your own likes" on public.log_likes;
+create policy "Unlike your own likes"
+  on public.log_likes for delete to authenticated using (user_id = auth.uid());
+
+drop policy if exists "Signed-in users can see comments" on public.log_comments;
+create policy "Signed-in users can see comments"
+  on public.log_comments for select to authenticated using (true);
+
+drop policy if exists "Comment as yourself" on public.log_comments;
+create policy "Comment as yourself"
+  on public.log_comments for insert to authenticated with check (user_id = auth.uid());
+
+drop policy if exists "Delete your comments or comments on your sets" on public.log_comments;
+create policy "Delete your comments or comments on your sets"
+  on public.log_comments for delete to authenticated
+  using (
+    user_id = auth.uid()
+    or exists (select 1 from public.logs l where l.id = log_id and l.user_id = auth.uid())
+  );
+
+-- ============================================================
+-- Want to see: saving other people's sets. Your saves are private to
+-- you — except that a set's owner can see who saved it (that's their
+-- notification).
+-- ============================================================
+create table if not exists public.saved_sets (
+  user_id uuid not null default auth.uid() references public.profiles (id) on delete cascade,
+  log_id uuid not null references public.logs (id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (user_id, log_id)
+);
+
+create index if not exists saved_sets_log_id_idx on public.saved_sets (log_id);
+create index if not exists log_likes_log_id_idx on public.log_likes (log_id);
+
+alter table public.saved_sets enable row level security;
+
+drop policy if exists "See your saves and saves of your sets" on public.saved_sets;
+create policy "See your saves and saves of your sets"
+  on public.saved_sets for select to authenticated
+  using (
+    user_id = auth.uid()
+    or exists (select 1 from public.logs l where l.id = log_id and l.user_id = auth.uid())
+  );
+
+drop policy if exists "Save as yourself" on public.saved_sets;
+create policy "Save as yourself"
+  on public.saved_sets for insert to authenticated with check (user_id = auth.uid());
+
+drop policy if exists "Unsave your own saves" on public.saved_sets;
+create policy "Unsave your own saves"
+  on public.saved_sets for delete to authenticated using (user_id = auth.uid());

@@ -8,7 +8,8 @@ const SECTIONS: [RegExp, string][] = [
   [/^\/crews/, "crews"],
   [/^\/charts/, "charts"],
   [/^\/(artist|venue|set)\//, "detail"],
-  [/^\/$/, "rankings"],
+  [/^\/rankings/, "rankings"],
+  [/^\/$/, "people"],
 ];
 
 export function Ambient() {

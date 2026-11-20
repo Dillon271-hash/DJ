@@ -7,6 +7,7 @@ import { AvatarThumb } from "./AvatarThumb";
 import { ScoreRing } from "./ScoreRing";
 import { MediaStrip } from "./MediaStrip";
 import { BUCKET_LABEL } from "../lib/types";
+import { PostActions } from "./PostActions";
 
 // One set in a feed: who, what they rated, their note and photos inline.
 export function FeedCard({ item: { log, person }, near = false }: { item: FeedItem; near?: boolean }) {
@@ -45,6 +46,7 @@ export function FeedCard({ item: { log, person }, near = false }: { item: FeedIt
           </button>
         </div>
       )}
+      <PostActions log={log} ownerName={person.name} />
       <span className="sr-only">{BUCKET_LABEL[log.bucket]}</span>
     </article>
   );

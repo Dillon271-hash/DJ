@@ -138,7 +138,7 @@ function Podium({ rows, board, mine }: { rows: BoardRow[]; board: Board; mine: S
         r ? (
           <Link
             key={r.id}
-            to={board === "solo" ? (mine.has(r.id) ? "/" : `/u/${r.id}`) : `/crews/${r.id}`}
+            to={board === "solo" ? (mine.has(r.id) ? "/rankings" : `/u/${r.id}`) : `/crews/${r.id}`}
             className={`chart-step place-${places[i]}${mine.has(r.id) ? " mine" : ""}`}
           >
             <span className="chart-medal">{places[i]}</span>
@@ -160,7 +160,7 @@ function Podium({ rows, board, mine }: { rows: BoardRow[]; board: Board; mine: S
 }
 
 function ChartRow({ row, pos, board, me, highlight }: { row: BoardRow; pos: number; board: Board; me: string; highlight: boolean }) {
-  const to = board === "solo" ? (row.id === me ? "/" : `/u/${row.id}`) : `/crews/${row.id}`;
+  const to = board === "solo" ? (row.id === me ? "/rankings" : `/u/${row.id}`) : `/crews/${row.id}`;
   return (
     <Link to={to} className={`chart-row${highlight ? " mine" : ""}`}>
       <span className="chart-pos">{pos}</span>
