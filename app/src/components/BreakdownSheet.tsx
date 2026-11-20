@@ -6,6 +6,7 @@ import { formatShortDate } from "../lib/dates";
 import { Sheet } from "./Sheet";
 import { ScoreRing } from "./ScoreRing";
 import { AvatarThumb } from "./AvatarThumb";
+import { Doodle } from "./Doodle";
 
 interface Group {
   key: string;
@@ -102,9 +103,7 @@ export function BreakdownSheet({
                 {kind === "venue" ? (
                   <AvatarThumb name={g.label} />
                 ) : (
-                  <span className="venue-search-icon" aria-hidden="true">
-                    🏛
-                  </span>
+                  <Doodle kind="venue" />
                 )}
                 <div className="info">
                   <div className="who">{g.label}</div>

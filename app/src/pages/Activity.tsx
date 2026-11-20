@@ -4,6 +4,7 @@ import { useActivity, type ActivityItem } from "../lib/activity";
 import { timeAgo } from "../lib/dates";
 import { Loader } from "../components/Vinyl";
 import { UserAvatar } from "../components/UserAvatar";
+import { Doodle, type DoodleKind } from "../components/Doodle";
 
 const VERB: Record<ActivityItem["kind"], string> = {
   like: "liked your",
@@ -12,7 +13,7 @@ const VERB: Record<ActivityItem["kind"], string> = {
   tag: "tagged you in their",
 };
 
-const ICON: Record<ActivityItem["kind"], string> = { like: "♥", comment: "💬", save: "🔖", tag: "🏷" };
+const ICON: Record<ActivityItem["kind"], DoodleKind> = { like: "heart", comment: "comment", save: "save", tag: "tag" };
 
 // Notifications.
 export function Activity() {
@@ -54,9 +55,7 @@ export function Activity() {
             <li key={i.id} className={`activity-item ${i.kind}${i.at > seenAt ? " new" : ""}`}>
               <Link to={`/u/${i.user.id}`} className="activity-avatar">
                 <UserAvatar id={i.user.id} name={i.user.name} size={40} />
-                <span className="activity-icon" aria-hidden="true">
-                  {ICON[i.kind]}
-                </span>
+                <Doodle kind={ICON[i.kind]} size={24} className="activity-icon" />
               </Link>
               <Link to={i.kind === "tag" ? "/" : `/set/${i.logId}${i.kind === "comment" ? "#comments" : ""}`} className="activity-text">
                 <span>

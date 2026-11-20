@@ -5,7 +5,7 @@ import type { SetLog } from "../lib/types";
 import { useSaved } from "../lib/saved";
 import { useEncoreStore } from "../lib/store";
 
-// ♥ like · 💬 comment · ↗ share — under every post.
+// Like · comment · share — under every post.
 export function PostActions({
   log,
   ownerName,

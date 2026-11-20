@@ -7,6 +7,7 @@ import type { FeedItem } from "../lib/social";
 import { Loader } from "../components/Vinyl";
 import { ArtistPhoto } from "../components/ArtistPhoto";
 import { FeedCard } from "../components/FeedCard";
+import { Doodle } from "../components/Doodle";
 
 // Want to see: everything you've saved from other people's posts, rolled
 // up into the artists you want to see and the venues you want to go to.
@@ -118,9 +119,7 @@ export function Saved() {
           {view === "venues" &&
             venues.map((v) => (
               <Link key={v.name} to={`/venue/${encodeURIComponent(v.event)}`} className="rank-row rank-row-standalone">
-                <span className="venue-search-icon" aria-hidden="true">
-                  🏛
-                </span>
+                <Doodle kind="venue" />
                 <div className="info">
                   <div className="who">{v.name}</div>
                   <div className="meta">

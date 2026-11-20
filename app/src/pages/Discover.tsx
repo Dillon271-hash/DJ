@@ -13,6 +13,7 @@ import { ScoreRing } from "../components/ScoreRing";
 import { AvatarThumb } from "../components/AvatarThumb";
 import { CitySheet, PinIcon } from "../components/CitySheet";
 import { SearchAll } from "../components/SearchAll";
+import { Doodle } from "../components/Doodle";
 
 export function Discover() {
   const me = useEncoreStore((s) => s.session?.user.id ?? "");
@@ -300,7 +301,7 @@ function ShowRow({ show }: { show: ShowListing & { tag: "loved" | "rec" | "seen"
         </span>
         {show.tag && (
           <span className={`show-tag ${show.tag}`}>
-            {show.tag === "loved" ? "♥ You loved them" : show.tag === "rec" ? "Recommended for you" : "You've seen them"}
+            {show.tag === "loved" ? <><Doodle kind="heart" size={14} bare /> You loved them</> : show.tag === "rec" ? "Recommended for you" : "You've seen them"}
           </span>
         )}
       </span>

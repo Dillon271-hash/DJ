@@ -6,6 +6,7 @@ import { taggedArtists, genresOf } from "../lib/genres";
 import type { CommunityLog } from "../lib/recommend";
 import { splitVenue } from "../lib/venueNames";
 import { AvatarThumb } from "./AvatarThumb";
+import { Doodle } from "./Doodle";
 
 // Artist + venue search (Discover). Draws on the built-in lists plus
 // everything anyone on Disko has logged.
@@ -88,9 +89,7 @@ export function SearchAll({ query, community }: { query: string; community: Comm
           <div className="section-label">Venues &amp; festivals</div>
           {venueHits.map((v) => (
             <Link key={v.name} to={`/venue/${encodeURIComponent(v.event)}`} className="rank-row rank-row-standalone">
-              <span className="venue-search-icon" aria-hidden="true">
-                {v.kind === "festival" ? "🎪" : "🏛"}
-              </span>
+              <Doodle kind={v.kind === "festival" ? "festival" : "venue"} />
               <div className="info">
                 <div className="who">{v.name}</div>
                 <div className="meta">

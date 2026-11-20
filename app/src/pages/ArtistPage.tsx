@@ -13,6 +13,7 @@ import { ScoreTrio } from "../components/ScoreTrio";
 import { CommunitySection } from "../components/CommunitySection";
 import { BreakdownSheet } from "../components/BreakdownSheet";
 import { ComboPanel } from "../components/ComboPanel";
+import { Doodle } from "../components/Doodle";
 
 export function ArtistPage() {
   const { name } = useParams();
@@ -113,7 +114,7 @@ export function ArtistPage() {
       <ScoreTrio summary={summary} loading={loading} />
 
       <button type="button" className="breakdown-btn" onClick={() => setBreakdown(true)} disabled={!items}>
-        <span aria-hidden="true">🏛</span>
+        <Doodle kind="venue" size={46} />
         <span>
           <b>Ratings at a venue</b>
           <small>{items ? `${new Set(items.map((i) => i.log.event.split(",")[0].trim().toLowerCase())).size} venues rated` : "Loading…"}</small>

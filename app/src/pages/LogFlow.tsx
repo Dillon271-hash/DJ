@@ -14,6 +14,7 @@ import { VenuePicker } from "../components/VenuePicker";
 import { WithWhoInput, type WithTag } from "../components/WithWhoInput";
 import { Busy, Vinyl } from "../components/Vinyl";
 import { spinsEarned } from "../lib/spins";
+import { Doodle } from "../components/Doodle";
 
 type Step = "where" | "bucket" | "compare" | "venue-bucket" | "venue-compare" | "details" | "done";
 
@@ -507,7 +508,7 @@ function MediaPreview({ file, onRemove }: { file: File; onRemove: () => void }) 
 
   return (
     <div className="media-preview">
-      {isImage && url ? <img src={url} alt="" /> : <span className="media-preview-icon" aria-hidden="true">🎥</span>}
+      {isImage && url ? <img src={url} alt="" /> : <Doodle kind="camera" size={52} className="media-preview-icon" />}
       <button type="button" className="media-preview-remove" onClick={onRemove} aria-label={`Remove ${file.name}`}>
         ✕
       </button>
