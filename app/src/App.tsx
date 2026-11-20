@@ -9,6 +9,7 @@ import { Rankings } from "./pages/Rankings";
 import { Loader, Vinyl } from "./components/Vinyl";
 import { Splash } from "./components/Splash";
 import { LegalViewer } from "./components/LegalViewer";
+import { Ambient } from "./components/Ambient";
 import { useEncoreStore } from "./lib/store";
 import { isSupabaseConfigured } from "./lib/supabase";
 
@@ -90,6 +91,7 @@ function Screens(): ReactNode {
 
   return (
     <div className="app-shell">
+      <Ambient />
       <Header />
       <BottomNav />
       <main className="content">

@@ -4914,3 +4914,134 @@ body:has(.flow) .tabbar {
   border: 2px solid var(--void);
   box-shadow: 2px 2px 0 var(--pink);
 }
+
+/* ---------- Ambient background glows ---------- */
+.app-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+main.content {
+  position: relative;
+  z-index: 1;
+}
+
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  --amb-strength: 0.2;
+  --c1: var(--glow-core);
+  --c2: var(--pink);
+  --c3: var(--violet);
+}
+
+.amb {
+  position: absolute;
+  width: 75vmax;
+  height: 75vmax;
+  border-radius: 50%;
+  opacity: var(--amb-strength);
+  will-change: transform;
+  transition:
+    background 1.2s ease,
+    opacity 1.2s ease;
+}
+
+.amb-1 {
+  top: -38vmax;
+  right: -30vmax;
+  background: radial-gradient(circle closest-side, var(--c1), transparent);
+  animation: amb-drift-1 28s ease-in-out infinite alternate;
+}
+
+.amb-2 {
+  bottom: -42vmax;
+  left: -34vmax;
+  background: radial-gradient(circle closest-side, var(--c2), transparent);
+  animation: amb-drift-2 34s ease-in-out infinite alternate;
+}
+
+.amb-3 {
+  top: 30%;
+  left: 55%;
+  width: 45vmax;
+  height: 45vmax;
+  opacity: calc(var(--amb-strength) * 0.6);
+  background: radial-gradient(circle closest-side, var(--c3), transparent);
+  animation: amb-drift-3 40s ease-in-out infinite alternate;
+}
+
+/* Each section's colours. */
+.ambient.rankings {
+  --c1: var(--glow-core);
+  --c2: var(--pink);
+  --c3: var(--glow-edge);
+}
+
+.ambient.discover {
+  --c1: var(--violet);
+  --c2: var(--pink);
+  --c3: #2457d6;
+}
+
+.ambient.people {
+  --c1: var(--pink);
+  --c2: var(--glow-edge);
+  --c3: var(--violet);
+}
+
+.ambient.crews {
+  --c1: var(--violet);
+  --c2: var(--glow-core);
+  --c3: var(--pink);
+}
+
+.ambient.charts {
+  --c1: var(--glow-edge);
+  --c2: var(--violet);
+  --c3: var(--yellow);
+}
+
+.ambient.detail {
+  --c1: var(--glow-core);
+  --c2: var(--violet);
+  --c3: var(--pink);
+}
+
+@keyframes amb-drift-1 {
+  to {
+    transform: translate(-12vmax, 10vmax) scale(1.08);
+  }
+}
+
+@keyframes amb-drift-2 {
+  to {
+    transform: translate(14vmax, -10vmax) scale(1.12);
+  }
+}
+
+@keyframes amb-drift-3 {
+  to {
+    transform: translate(-22vmax, -14vmax) scale(0.9);
+  }
+}
+
+/* Light mode: same idea, gentler. */
+:root[data-theme="light"] .ambient {
+  --amb-strength: 0.14;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .ambient {
+    --amb-strength: 0.14;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .amb {
+    animation: none;
+  }
+}
