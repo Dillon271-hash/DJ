@@ -1,11 +1,18 @@
 <!doctype html>
-<html lang="en" style="color-scheme: dark; background: #08070a">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="color-scheme" content="dark" />
+    <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#08070a" />
+    <script>
+      // Apply the saved appearance before first paint (see src/lib/theme.ts).
+      try {
+        var a = localStorage.getItem("disko-appearance");
+        if (a === "dark" || a === "light") document.documentElement.setAttribute("data-theme", a);
+      } catch (e) {}
+    </script>
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>Disko</title>
   </head>

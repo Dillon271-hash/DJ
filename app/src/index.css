@@ -1,7 +1,11 @@
 :root {
-  /* Disko is dark-only — this also keeps native controls (date picker,
-     scrollbars, autofill) dark regardless of the phone's setting. */
+  /* Follows the phone's setting unless you pick one in the account menu
+     (sets data-theme on <html>). Native controls follow along. */
   color-scheme: dark;
+  /* Fills for buttons/badges — stay vivid in both themes (the text-accent
+     colours above get darker in light mode for contrast; fills shouldn't). */
+  --fill-a: #ff3d22;
+  --fill-b: #ffb13b;
   --void: #08070a;
   --ink: #17151c;
   --ink-2: #201e27;
@@ -17,6 +21,48 @@
   --smoke: #8b8779;
   --line: rgba(239, 234, 223, 0.14);
   --radius: 14px;
+}
+
+:root[data-theme="light"] {
+  --void: #f0deb8;
+  --ink: #fbf4e2;
+  --ink-2: #ffffff;
+  --paper: #ffffff;
+  --paper-ink: #1c1408;
+  --bone: #1c1408;
+  --bone-dim: #55503f;
+  --glow-core: #e02c14;
+  --glow-edge: #b3790a;
+  --pink: #c8115f;
+  --violet: #4b1fa6;
+  --yellow: #ffd000;
+  --fill-a: #ff4a1c;
+  --fill-b: #ffa726;
+  --smoke: #726b57;
+  --line: rgba(28, 20, 8, 0.16);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --void: #f0deb8;
+    --ink: #fbf4e2;
+    --ink-2: #ffffff;
+    --paper: #ffffff;
+    --paper-ink: #1c1408;
+    --bone: #1c1408;
+    --bone-dim: #55503f;
+    --glow-core: #e02c14;
+    --glow-edge: #b3790a;
+    --pink: #c8115f;
+    --violet: #4b1fa6;
+    --yellow: #ffd000;
+    --fill-a: #ff4a1c;
+    --fill-b: #ffa726;
+    --smoke: #726b57;
+    --line: rgba(28, 20, 8, 0.16);
+    color-scheme: light;
+  }
 }
 
 * {
@@ -346,7 +392,7 @@ main.content {
 }
 
 .pill.loved {
-  background: linear-gradient(135deg, var(--glow-core), var(--glow-edge));
+  background: linear-gradient(135deg, var(--fill-a), var(--fill-b));
   color: #1a0800;
 }
 
@@ -375,7 +421,7 @@ main.content {
 }
 
 .score-ring.loved {
-  background: linear-gradient(135deg, var(--glow-core), var(--glow-edge));
+  background: linear-gradient(135deg, var(--fill-a), var(--fill-b));
   color: #1a0800;
 }
 
@@ -850,7 +896,7 @@ main.content {
 
 /* ---------- Buckets (shared identity) ---------- */
 :root {
-  --bucket-loved: linear-gradient(135deg, var(--glow-core), var(--glow-edge));
+  --bucket-loved: linear-gradient(135deg, var(--fill-a), var(--fill-b));
 }
 
 /* ---------- Log flow: full-screen steps ---------- */
@@ -1361,7 +1407,7 @@ main.content {
 }
 
 .compare-progress span.done {
-  background: var(--glow-edge);
+  background: var(--fill-b);
 }
 
 .compare-progress span.current {
@@ -2593,7 +2639,7 @@ main.content {
 }
 
 .plus-btn.accept {
-  background: var(--glow-edge);
+  background: var(--fill-b);
 }
 
 .plus-btn.danger {
@@ -2908,7 +2954,7 @@ main.content {
   align-items: center;
   padding: 0.18rem 0.55rem;
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--glow-core), var(--glow-edge));
+  background: linear-gradient(135deg, var(--fill-a), var(--fill-b));
   color: #140d00;
   font-family: "SF Mono", Menlo, monospace;
   font-size: 0.64rem;
@@ -2978,7 +3024,7 @@ a.spins-card:hover .spins-record {
   width: calc(var(--p) * 100%);
   min-width: 6px;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--glow-core), var(--glow-edge));
+  background: linear-gradient(90deg, var(--fill-a), var(--fill-b));
   transition: width 0.8s ease;
 }
 
@@ -3449,8 +3495,8 @@ a.spins-card:hover .spins-record {
 }
 
 .invite-pick.on .check {
-  background: var(--glow-edge);
-  border-color: var(--glow-edge);
+  background: var(--fill-b);
+  border-color: var(--fill-b);
   color: #140d00;
   font-weight: 800;
 }
@@ -3528,7 +3574,7 @@ a.spins-card:hover .spins-record {
 }
 
 .place-1 .chart-medal {
-  background: linear-gradient(135deg, var(--yellow), var(--glow-edge));
+  background: linear-gradient(135deg, var(--yellow), var(--fill-b));
   right: calc(50% - 3rem);
 }
 
@@ -3719,7 +3765,7 @@ main.content {
   height: 4px;
   margin-left: -2px;
   border-radius: 50%;
-  background: var(--glow-edge);
+  background: var(--fill-b);
 }
 
 .tab-badge {
@@ -4996,6 +5042,17 @@ main.content {
   }
 }
 
+/* Light mode: same glows, gentler. */
+:root[data-theme="light"] .ambient {
+  --amb-strength: 0.16;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .ambient {
+    --amb-strength: 0.16;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .amb {
     animation: none;
@@ -5005,4 +5062,33 @@ main.content {
 /* Edge-to-edge on notched iPhones (viewport-fit=cover). */
 .topbar {
   padding-top: calc(0.9rem + env(safe-area-inset-top));
+}
+
+/* ---------- Light mode polish ---------- */
+:root[data-theme="light"] .tier-chip,
+:root[data-theme="light"] .rec-near {
+  color: #1c0b00;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .tier-chip {
+    color: #1c0b00;
+  }
+}
+
+/* Sticker buttons keep a crisp dark outline on cream. */
+:root[data-theme="light"] .sticker-btn,
+:root[data-theme="light"] .plus-btn:not(.on):not(.pending):not(.ghost):not(.danger) {
+  border-color: #1c1408;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .sticker-btn,
+  :root:not([data-theme="dark"]) .plus-btn:not(.on):not(.pending):not(.ghost):not(.danger) {
+    border-color: #1c1408;
+  }
+}
+
+.appearance-seg {
+  margin: 0.2rem 0 0.4rem;
 }
